@@ -65,4 +65,10 @@ footer {
   margin-top: 4rem;
 }
 
+.profile-img {
+  width: 150px;  /* Puedes ajustar este valor */
+  height: auto;
+  border-radius: 50%; /* Opcional: le da forma circular */
+}
+
 </html>
