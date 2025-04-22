@@ -66,10 +66,72 @@ footer {
 }
 
 .profile-img {
-  width: 300px;  /* Puedes ajustar este valor */
-  height: 450px;
-  border-radius: 0%; /* Opcional: le da forma circular */
+  width: 100%;  /* Se ajusta al tamaño de la pantalla */
+  max-width: 300px;  /* Tamaño máximo */
+  height: auto;  /* Mantiene la proporción */
+  border-radius: 50%; /* Si quieres la imagen circular */
   object-fit: cover;
 }
 
-</html>
+/* Mobile Styles */
+@media screen and (max-width: 768px) {
+  header.hero {
+    padding: 3rem 1.5rem; /* Menos padding en móviles */
+  }
+
+  header.hero h1 {
+    font-size: 2.5rem; /* Tamaño más pequeño */
+  }
+
+  header.hero p {
+    font-size: 1rem;
+  }
+
+  section {
+    max-width: 90%; /* Se ajusta a pantallas más pequeñas */
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  h2 {
+    font-size: 1.7rem; /* Ajuste en títulos */
+  }
+
+  .profile-img {
+    max-width: 80%; /* Un poco más pequeña en móvil */
+  }
+
+  footer {
+    font-size: 0.8rem; /* Texto más pequeño en pie de página */
+    padding: 1.5rem;
+  }
+}
+
+/* Very small screens (e.g., smartphones) */
+@media screen and (max-width: 480px) {
+  header.hero h1 {
+    font-size: 1.8rem; /* Título más pequeño */
+  }
+
+  header.hero p {
+    font-size: 0.9rem;
+  }
+
+  section {
+    max-width: 95%;
+    margin: 1.5rem auto;
+  }
+
+  h2 {
+    font-size: 1.5rem; /* Títulos más pequeños */
+  }
+
+  .profile-img {
+    max-width: 100%; /* La imagen ocupa todo el ancho */
+  }
+
+  footer {
+    font-size: 0.7rem;
+    padding: 1rem;
+  }
+}
