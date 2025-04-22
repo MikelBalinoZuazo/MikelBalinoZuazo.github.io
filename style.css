@@ -69,7 +69,7 @@ footer {
   width: 100%;  /* Se ajusta al tamaño de la pantalla */
   max-width: 300px;  /* Tamaño máximo */
   height: auto;  /* Mantiene la proporción */
-  border-radius: 50%; /* Si quieres la imagen circular */
+  border-radius: 0%; /* Si quieres la imagen circular */
   object-fit: cover;
 }
 
