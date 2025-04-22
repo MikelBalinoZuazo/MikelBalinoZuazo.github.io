@@ -67,7 +67,7 @@ footer {
 
 .profile-img {
   width: 300px;  /* Puedes ajustar este valor */
-  height: 150px;
+  height: 300px;
   border-radius: 0%; /* Opcional: le da forma circular */
   object-fit: cover;
 }
