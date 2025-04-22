@@ -69,6 +69,7 @@ footer {
   width: 300px;  /* Puedes ajustar este valor */
   height: 150px;
   border-radius: 0%; /* Opcional: le da forma circular */
+  object-fit: cover;
 }
 
 </html>
