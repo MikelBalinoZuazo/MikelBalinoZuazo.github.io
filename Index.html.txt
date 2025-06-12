@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mikel Baliño Zuazo | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
+
+  <style>
+    html, body {
+      margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+    }
+    #renderCanvas {
+      width: 100%;
+      height: 500px;
+      display: block;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
+    }
+    .ui-button {
+      position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
+      border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="profile">
+      <img src="images/foto.jpeg" alt="Mikel Baliño Zuazo" class="profile-img" />
+      <h1>Mikel Baliño Zuazo</h1>
+      <p>Engineering Draftsman · 3D Designer · BIM Specialist</p>
+    </div>
+  </header>
+
+  <section class="about" id="about">
+    <h2>About me</h2>
+    <p>
+      I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.
+    </p>
+  </section>
+
+  <section class="toc" id="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+      <li><a href="#cad">CAD Drawings</a></li>
+      <li><a href="#3d-models">3D Models</a></li>
+      <li><a href="#renders">Renders</a></li>
+      <li><a href="#animations">Animations</a></li>
+    </ul>
+  </section>
+
+  <section id="cad">
+    <h2>CAD Drawings</h2>
+    <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
+    <!-- Add images or links to your drawings here -->
+  </section>
+
+  <section id="3d-models">
+    <h2>3D Models</h2>
+    <p>Interactive 3D model. You can rotate, zoom, and explore the model below.</p>
+
+    <canvas id="renderCanvas"></canvas>
+    <button class="ui-button" onclick="resetCamera()">Reset View</button>
+
+  </section>
+
+  <section id="renders">
+    <h2>Renders</h2>
+    <p>Photorealistic renders showcasing lighting, materials, and composition.</p>
+    <!-- Add render images here -->
+  </section>
+
+  <section id="animations">
+    <h2>Animations</h2>
+    <p>Motion graphics or flythrough animations to explore spaces dynamically.</p>
+    <!-- Embed videos or links -->
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank">Social network</a></p>
+  </footer>
+
+  <!-- Babylon.js CDN -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
+  <script>
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
+    const scene = new BABYLON.Scene(engine);
+
+    // Camera setup
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
+
+    // Light setup
+    const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+
+    // Save initial camera position
+    const initialAlpha = camera.alpha;
+    const initialBeta = camera.beta;
+    const initialRadius = camera.radius;
+    const initialTarget = camera.target.clone();
+
+    // Reset camera button function
+    function resetCamera() {
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
+    }
+
+    // Load your .glb model (place it next to this HTML file)
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
+      scene.createDefaultCameraOrLight(true, true, true);
+    });
+
+    engine.runRenderLoop(() => { scene.render(); });
+    window.addEventListener("resize", () => engine.resize());
+  </script>
+</body>
+</html>
