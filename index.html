@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mikel Baliño Zuazo | Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 </head>
-
 <body>
   <header class="hero">
     <div class="profile">
@@ -21,7 +22,7 @@
   <section class="about" id="about">
     <h2>About me</h2>
     <p>
-      I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.
+      I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I am specialized in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.
     </p>
   </section>
 
@@ -40,62 +41,39 @@
     <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
   </section>
 
-  <!-- SECCIÓN 3D MODELS CON VISUALIZADOR BABYLON.JS -->
   <section id="3d-models">
     <h2>3D Models</h2>
-    <p>3D representations of architectural concepts and detailed models using Rhino and Grasshopper.</p>
-
-    <div id="renderCanvasContainer" style="width: 100%; height: 600px;">
-      <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
-    </div>
-
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+    <canvas id="renderCanvas" style="width: 100%; height: 600px;"></canvas>
     <script>
-      window.addEventListener('DOMContentLoaded', function () {
-        const canvas = document.getElementById('renderCanvas');
-        const engine = new BABYLON.Engine(canvas, true);
+      const canvas = document.getElementById("renderCanvas");
+      const engine = new BABYLON.Engine(canvas, true);
+
+      const createScene = function () {
         const scene = new BABYLON.Scene(engine);
+        scene.clearColor = new BABYLON.Color3(0.95, 0.95, 0.95); // Fondo claro
 
-        scene.clearColor = new BABYLON.Color4(0.95, 0.95, 0.95, 1); // Fondo gris claro
-
-        // Luz hemisférica ambiental
-        const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-        hemiLight.intensity = 0.7;
-
-        // Luz direccional para sombras
-        const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
-        dirLight.intensity = 2;
-        dirLight.position = new BABYLON.Vector3(20, 40, 20);
-
-        const shadowGenerator = new BABYLON.ShadowGenerator(2048, dirLight);
-        shadowGenerator.useExponentialShadowMap = true;
-        shadowGenerator.forceBackFacesOnly = true;
-
-        // Cámara orbital
-        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
         camera.attachControl(canvas, true);
-        camera.lowerRadiusLimit = 2;
-        camera.upperRadiusLimit = 50;
-        camera.wheelDeltaPercentage = 0.01;
+        camera.wheelDeltaPercentage = 0.01; // Zoom suave
+        camera.panningSensibility = 50;      // Activar pan (Shift + click)
 
-        // Suelo para recibir sombras
-        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
-        ground.receiveShadows = true;
-        ground.position.y = -1;
+        const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+        hemiLight.intensity = 1.2;
 
-        // Cargar el modelo 3D
-        BABYLON.SceneLoader.Append("https://mikelbalinozuazo.github.io/", "modelo.gltf", scene, function (scene) {
-          scene.meshes.forEach(mesh => {
-            shadowGenerator.addShadowCaster(mesh);
-          });
-          engine.runRenderLoop(() => scene.render());
-        }, null, function (scene, message) {
-          console.error("Error al cargar el modelo:", message);
+        const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+        dirLight.position = new BABYLON.Vector3(20, 40, 20);
+        dirLight.intensity = 2;
+
+        BABYLON.SceneLoader.Append("https://mikelbalinozuazo.github.io/", "modelo.glb", scene, function (scene) {
+          scene.createDefaultEnvironment({ createSkybox: false });
         });
 
-        window.addEventListener('resize', () => engine.resize());
-      });
+        return scene;
+      };
+
+      const scene = createScene();
+      engine.runRenderLoop(() => scene.render());
+      window.addEventListener("resize", () => engine.resize());
     </script>
   </section>
 
