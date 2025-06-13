@@ -113,9 +113,15 @@
     }
 
     // Load your .glb model (place it next to this HTML file)
-    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
-      scene.createDefaultCameraOrLight(true, true, true);
-    });
+   BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
+  scene.meshes.forEach(mesh => {
+    if (mesh.material) {
+      const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
+      whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Color blanco
+      mesh.material = whiteMaterial;
+    }
+  });
+});
 
     engine.runRenderLoop(() => { scene.render(); });
     window.addEventListener("resize", () => engine.resize());
