@@ -1,5 +1,5 @@
 //Modelo visible
-<!DOCTYPE html>More actions
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -12,6 +12,7 @@
   <style>
     html, body {
       margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+      height: 100%;
     }
     #renderCanvas {
       width: 100%;
@@ -23,6 +24,11 @@
     .ui-button {
       position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
+      z-index: 10;
+    }
+    .ui-button + .ui-button {
+      left: auto;
+      right: 20px;
     }
   </style>
 </head>
@@ -55,7 +61,6 @@
   <section id="cad">
     <h2>CAD Drawings</h2>
     <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
-    <!-- Add images or links to your drawings here -->
   </section>
 
   <section id="3d-models">
@@ -64,19 +69,18 @@
 
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()">Reset View</button>
+    <button class="ui-button" onclick="toggleFullScreen()" style="top: 60px; left: 20px;">Fullscreen</button>
 
   </section>
 
   <section id="renders">
     <h2>Renders</h2>
     <p>Photorealistic renders showcasing lighting, materials, and composition.</p>
-    <!-- Add render images here -->
   </section>
 
   <section id="animations">
     <h2>Animations</h2>
     <p>Motion graphics or flythrough animations to explore spaces dynamically.</p>
-    <!-- Embed videos or links -->
   </section>
 
   <footer>
@@ -96,6 +100,10 @@
     const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
 
+    // Enable panning (mouse right-click + drag)
+    camera.panningSensibility = 100; // default is 50, aumenta para más sensibilidad
+    camera.useAutoRotationBehavior = false;
+
     // Light setup
     const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -113,13 +121,25 @@
       camera.radius = initialRadius;
     }
 
+    // Fullscreen toggle function
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        canvas.requestFullscreen().catch(err => {
+          alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
     // Load your .glb model (place it next to this HTML file)
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
-      scene.createDefaultCameraOrLight(true, true, true);
+      // No cambiar materiales, solo setup de luz y cámara
+      // Si quieres puedes configurar alguna luz adicional aquí
     });
 
     engine.runRenderLoop(() => { scene.render(); });
     window.addEventListener("resize", () => engine.resize());
   </script>
-</body>More actions
+</body>
 </html>
