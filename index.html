@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css" />
   <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
 </head>
+
 <body>
   <header class="hero">
     <div class="profile">
@@ -37,11 +38,13 @@
   <section id="cad">
     <h2>CAD Drawings</h2>
     <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
-    <!-- Add images or links to your drawings here -->
   </section>
 
+  <!-- SECCIÓN 3D MODELS CON VISUALIZADOR BABYLON.JS -->
   <section id="3d-models">
     <h2>3D Models</h2>
+    <p>3D representations of architectural concepts and detailed models using Rhino and Grasshopper.</p>
+
     <div id="renderCanvasContainer" style="width: 100%; height: 600px;">
       <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
     </div>
@@ -54,31 +57,38 @@
         const engine = new BABYLON.Engine(canvas, true);
         const scene = new BABYLON.Scene(engine);
 
-        // Fondo blanco
-        scene.clearColor = new BABYLON.Color4(1, 1, 1, 1);
+        scene.clearColor = new BABYLON.Color4(0.95, 0.95, 0.95, 1); // Fondo gris claro
 
-        // ILUMINACIÓN MEJORADA:
+        // Luz hemisférica ambiental
         const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-        hemiLight.intensity = 1.5;
+        hemiLight.intensity = 0.7;
 
+        // Luz direccional para sombras
         const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
         dirLight.intensity = 2;
+        dirLight.position = new BABYLON.Vector3(20, 40, 20);
 
-        const env = scene.createDefaultEnvironment({
-          createGround: false,
-          createSkybox: false,
-          environmentIntensity: 1.2
-        });
+        const shadowGenerator = new BABYLON.ShadowGenerator(2048, dirLight);
+        shadowGenerator.useExponentialShadowMap = true;
+        shadowGenerator.forceBackFacesOnly = true;
 
-        // Cámara con control orbital
+        // Cámara orbital
         const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
         camera.attachControl(canvas, true);
         camera.lowerRadiusLimit = 2;
         camera.upperRadiusLimit = 50;
-        camera.wheelDeltaPercentage = 0.01; // Zoom suave
+        camera.wheelDeltaPercentage = 0.01;
 
-        // CARGA DEL MODELO
+        // Suelo para recibir sombras
+        const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
+        ground.receiveShadows = true;
+        ground.position.y = -1;
+
+        // Cargar el modelo 3D
         BABYLON.SceneLoader.Append("https://mikelbalinozuazo.github.io/", "modelo.gltf", scene, function (scene) {
+          scene.meshes.forEach(mesh => {
+            shadowGenerator.addShadowCaster(mesh);
+          });
           engine.runRenderLoop(() => scene.render());
         }, null, function (scene, message) {
           console.error("Error al cargar el modelo:", message);
@@ -92,13 +102,11 @@
   <section id="renders">
     <h2>Renders</h2>
     <p>Photorealistic renders showcasing lighting, materials, and composition.</p>
-    <!-- Add render images here -->
   </section>
 
   <section id="animations">
     <h2>Animations</h2>
     <p>Motion graphics or flythrough animations to explore spaces dynamically.</p>
-    <!-- Embed videos or links -->
   </section>
 
   <footer>
@@ -106,4 +114,3 @@
   </footer>
 </body>
 </html>
-
