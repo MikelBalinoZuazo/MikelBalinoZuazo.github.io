@@ -1,35 +1,94 @@
-<section id="3d-models">
-  <h2>3D Models</h2>
-  <div id="renderCanvasContainer" style="width: 100%; height: 600px;">
-    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mikel Baliño Zuazo | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
+</head>
+<body>
+  <header class="hero">
+    <div class="profile">
+      <img src="images/foto.jpeg" alt="Mikel Baliño Zuazo" class="profile-img" />
+      <h1>Mikel Baliño Zuazo</h1>
+      <p>Engineering Draftsman · 3D Designer · BIM Specialist</p>
+    </div>
+  </header>
 
-  <script src="https://cdn.babylonjs.com/babylon.js"></script>
-  <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
-  <script>
-    window.addEventListener('DOMContentLoaded', function () {
-      const canvas = document.getElementById('renderCanvas');
-      const engine = new BABYLON.Engine(canvas, true);
-      const scene = new BABYLON.Scene(engine);
+  <section class="about" id="about">
+    <h2>About me</h2>
+    <p>
+      I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I am specialized in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.
+    </p>
+  </section>
 
-      // Fondo blanco
-      scene.clearColor = new BABYLON.Color4(1, 1, 1, 1);
+  <section class="toc" id="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+      <li><a href="#cad">CAD Drawings</a></li>
+      <li><a href="#3d-models">3D Models</a></li>
+      <li><a href="#renders">Renders</a></li>
+      <li><a href="#animations">Animations</a></li>
+    </ul>
+  </section>
 
-      // Luces: Hemisférica (general) y direccional (sombra/volumen)
-      const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-      light1.intensity = 1.2;
+  <section id="cad">
+    <h2>CAD Drawings</h2>
+    <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
+  </section>
 
-      const light2 = new BABYLON.DirectionalLight("light2", new BABYLON.Vector3(-1, -2, -1), scene);
-      light2.intensity = 1;
+  <section id="3d-models">
+    <h2>3D Models</h2>
+    <p>3D representations of architectural concepts and detailed models using Rhino and Grasshopper.</p>
+    <div id="renderCanvasContainer" style="width: 100%; height: 600px;">
+      <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+    </div>
 
-      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 5, BABYLON.Vector3.Zero(), scene);
-      camera.attachControl(canvas, true);
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('renderCanvas');
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
 
-      BABYLON.SceneLoader.Append("./", "modelo.gltf", scene, function (scene) {
-        engine.runRenderLoop(() => scene.render());
+        // Fondo blanco
+        scene.clearColor = new BABYLON.Color4(1, 1, 1, 1);
+
+        // Luces: Hemisférica (general) y direccional (sombra/volumen)
+        const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        light1.intensity = 1.2;
+
+        const light2 = new BABYLON.DirectionalLight("light2", new BABYLON.Vector3(-1, -2, -1), scene);
+        light2.intensity = 1;
+
+        const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 5, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvas, true);
+
+        BABYLON.SceneLoader.Append("./", "modelo.gltf", scene, function (scene) {
+          engine.runRenderLoop(() => scene.render());
+        });
+
+        window.addEventListener('resize', () => engine.resize());
       });
+    </script>
+  </section>
 
-      window.addEventListener('resize', () => engine.resize());
-    });
-  </script>
-</section>
+  <section id="renders">
+    <h2>Renders</h2>
+    <p>Photorealistic renders showcasing lighting, materials, and composition.</p>
+  </section>
+
+  <section id="animations">
+    <h2>Animations</h2>
+    <p>Motion graphics or flythrough animations to explore spaces dynamically.</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank">Social network</a></p>
+  </footer>
+
+</body>
+</html>
