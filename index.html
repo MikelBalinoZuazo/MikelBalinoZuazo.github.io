@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>More actions
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,8 +10,7 @@
 
   <style>
     html, body {
-      margin: 0; padding: 0; font-family: 'Poppins', sans-serif; height: 100%;
-      overflow: hidden; /* Para evitar scroll */
+      margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
     }
     #renderCanvas {
       width: 100%;
@@ -19,17 +18,10 @@
       display: block;
       border: 1px solid #ccc;
       margin-top: 1rem;
-      touch-action: none; /* importante para control táctil */
     }
     .ui-button {
       position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
-      z-index: 10;
-      user-select: none;
-    }
-    #fullscreenBtn {
-      left: auto;
-      right: 20px;
     }
   </style>
 </head>
@@ -62,25 +54,28 @@
   <section id="cad">
     <h2>CAD Drawings</h2>
     <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
+    <!-- Add images or links to your drawings here -->
   </section>
 
-  <section id="3d-models" style="position: relative;">
+  <section id="3d-models">
     <h2>3D Models</h2>
     <p>Interactive 3D model. You can rotate, zoom, and explore the model below.</p>
 
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()">Reset View</button>
-    <button id="fullscreenBtn" class="ui-button" onclick="toggleFullscreen()">Fullscreen</button>
+
   </section>
 
   <section id="renders">
     <h2>Renders</h2>
     <p>Photorealistic renders showcasing lighting, materials, and composition.</p>
+    <!-- Add render images here -->
   </section>
 
   <section id="animations">
     <h2>Animations</h2>
     <p>Motion graphics or flythrough animations to explore spaces dynamically.</p>
+    <!-- Embed videos or links -->
   </section>
 
   <footer>
@@ -96,26 +91,20 @@
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine);
 
-    // Cámara orbital con pan activado (botón derecho / shift + click)
+    // Camera setup
     const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
-    camera.panningSensibility = 100; // para permitir pan
-    camera.wheelDeltaPercentage = 0.01; // zoom suave
 
-    // Luces
-    const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-    hemiLight.intensity = 1.0;
+    // Light setup
+    const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
-    const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
-    dirLight.position = new BABYLON.Vector3(20, 40, 20);
-    dirLight.intensity = 2;
-
-    // Guardamos la posición inicial de la cámara para resetear
+    // Save initial camera position
     const initialAlpha = camera.alpha;
     const initialBeta = camera.beta;
     const initialRadius = camera.radius;
     const initialTarget = camera.target.clone();
 
+    // Reset camera button function
     function resetCamera() {
       camera.setTarget(initialTarget);
       camera.alpha = initialAlpha;
@@ -123,40 +112,15 @@
       camera.radius = initialRadius;
     }
 
-    // Función para fullscreen del canvas
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        canvas.requestFullscreen().catch(err => {
-          alert(`Error attempting to enable fullscreen mode: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen();
-      }
-    }
-
-    // Cargar modelo glb desde el root (coloca modelo.glb en la raíz)
+    // Load your .glb model (place it next to this HTML file)
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
-      // Forzar material blanco en todo el modelo sin perder textura ni materiales:
-      scene.meshes.forEach(mesh => {
-        if (mesh.material) {
-          // Si quieres mantener textura pero aclarar, puedes ajustar aquí
-          // Pero si quieres blanco plano:
-          // mesh.material = new BABYLON.StandardMaterial("whiteMat", scene);
-          // mesh.material.diffuseColor = new BABYLON.Color3(1,1,1);
-          // Aquí optamos por aclarar el color difuso:
-          mesh.material.albedoColor = new BABYLON.Color3(1,1,1);
-        }
-      });
+    BABYLON.SceneLoader.Append("./", "modelo.gltf", scene, function (scene) {
+      scene.createDefaultCameraOrLight(true, true, true);
     });
 
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
-
-    window.addEventListener("resize", () => {
-      engine.resize();
-    });
+    engine.runRenderLoop(() => { scene.render(); });
+    window.addEventListener("resize", () => engine.resize());
   </script>
-</body>
+</body>More actions
 </html>
 
