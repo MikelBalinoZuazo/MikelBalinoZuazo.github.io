@@ -1,4 +1,4 @@
-<!DOCTYPE html>More actions
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -22,6 +22,12 @@
     .ui-button {
       position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
+    }
+    .animation-gif {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -63,7 +69,6 @@
 
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()">Reset View</button>
-
   </section>
 
   <section id="renders">
@@ -75,7 +80,10 @@
   <section id="animations">
     <h2>Animations</h2>
     <p>Motion graphics or flythrough animations to explore spaces dynamically.</p>
-    <!-- Embed videos or links -->
+
+    <!-- GIF fixed and loaded from images/animations/animation.gif -->
+    <h3>Example Animation</h3>
+    <img src="images/animations/Frame.gif" alt="Example Animation" class="animation-gif" />
   </section>
 
   <footer>
@@ -113,18 +121,18 @@
     }
 
     // Load your .glb model (place it next to this HTML file)
-   BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
-  scene.meshes.forEach(mesh => {
-    if (mesh.material) {
-      const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
-      whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Color blanco
-      mesh.material = whiteMaterial;
-    }
-  });
-});
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
+      scene.meshes.forEach(mesh => {
+        if (mesh.material) {
+          const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
+          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Color blanco
+          mesh.material = whiteMaterial;
+        }
+      });
+    });
 
     engine.runRenderLoop(() => { scene.render(); });
     window.addEventListener("resize", () => engine.resize());
   </script>
-</body>More actions
+</body>
 </html>
