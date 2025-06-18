@@ -5,12 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mikel Baliño Zuazo | Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
-
   <style>
     html, body {
       margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+    }
+    header.hero {
+      text-align: center; padding: 2rem;
+    }
+    .profile-img {
+      width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+    }
+    .language-selector {
+      position: fixed; top: 10px; right: 10px;
     }
     #renderCanvas {
       width: 100%;
@@ -29,73 +35,101 @@
       border: 1px solid #ccc;
       margin-top: 1rem;
     }
+    section {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #f0f0f0;
+      margin-top: 3rem;
+      font-size: 0.9rem;
+    }
+    a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <div class="language-selector">
+    <select id="languageSelect" aria-label="Select Language">
+      <option value="en" selected>English</option>
+      <option value="es">Español</option>
+      <option value="eu">Euskera</option>
+    </select>
+  </div>
+
   <header class="hero">
     <div class="profile">
       <img src="images/foto.jpeg" alt="Mikel Baliño Zuazo" class="profile-img" />
-      <h1>Mikel Baliño Zuazo</h1>
-      <p>Engineering Draftsman · 3D Designer · BIM Specialist</p>
+      <h1 id="name">Mikel Baliño Zuazo</h1>
+      <p id="role">Engineering Draftsman · 3D Designer · BIM Specialist</p>
     </div>
   </header>
 
   <section class="about" id="about">
-    <h2>About me</h2>
-    <p>
+    <h2 id="about-title">About me</h2>
+    <p id="about-text">
       I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.
     </p>
   </section>
 
-   <section class="what" id="what">
-    <h2>What you will find here</h2>
-    <p>
+  <section class="what" id="what">
+    <h2 id="what-title">What you will find here</h2>
+    <p id="what-text">
       This page is not intended to be a professional portfolio; therefore, you won´t find detailed information about the projects I have worked on. Instead, it serves as a showroom of the different skills i have been developing.
     </p>
   </section>
 
   <section class="toc" id="toc">
-    <h2>Table of Contents</h2>
+    <h2 id="toc-title">Table of Contents</h2>
     <ul>
-      <li><a href="#cad">CAD Drawings</a></li>
-      <li><a href="#3d-models">3D Models</a></li>
-      <li><a href="#renders">Renders</a></li>
-      <li><a href="#animations">Animations</a></li>
+      <li><a href="#cad" id="link-cad">CAD Drawings</a></li>
+      <li><a href="#3d-models" id="link-3d">3D Models</a></li>
+      <li><a href="#renders" id="link-renders">Renders</a></li>
+      <li><a href="#animations" id="link-animations">Animations</a></li>
     </ul>
   </section>
 
   <section id="cad">
-    <h2>CAD Drawings</h2>
-    <p>Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
+    <h2 id="cad-title">CAD Drawings</h2>
+    <p id="cad-text">Examples of technical 2D drawings made in AutoCAD and other drafting tools.</p>
     <!-- Add images or links to your drawings here -->
   </section>
 
-  <section id="3d-models">
-    <h2>3D Models</h2>
-    <p>Interactive 3D model. You can rotate, zoom, and explore the model below.</p>
+  <section id="3d-models" style="position: relative;">
+    <h2 id="3d-title">3D Models</h2>
+    <p id="3d-text">Interactive 3D model. You can rotate, zoom, and explore the model below.</p>
 
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()">Reset View</button>
   </section>
 
   <section id="renders">
-    <h2>Renders</h2>
-    <p>Photorealistic renders showcasing lighting, materials, and composition.</p>
+    <h2 id="renders-title">Renders</h2>
+    <p id="renders-text">Photorealistic renders showcasing lighting, materials, and composition.</p>
     <!-- Add render images here -->
   </section>
 
   <section id="animations">
-    <h2>Animations</h2>
-    <p>Animated representations of real scenarios using collected data.</p>
+    <h2 id="animations-title">Animations</h2>
+    <p id="animations-text">Animated representations of real scenarios using collected data.</p>
 
-    <!-- GIF fixed and loaded from images/animations/animation.gif -->
-    <h3>Example Animation</h3>
+    <h3 id="example-animation-title">Example Animation</h3>
     <img src="images/Frame.gif" alt="Example Animation" class="animation-gif" />
-    <p>In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties.</p>
+    <p id="example-animation-text">
+      In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties.
+    </p>
   </section>
 
   <footer>
-    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank">Social network</a></p>
+    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank" rel="noopener noreferrer">Social network</a></p>
   </footer>
 
   <!-- Babylon.js CDN -->
@@ -103,24 +137,111 @@
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
   <script>
+    const translations = {
+      en: {
+        name: "Mikel Baliño Zuazo",
+        role: "Engineering Draftsman · 3D Designer · BIM Specialist",
+        "about-title": "About me",
+        "about-text": "I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.",
+        "what-title": "What you will find here",
+        "what-text": "This page is not intended to be a professional portfolio; therefore, you won´t find detailed information about the projects I have worked on. Instead, it serves as a showroom of the different skills i have been developing.",
+        "toc-title": "Table of Contents",
+        "link-cad": "CAD Drawings",
+        "link-3d": "3D Models",
+        "link-renders": "Renders",
+        "link-animations": "Animations",
+        "cad-title": "CAD Drawings",
+        "cad-text": "Examples of technical 2D drawings made in AutoCAD and other drafting tools.",
+        "3d-title": "3D Models",
+        "3d-text": "Interactive 3D model. You can rotate, zoom, and explore the model below.",
+        "renders-title": "Renders",
+        "renders-text": "Photorealistic renders showcasing lighting, materials, and composition.",
+        "animations-title": "Animations",
+        "animations-text": "Animated representations of real scenarios using collected data.",
+        "example-animation-title": "Example Animation",
+        "example-animation-text": "In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties."
+      },
+      es: {
+        name: "Mikel Baliño Zuazo",
+        role: "Delineante · Diseñador 3D · Especialista BIM",
+        "about-title": "Sobre mí",
+        "about-text": "Soy un delineante profesional con experiencia en dibujo CAD, modelado 3D, renderizado y animación. Me especializo en el uso de Rhino, Grasshopper, AutoCAD y herramientas BIM para dar vida con precisión y creatividad a conceptos de ingeniería y arquitectura.",
+        "what-title": "Lo que encontrarás aquí",
+        "what-text": "Esta página no está pensada para ser un portfolio profesional; por lo tanto, no encontrarás información detallada sobre los proyectos en los que he trabajado. En cambio, sirve como una vitrina de las diferentes habilidades que he ido desarrollando.",
+        "toc-title": "Tabla de Contenidos",
+        "link-cad": "Dibujos CAD",
+        "link-3d": "Modelos 3D",
+        "link-renders": "Renderizados",
+        "link-animations": "Animaciones",
+        "cad-title": "Dibujos CAD",
+        "cad-text": "Ejemplos de dibujos técnicos en 2D hechos en AutoCAD y otras herramientas de dibujo.",
+        "3d-title": "Modelos 3D",
+        "3d-text": "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo abajo.",
+        "renders-title": "Renderizados",
+        "renders-text": "Renderizados fotorrealistas que muestran iluminación, materiales y composición.",
+        "animations-title": "Animaciones",
+        "animations-text": "Representaciones animadas de escenarios reales utilizando datos recopilados.",
+        "example-animation-title": "Animación de Ejemplo",
+        "example-animation-text": "En este ejemplo se ha utilizado Grasshopper para hacer un GIF del movimiento real de una noria. Con esto, se pretende demostrar la utilidad de esta herramienta a la hora de expresar ideas operativas a terceros."
+      },
+      eu: {
+        name: "Mikel Baliño Zuazo",
+        role: "Marrazkilaria · 3D Diseinatzailea · BIM Espezialista",
+        "about-title": "Nire inguruan",
+        "about-text": "Profesional marrazkilaria naiz, CAD marrazkigintzan, 3D modelatzean, errenderizazioan eta animazioan espezializatua. Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditut ingeniaritza eta arkitektura kontzeptuak zehaztasunez eta sormenarekin biziarazteko.",
+        "what-title": "Hemen aurkituko duzuna",
+        "what-text": "Orri hau ez da portfolio profesional bat; beraz, ez duzu lan egin ditudan proiektuetako informazio zehatzik aurkituko. Hala ere, nire trebetasun desberdinak erakusten dituen erakusleiho bat da.",
+        "toc-title": "Eduki Taula",
+        "link-cad": "CAD Marrazkiak",
+        "link-3d": "3D Modeloak",
+        "link-renders": "Errenderizazioak",
+        "link-animations": "Animazioak",
+        "cad-title": "CAD Marrazkiak",
+        "cad-text": "AutoCAD eta beste marrazketa tresna batzuetan egindako teknika 2D marrazkien adibideak.",
+        "3d-title": "3D Modeloak",
+        "3d-text": "3D modeloa interaktiboa. Behean modeloaren inguruan biratu, zoom egin eta esplora dezakezu.",
+        "renders-title": "Errenderizazioak",
+        "renders-text": "Argiztapen, material eta konposizioa erakusten duten errenderizazio fotorealistikoak.",
+        "animations-title": "Animazioak",
+        "animations-text": "Datu bildutako egoera errealen animazioak.",
+        "example-animation-title": "Adibide Animazioa",
+        "example-animation-text": "Adibide honetan Grasshopper erabili da ferris wheel baten mugimendu errealaren GIF bat egiteko. Honek tresna honen erabilgarritasuna erakusten du hirugarrenei funtzionamendu ideiak azaltzeko."
+      }
+    };
+
+    function setLanguage(lang) {
+      document.documentElement.lang = lang;
+      const keys = Object.keys(translations[lang]);
+      keys.forEach(id => {
+        const el = document.getElementById(id);
+        if(el){
+          el.textContent = translations[lang][id];
+        }
+      });
+    }
+
+    document.getElementById("languageSelect").addEventListener("change", (e) => {
+      setLanguage(e.target.value);
+    });
+
+    // Set default language to English
+    setLanguage("en");
+
+    // Babylon.js 3D viewer setup
     const canvas = document.getElementById("renderCanvas");
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine);
 
-    // Camera setup
     const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
 
-    // Light setup
     const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
-    // Save initial camera position
     const initialAlpha = camera.alpha;
     const initialBeta = camera.beta;
     const initialRadius = camera.radius;
     const initialTarget = camera.target.clone();
 
-    // Reset camera button function
     function resetCamera() {
       camera.setTarget(initialTarget);
       camera.alpha = initialAlpha;
@@ -128,12 +249,11 @@
       camera.radius = initialRadius;
     }
 
-    // Load your .glb model (place it next to this HTML file)
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (scene) {
       scene.meshes.forEach(mesh => {
         if (mesh.material) {
           const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
-          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // Color blanco
+          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
           mesh.material = whiteMaterial;
         }
       });
