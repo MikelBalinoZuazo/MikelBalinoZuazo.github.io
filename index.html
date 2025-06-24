@@ -216,6 +216,11 @@
       camera.radius = initialRadius;
     }
 
+    // Evitar scroll de página con la rueda cuando el ratón está sobre el canvas
+    canvas.addEventListener("wheel", function(event) {
+      event.preventDefault();
+    }, { passive: false });
+
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, scene => {
       scene.meshes.forEach(mesh => {
         if (mesh.material) {
@@ -226,8 +231,13 @@
       });
     });
 
-    engine.runRenderLoop(() => scene.render());
-    window.addEventListener("resize", () => engine.resize());
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
+
+    window.addEventListener("resize", () => {
+      engine.resize();
+    });
   </script>
 </body>
 </html>
