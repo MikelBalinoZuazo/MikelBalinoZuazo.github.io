@@ -22,7 +22,6 @@
     .ui-button {
       position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
-      z-index: 100;
     }
     .animation-gif {
       max-width: 100%;
@@ -32,29 +31,6 @@
     }
     .language-selector {
       position: fixed; top: 10px; right: 10px; z-index: 999;
-    }
-    /* --- info panel code --- */
-    #infoPanel {
-      position: absolute;
-      top: 60px;
-      right: 20px;
-      max-width: 280px;
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid #999;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      font-size: 14px;
-      color: #222;
-      z-index: 200;
-      display: none;
-    }
-    #infoPanel h3 {
-      margin-top: 0;
-      font-weight: 600;
-    }
-    #infoPanel p {
-      margin: 0.5rem 0 0 0;
     }
   </style>
 </head>
@@ -131,9 +107,6 @@
   <footer>
     <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank" data-i18n="social_link">Social network</a></p>
   </footer>
-
-  <!-- Info Panel div -->
-  <div id="infoPanel"></div>
 
   <!-- Babylon.js -->
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -228,86 +201,35 @@
 
     const canvas = document.getElementById("renderCanvas");
     const engine = new BABYLON.Engine(canvas, true);
+    const scene = new BABYLON.Scene(engine);
 
-    let scene = new BABYLON.Scene(engine);
-
-    // Camera
-    const camera = new BABYLON.ArcRotateCamera("arcCamera", -Math.PI / 2, Math.PI / 3, 6, BABYLON.Vector3.Zero(), scene);
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
 
-    // Lights
-    const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
-    const light2 = new BABYLON.DirectionalLight("light2", new BABYLON.Vector3(-1, -2, -1), scene);
-    light2.position = new BABYLON.Vector3(20, 40, 20);
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-    // Load the GLB model
-    BABYLON.SceneLoader.ImportMesh("", "https://dl.dropboxusercontent.com/s/k0it9gsjbq3tpqk/ferrisW.glb", "", scene, function (meshes) {
-      // Optionally you can do things when the model is loaded
-    });
+    const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
 
     function resetCamera() {
-      camera.setPosition(new BABYLON.Vector3(0, 4, -6));
-      camera.setTarget(BABYLON.Vector3.Zero());
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
     }
 
-    document.querySelector(".ui-button").addEventListener("click", resetCamera);
+    canvas.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    }, { passive: false });
 
-    // --- info panel code ---
-
-    const infoPanel = document.getElementById('infoPanel');
-
-    // Information database for meshes
-    const meshInfo = {
-      "wheel": {
-        title: "Ferris Wheel",
-        description: "The main wheel structure. Diameter: 30m, Material: Steel, Rotates with the motor."
-      },
-      "nacelle": {
-        title: "Nacelle",
-        description: "Houses the motor and control systems."
-      },
-      "cabins": {
-        title: "Cabins",
-        description: "Passenger cabins with seating for 4 people each."
-      },
-      "support": {
-        title: "Support Structure",
-        description: "Steel beams that support the entire wheel."
-      }
-    };
-
-    // On click on the canvas, pick mesh and show info if exists
-    canvas.addEventListener("pointerdown", function(evt) {
-      const pickResult = scene.pick(scene.pointerX, scene.pointerY);
-      if (pickResult.hit && pickResult.pickedMesh) {
-        const meshName = pickResult.pickedMesh.name.toLowerCase();
-        let infoFound = false;
-
-        // Check if the meshName or part of it matches keys in meshInfo
-        for (const key in meshInfo) {
-          if (meshName.includes(key)) {
-            const info = meshInfo[key];
-            infoPanel.innerHTML = `<h3>${info.title}</h3><p>${info.description}</p>`;
-            infoPanel.style.display = "block";
-            infoFound = true;
-            break;
-          }
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
+      scene.createDefaultCameraOrLight(true, true, true);
+      scene.meshes.forEach(mesh => {
+        if (mesh.material) {
+          const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
+          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+          mesh.material = whiteMaterial;
         }
-
-        if (!infoFound) {
-          infoPanel.style.display = "none"; // Hide panel if no info available
-        }
-      } else {
-        // Clicked outside any mesh => hide info panel
-        infoPanel.style.display = "none";
-      }
-    });
-
-    // Also close info panel if clicking outside meshes or on empty space
-    window.addEventListener('pointerdown', (evt) => {
-      if (!canvas.contains(evt.target) && !infoPanel.contains(evt.target)) {
-        infoPanel.style.display = 'none';
-      }
+      });
     });
 
     engine.runRenderLoop(() => {
