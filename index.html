@@ -221,8 +221,13 @@
       event.preventDefault();
     }, { passive: false });
 
-    BABYLON.SceneLoader.Append("./", "modelo.glb", scene);
-
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, scene => {
+      scene.meshes.forEach(mesh => {
+        if (mesh.material) {
+          const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
+          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+          mesh.material = whiteMaterial;
+        }
       });
     });
 
