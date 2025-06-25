@@ -15,13 +15,13 @@
 
     /* Ajuste de espaciado general entre secciones */
     section {
-        padding: 40px 20px; /* Reduce el padding vertical si es necesario, antes era 60px 20px */
-        margin-bottom: 0; /* Asegura que no haya margen extra abajo */
+        padding: 40px 20px !important; /* Usamos !important para asegurar que sobrescribe */
+        margin-bottom: 0 !important;
     }
     header.hero, footer {
-        padding: 40px 20px; /* Consistencia en el padding */
+        padding: 40px 20px !important;
     }
-    /* Puedes ajustar más finamente si 'style.css' tiene reglas que sobrescriben esto */
+    /* Asegúrate de que tu style.css no tenga reglas de margen/padding más fuertes */
 
 
     #renderCanvas {
@@ -73,7 +73,7 @@
     }
     #partsList li.selected {
         background-color: gold; /* Color de tu tema */
-        color: black; /* Texto blanco para mayor contraste */
+        color: black; /* Texto negro para mayor contraste */
         font-weight: bold;
     }
 
@@ -243,8 +243,8 @@
         cad_title: "CAD Marrazkiak",
         cad_text: "AutoCAD eta bestelako marrazketa tresnekin egindako 2D marrazki teknikoen adibideak.",
         models_title: "3D Ereduak",
-        models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
-        renders_title: "Renderizazioak",
+        models_text: "3D eredua interaktiboa. Puedes rotar, hacer zoom y explorar el modelo.",
+        renders_title: "Renderizados",
         renders_text: "Argiztapena, materialak eta konposizioa erakusten dituzten renderizazio fotorrealistak.",
         animations_title: "Animazioak",
         animations_text: "Datu errealekin egindako eszenatokien animazioak.",
@@ -270,11 +270,16 @@
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine);
 
+    // Cámara inicial más genérica para asegurar que siempre se vea algo
     const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
+    camera.wheelPrecision = 50; // Ajusta la sensibilidad del zoom
+    camera.lowerRadiusLimit = 2; // Distancia mínima de zoom
+    camera.upperRadiusLimit = 100; // Distancia máxima de zoom
 
     const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
+    // Guardar estado inicial de la cámara para el botón de reset
     const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
 
     function resetCamera() {
@@ -282,6 +287,15 @@
       camera.alpha = initialAlpha;
       camera.beta = initialBeta;
       camera.radius = initialRadius;
+        // Deseleccionar cualquier malla activa al resetear la vista
+        if (activeMesh) {
+            highlight.removeMesh(activeMesh);
+            const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
+            if (prevLi) {
+                prevLi.classList.remove('selected');
+            }
+            activeMesh = null;
+        }
     }
 
     canvas.addEventListener("wheel", function (event) {
@@ -292,45 +306,44 @@
     let originalMaterials = new Map();
     let activeMesh = null;
 
-    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
-      scene.createDefaultCameraOrLight(true, true, true);
-      // Ajusta el framing de la cámara al modelo completo
-      camera.useAutoRotationBehavior = false; // Desactivar rotación automática para mejor control
-      
-      // Ajustar la cámara para que el modelo se vea bien al cargar
-      if (scene.meshes.length > 0) {
-        const bounds = scene.get === undefined ? scene.getBoundingInfo() : scene.get meshes[0].getBoundingInfo(); // Fallback por si getBoundingInfo no está en scene directamente
-        // Calcular el centro de todas las mallas o del root
-        let center = BABYLON.Vector3.Zero();
-        if (scene.meshes.length > 0 && scene.getMeshByName("__root__")) {
-             center = scene.getMeshByName("__root__").position; // O su boundingInfo.boundingBox.center
-        } else if (scene.meshes.length > 1) { // Si hay varias mallas y no hay root claro
-            let min = new BABYLON.Vector3(Infinity, Infinity, Infinity);
-            let max = new BABYLON.Vector3(-Infinity, -Infinity, -Infinity);
-            scene.meshes.forEach(mesh => {
-                if (mesh.getBoundingInfo()) {
-                    min = BABYLON.Vector3.Minimize(min, mesh.getBoundingInfo().boundingBox.minimumWorld);
-                    max = BABYLON.Vector3.Maximize(max, mesh.getBoundingInfo().boundingBox.maximumWorld);
-                }
-            });
-            center = BABYLON.Vector3.Center(min, max);
-        } else if (scene.meshes.length === 1) { // Solo una malla
-            center = scene.meshes[0].position; // O su boundingInfo.boundingBox.center
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, (meshes) => { // 'meshes' es el array de mallas cargadas
+        // Crear un entorno predeterminado si no lo tienes en tu modelo GLB
+        scene.createDefaultEnvironment({
+            createGround: true, // Crea un suelo
+            createSkyBox: false // No crea un skybox por defecto, puedes añadir uno si quieres
+        });
+        
+        // La luz predeterminada ya existe, no necesitas scene.createDefaultCameraOrLight(true,true,true);
+        // Si tu modelo ya tiene cámaras y luces, esta línea puede generar conflictos.
+        // Si la eliminas, asegúrate de que haya al menos una luz en la escena.
+
+        // Si el modelo contiene un nodo "__root__", ajusta la cámara a ese nodo
+        let rootMesh = scene.getMeshByName("__root__");
+        if (rootMesh) {
+            // Ajustar la cámara para que el modelo se vea bien al cargar
+            const boundingInfo = rootMesh.getBoundingInfo();
+            if (boundingInfo) {
+                camera.setTarget(boundingInfo.boundingSphere.center);
+                camera.radius = boundingInfo.boundingSphere.radius * 2.5; // Ajusta este multiplicador
+                // Reestablecer los valores iniciales para el botón reset si cambian
+                initialAlpha = camera.alpha;
+                initialBeta = camera.beta;
+                initialRadius = camera.radius;
+                initialTarget.copyFrom(camera.target);
+            }
+        } else if (meshes && meshes.length > 0) {
+            // Si no hay un root, intenta ajustar a la primera malla cargada o a un promedio
+             const boundingInfo = scene.getBoundingInfo(); // Esto obtiene el boundingInfo de toda la escena
+             if (boundingInfo && boundingInfo.boundingSphere) {
+                camera.setTarget(boundingInfo.boundingSphere.center);
+                camera.radius = boundingInfo.boundingSphere.radius * 2.5;
+                initialAlpha = camera.alpha;
+                initialBeta = camera.beta;
+                initialRadius = camera.radius;
+                initialTarget.copyFrom(camera.target);
+            }
         }
 
-        camera.setTarget(center);
-        // Calcular radio inicial basado en el tamaño del modelo
-        const boundingBox = scene.getBoundingInfo(); // O de un mesh principal si es más complejo
-        if (boundingBox && boundingBox.boundingSphere) {
-            camera.radius = boundingBox.boundingSphere.radius * 2.5; // Ajusta este multiplicador (2.5) para el zoom inicial
-            // Ajustar posición de la cámara si el centro del modelo no está en (0,0,0)
-            camera.alpha = initialAlpha; // Mantiene el ángulo inicial
-            camera.beta = initialBeta;   // Mantiene el ángulo inicial
-            camera.target = center;
-        }
-
-      }
-      scene.createDefaultEnvironment(); // Puedes agregar un entorno si quieres
 
       scene.meshes.forEach(mesh => {
         if (mesh.material) {
@@ -346,7 +359,15 @@
       highlight.blurHorizontalSize = 0.5;
 
       generatePartsList();
-    });
+    }, null, (scene, message, exception) => { // Función de error para la carga del modelo
+        console.error("Error al cargar el modelo GLB:", message, exception);
+        // Puedes mostrar un mensaje al usuario aquí
+        const modelSection = document.getElementById('3d-models');
+        if (modelSection) {
+            modelSection.querySelector('p[data-i18n="models_text"]').textContent = "Error: No se pudo cargar el modelo 3D. Asegúrate de que 'modelo.glb' está en la ruta correcta y no está dañado.";
+            modelSection.querySelector('p[data-i18n="models_text"]').style.color = "red";
+        }
+    });
 
     function generatePartsList() {
         const ul = document.getElementById('modelPartsUL');
@@ -359,20 +380,28 @@
             mesh.name !== "skyBox" &&
             mesh.id.indexOf("light") === -1 &&
             mesh.id.indexOf("camera") === -1 &&
-            mesh.name.trim() !== "" && // Asegúrate de que tenga un nombre
-            mesh.name !== "ground" // Excluye el suelo si defaultEnvironment lo crea
+            mesh.name.trim() !== "" && // Asegúrate de que tenga un nombre no vacío
+            mesh.name !== "ground" && // Excluye el suelo si defaultEnvironment lo crea
+            mesh.name.toLowerCase().indexOf("env") === -1 && // Excluye mallas de entorno generadas
+            mesh.name.toLowerCase().indexOf("light") === -1 && // Más filtros para luces
+            mesh.name.toLowerCase().indexOf("camera") === -1
         );
 
-        // Opcional: Ordenar alfabéticamente
         selectableMeshes.sort((a, b) => a.name.localeCompare(b.name));
 
-        selectableMeshes.forEach(mesh => {
+        if (selectableMeshes.length === 0) {
             const li = document.createElement('li');
-            li.textContent = mesh.name;
-            li.dataset.meshName = mesh.name;
-            li.addEventListener('click', () => selectMesh(mesh));
+            li.textContent = "No se encontraron partes seleccionables en el modelo.";
             ul.appendChild(li);
-        });
+        } else {
+            selectableMeshes.forEach(mesh => {
+                const li = document.createElement('li');
+                li.textContent = mesh.name;
+                li.dataset.meshName = mesh.name;
+                li.addEventListener('click', () => selectMesh(mesh));
+                ul.appendChild(li);
+            });
+        }
     }
 
     function selectMesh(meshToSelect) {
@@ -393,62 +422,50 @@
         const currentLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
         if (currentLi) {
             currentLi.classList.add('selected');
-            // Desplazar la lista para que el elemento seleccionado sea visible
             currentLi.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-
-        // Mover la cámara para enfocar la malla seleccionada (opcional)
-        // Puedes descomentar y ajustar estos valores
-        // if (activeMesh.getBoundingInfo()) {
-        //     const targetPosition = activeMesh.getBoundingInfo().boundingSphere.center;
-        //     const newRadius = activeMesh.getBoundingInfo().boundingSphere.radius * 2;
-            
-        //     BABYLON.Animation.CreateAndStartAnimation(
-        //         "cameraMove", camera, "target", 30, 120, camera.target, targetPosition, 
-        //         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT, new BABYLON.CubicEase()
-        //     );
-        //     BABYLON.Animation.CreateAndStartAnimation(
-        //         "cameraZoom", camera, "radius", 30, 120, camera.radius, newRadius, 
-        //         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT, new BABYLON.CubicEase()
-        //     );
-        // }
     }
 
     // Permitir selección de mallas haciendo click directamente en el canvas
     scene.onPointerDown = function (evt, pickResult) {
-        if (pickResult.hit) {
-            const mesh = pickResult.pickedMesh;
-            // Solo si la malla es una de las que queremos seleccionar
-            const isSelectable = scene.meshes.some(m => m.name === mesh.name && 
+        // Si no es un clic en una malla, no hacemos nada (la cámara seguirá rotando/panneando)
+        if (!pickResult.hit || !pickResult.pickedMesh) {
+            // Si haces clic fuera de cualquier malla y ya hay una seleccionada, deselecciona
+            if (activeMesh && pickResult.hit && pickResult.pickedMesh.name === "ground") { // Clic en el suelo
+                 deselectMesh();
+            } else if (!pickResult.hit) { // Clic en el espacio vacío
+                deselectMesh();
+            }
+            return; 
+        }
+
+        const mesh = pickResult.pickedMesh;
+        // Solo si la malla es una de las que queremos seleccionar
+        const isSelectable = scene.meshes.some(m => m.name === mesh.name && 
                                   m.isVisible && !m.isUtility && m.name !== "__root__" && 
                                   m.name !== "skyBox" && m.id.indexOf("light") === -1 && 
                                   m.id.indexOf("camera") === -1 && m.name.trim() !== "" &&
-                                  m.name !== "ground");
-            if (isSelectable) {
-                selectMesh(mesh);
-            } else {
-                // Si haces clic en algo no seleccionable (como el suelo o fondo), deselecciona
-                if (activeMesh) {
-                    highlight.removeMesh(activeMesh);
-                    const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
-                    if (prevLi) {
-                        prevLi.classList.remove('selected');
-                    }
-                    activeMesh = null;
-                }
-            }
+                                  m.name !== "ground" && m.name.toLowerCase().indexOf("env") === -1);
+        
+        if (isSelectable) {
+            selectMesh(mesh);
         } else {
-            // Si haces clic fuera de cualquier malla, deselecciona
-            if (activeMesh) {
-                highlight.removeMesh(activeMesh);
-                const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
-                if (prevLi) {
-                    prevLi.classList.remove('selected');
-                }
-                activeMesh = null;
-            }
+            deselectMesh();
         }
     };
+
+    // Nueva función para deseleccionar una malla
+    function deselectMesh() {
+        if (activeMesh) {
+            highlight.removeMesh(activeMesh);
+            const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
+            if (prevLi) {
+                prevLi.classList.remove('selected');
+            }
+            activeMesh = null;
+        }
+    }
+
 
     engine.runRenderLoop(() => {
       scene.render();
