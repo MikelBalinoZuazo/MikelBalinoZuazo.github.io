@@ -32,7 +32,7 @@ function createBabylonScene() {
     // Aquí llamaremos a la función para cargar tu modelo 3dm
     // ¡IMPORTANTE!: Reemplaza 'path/to/your/model.3dm' con la ruta real de tu archivo .3dm
     // Por ejemplo: 'models/your_model.3dm' si lo subes a una carpeta 'models'
-    loadRhinoModel('models/Prueba Mikel.3dm', scene); // Cambia esto
+    loadRhinoModel('models/PruebaMikel.3dm', scene); // Cambia esto
 
     // Bucle de renderizado de Babylon.js
     engine.runRenderLoop(() => {
