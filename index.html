@@ -199,93 +199,45 @@
     }
     window.addEventListener('DOMContentLoaded', changeLanguage);
 
-    <!-- Babylon.js -->
-<script src="https://cdn.babylonjs.com/babylon.js"></script>
-<script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
+    const scene = new BABYLON.Scene(engine);
 
-<script>
-  const translations = { ... }
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
 
-  function changeLanguage() { ... }
-  window.addEventListener('DOMContentLoaded', changeLanguage);
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-  // ⬇️ Pega tu script aquí
-  const canvas = document.getElementById("renderCanvas");
-  const engine = new BABYLON.Engine(canvas, true);
-  const scene = new BABYLON.Scene(engine);
+    const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
 
-  const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
-  camera.attachControl(canvas, true);
+    function resetCamera() {
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
+    }
 
-  const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    canvas.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    }, { passive: false });
 
-  const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
-
-  function resetCamera() {
-    camera.setTarget(initialTarget);
-    camera.alpha = initialAlpha;
-    camera.beta = initialBeta;
-    camera.radius = initialRadius;
-  }
-
-  canvas.addEventListener("wheel", function (event) {
-    event.preventDefault();
-  }, { passive: false });
-
-  let meshList = [];
-
-  function highlightMesh(name) {
-    meshList.forEach(mesh => {
-      if (mesh.name === name) {
-        mesh.material.diffuseColor = new BABYLON.Color3(1, 0, 0); // Rojo
-      } else {
-        mesh.material.diffuseColor = new BABYLON.Color3(1, 1, 1); // Blanco
-      }
-    });
-  }
-
-  BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
-    scene.createDefaultCameraOrLight(true, true, true);
-
-    const menu = document.createElement("div");
-    menu.style.position = "absolute";
-    menu.style.top = "100px";
-    menu.style.right = "20px";
-    menu.style.background = "rgba(255,255,255,0.9)";
-    menu.style.padding = "10px";
-    menu.style.borderRadius = "8px";
-    menu.style.boxShadow = "0 0 10px rgba(0,0,0,0.2)";
-    menu.style.zIndex = "1000";
-    menu.innerHTML = "<strong>Model Parts</strong><br>";
-
-    scene.meshes.forEach(mesh => {
-      if (mesh.name && mesh.name !== "__root__") {
-        const mat = new BABYLON.StandardMaterial(mesh.name + "_mat", scene);
-        mat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-        mesh.material = mat;
-        meshList.push(mesh);
-
-        const btn = document.createElement("button");
-        btn.textContent = mesh.name;
-        btn.style.display = "block";
-        btn.style.marginTop = "5px";
-        btn.style.width = "100%";
-        btn.style.cursor = "pointer";
-        btn.onclick = () => highlightMesh(mesh.name);
-        menu.appendChild(btn);
-      }
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
+      scene.createDefaultCameraOrLight(true, true, true);
+      scene.meshes.forEach(mesh => {
+        if (mesh.material) {
+          const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
+          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+          mesh.material = whiteMaterial;
+        }
+      });
     });
 
-    document.body.appendChild(menu);
-  });
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
 
-  engine.runRenderLoop(() => {
-    scene.render();
-  });
-
-  window.addEventListener("resize", () => {
-    engine.resize();
-
+    window.addEventListener("resize", () => {
+      engine.resize();
     });
   </script>
 </body>
