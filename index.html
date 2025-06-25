@@ -110,6 +110,11 @@
     <h2 data-i18n="models_title">3D Models</h2>
     <p data-i18n="models_text"></p>
 
+    <div style="display: flex;">
+  <div id="meshMenu" style="width: 200px; margin-right: 1rem; font-size: 14px; font-family: 'Poppins', sans-serif;"></div>
+  <canvas id="renderCanvas"></canvas>
+</div>
+
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
     <select class="mesh-selector" id="meshSelector">
@@ -161,20 +166,46 @@
 
     const meshSelector = document.getElementById("meshSelector");
 
-    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
-      scene.createDefaultCameraOrLight(true, true, true);
-      const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
-      whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+    const meshMenu = document.getElementById("meshMenu");
+let previousSelectedMesh = null;
 
-      scene.meshes.forEach(mesh => {
-        if (mesh.material) mesh.material = whiteMaterial;
-        if (mesh.name && mesh.name !== "__root__") {
-          const option = document.createElement("option");
-          option.value = mesh.name;
-          option.text = mesh.name;
-          meshSelector.appendChild(option);
+BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
+  scene.createDefaultCameraOrLight(true, true, true);
+
+  // Creamos un material de resalte
+  const highlightMaterial = new BABYLON.StandardMaterial("highlightMat", scene);
+  highlightMaterial.diffuseColor = new BABYLON.Color3(1, 0.6, 0); // color anaranjado
+
+  // Creamos el menú
+  scene.meshes.forEach(mesh => {
+    if (mesh.name && mesh.name !== "__root__") {
+      const item = document.createElement("div");
+      item.textContent = mesh.name;
+      item.style.cursor = "pointer";
+      item.style.padding = "6px";
+      item.style.borderBottom = "1px solid #ccc";
+
+      item.addEventListener("click", () => {
+        // Quitar resalte anterior
+        if (previousSelectedMesh && previousSelectedMesh.originalMaterial) {
+          previousSelectedMesh.material = previousSelectedMesh.originalMaterial;
         }
+
+        // Guardamos el material original
+        if (!mesh.originalMaterial) {
+          mesh.originalMaterial = mesh.material;
+        }
+
+        // Aplicar resalte
+        mesh.material = highlightMaterial;
+        previousSelectedMesh = mesh;
       });
+
+      meshMenu.appendChild(item);
+    }
+  });
+});
+
 
       meshSelector.addEventListener("change", () => {
         const selectedName = meshSelector.value;
