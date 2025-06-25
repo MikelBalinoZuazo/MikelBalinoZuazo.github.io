@@ -1,2 +1,2 @@
 # MikelBalinoZuazo.github.io
-Professional portfolio of Mikel Baliño Zuazo
+Portfolio of Mikel Baliño Zuazo
