@@ -3,6 +3,13 @@ let rhino;
 // Variables para el motor y la escena de Babylon.js
 let engine;
 let scene;
+let camera; // Hacemos la cámara global para poder acceder a ella desde resetCameraView
+
+// Variables para guardar la posición inicial de la cámara
+let initialCameraAlpha;
+let initialCameraBeta;
+let initialCameraRadius;
+let initialCameraTarget;
 
 // --- Funciones de Inicialización ---
 
@@ -16,23 +23,32 @@ async function initializeRhino3dm() {
 
 function createBabylonScene() {
     const canvas = document.getElementById('renderCanvas');
+    if (!canvas) {
+        console.error('El elemento canvas con ID "renderCanvas" no se encontró.');
+        return;
+    }
     engine = new BABYLON.Engine(canvas, true); // true para antialiasing
     scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8); // Fondo gris claro
 
     // Configuración de la cámara (ArcRotateCamera es ideal para visores)
-    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+    camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
     camera.wheelPrecision = 50; // Ajusta la sensibilidad del zoom
+
+    // Guarda la posición inicial de la cámara
+    initialCameraAlpha = camera.alpha;
+    initialCameraBeta = camera.beta;
+    initialCameraRadius = camera.radius;
+    initialCameraTarget = camera.target.clone();
 
     // Configuración de la luz
     const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
 
     // Aquí llamaremos a la función para cargar tu modelo 3dm
-    // ¡IMPORTANTE!: Reemplaza 'path/to/your/model.3dm' con la ruta real de tu archivo .3dm
-    // Por ejemplo: 'models/your_model.3dm' si lo subes a una carpeta 'models'
-    loadRhinoModel('models/PruebaMikel.3dm', scene); // Cambia esto
+    // ¡IMPORTANTE!: Asegúrate de que esta ruta coincida con el nombre del archivo renombrado.
+    loadRhinoModel('models/PruebaMikel.3dm', scene); // RUTA ACTUALIZADA
 
     // Bucle de renderizado de Babylon.js
     engine.runRenderLoop(() => {
@@ -44,6 +60,17 @@ function createBabylonScene() {
         engine.resize();
     });
 }
+
+// Función global para reiniciar la vista de la cámara
+// Esta función es llamada desde el index.html
+window.resetCameraView = function() {
+    if (camera) {
+        camera.setTarget(initialCameraTarget.clone()); // Usar un clon para no modificar el original
+        camera.alpha = initialCameraAlpha;
+        camera.beta = initialCameraBeta;
+        camera.radius = initialCameraRadius;
+    }
+};
 
 // --- Funciones de Carga y Conversión de Modelo ---
 
@@ -127,8 +154,9 @@ async function loadRhinoModel(url, scene) {
                 if (points && points.length > 1) {
                     const babylonPoints = points.map(p => new BABYLON.Vector3(p.x, p.y, p.z));
                     const line = BABYLON.MeshBuilder.CreateLines("curveLine_" + i, { points: babylonPoints }, scene);
-                    line.color = babylonMaterial.diffuseColor || new BABYLON.Color3(0, 0, 0); // Color de la línea
                     // Las líneas no usan materiales PBR directamente, así que usamos un color simple
+                    // Si el material tiene color difuso, úsalo, si no, por defecto negro
+                    line.color = babylonMaterial.diffuseColor || new BABYLON.Color3(0, 0, 0);
                 }
             }
             // Agrega más 'else if' para otros tipos de geometría de Rhino si los necesitas (ej. rhino.Point)
@@ -186,7 +214,6 @@ function createBabylonMeshFromRhinoMesh(rhinoMesh, name, scene) {
 
     return babylonMesh;
 }
-
 
 // --- Iniciar la aplicación ---
 // Inicia el proceso cargando rhino3dm.js
