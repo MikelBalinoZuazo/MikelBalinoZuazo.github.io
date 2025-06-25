@@ -48,7 +48,7 @@ function createBabylonScene() {
 
     // Aquí llamaremos a la función para cargar tu modelo 3dm
     // ¡IMPORTANTE!: Asegúrate de que esta ruta coincida con el nombre del archivo renombrado.
-    loadRhinoModel('models/PruebaMikel.3dm', scene); // RUTA ACTUALIZADA
+    loadRhinoModel('models/modelo.3dm', scene); // RUTA ACTUALIZADA
 
     // Bucle de renderizado de Babylon.js
     engine.runRenderLoop(() => {
