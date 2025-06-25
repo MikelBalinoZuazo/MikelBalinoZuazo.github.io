@@ -2,110 +2,232 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Babylon.js Model Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mikel Baliño Zuazo | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
+
   <style>
     html, body {
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
+      margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
     }
-
-    canvas {
+    #renderCanvas {
       width: 100%;
-      height: 100%;
-      touch-action: none;
+      height: 500px;
       display: block;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
     }
-
-    #meshMenu {
-      position: fixed;
-      top: 80px;
-      right: 0;
-      width: 250px;
-      max-height: 80vh;
-      overflow-y: auto;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: -2px 0 6px rgba(0, 0, 0, 0.2);
-      padding: 10px;
-      z-index: 999;
-      font-size: 14px;
+    .ui-button {
+      position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
+      border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
     }
-
-    #meshMenu h3 {
-      margin-top: 0;
-      font-weight: 600;
-      font-size: 16px;
+    .animation-gif {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
     }
-
-    #meshMenu ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
-
-    #meshMenu li {
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-
-    #meshMenu li:hover {
-      background-color: #eee;
+    .language-selector {
+      position: fixed; top: 10px; right: 10px; z-index: 999;
     }
   </style>
 </head>
 <body>
-  <div id="meshMenu"></div>
-  <canvas id="renderCanvas"></canvas>
+  <div style="background-color: #ffd700; color: #000; padding: 10px; text-align: center; font-weight: 500;">
+    ⚠️ This website is currently under development. Some sections might be incomplete.
+    <br>⚠️ Esta página web está en desarrollo. Algunas secciones pueden estar incompletas.
+    <br>⚠️ Webgune hau oraindik garatzen ari da. Atal batzuk osatu gabe egon daitezke.
+  </div>
+
+  <div class="language-selector">
+    <select id="language" onchange="changeLanguage()">
+      <option value="en" selected>English</option>
+      <option value="es">Castellano</option>
+      <option value="eu">Euskera</option>
+    </select>
+  </div>
+
+  <header class="hero">
+    <div class="profile">
+      <img src="images/foto.jpeg" alt="Mikel Baliño Zuazo" class="profile-img" />
+      <h1>Mikel Baliño Zuazo</h1>
+      <p data-i18n="subtitle">Engineering Draftsman · 3D Designer · BIM Specialist</p>
+    </div>
+  </header>
+
+  <section class="about" id="about">
+    <h2 data-i18n="about_title">About me</h2>
+    <p data-i18n="about_text"></p>
+  </section>
+
+  <section class="what" id="what">
+    <h2 data-i18n="what_title">What you will find here</h2>
+    <p data-i18n="what_text"></p>
+  </section>
+
+  <section class="toc" id="toc">
+    <h2 data-i18n="toc_title">Table of Contents</h2>
+    <ul>
+      <li><a href="#cad" data-i18n="cad_link">CAD Drawings</a></li>
+      <li><a href="#3d-models" data-i18n="models_link">3D Models</a></li>
+      <li><a href="#renders" data-i18n="renders_link">Renders</a></li>
+      <li><a href="#animations" data-i18n="animations_link">Animations</a></li>
+    </ul>
+  </section>
+
+  <section id="cad">
+    <h2 data-i18n="cad_title">CAD Drawings</h2>
+    <p data-i18n="cad_text"></p>
+  </section>
+
+  <section id="3d-models">
+    <h2 data-i18n="models_title">3D Models</h2>
+    <p data-i18n="models_text"></p>
+
+    <canvas id="renderCanvas"></canvas>
+    <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
+  </section>
+
+  <section id="renders">
+    <h2 data-i18n="renders_title">Renders</h2>
+    <p data-i18n="renders_text"></p>
+  </section>
+
+  <section id="animations">
+    <h2 data-i18n="animations_title">Animations</h2>
+    <p data-i18n="animations_text"></p>
+
+    <h3 data-i18n="example_animation">Example Animation</h3>
+    <img src="images/Frame.gif" alt="Example Animation" class="animation-gif" />
+    <p data-i18n="animation_description"></p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank" data-i18n="social_link">Social network</a></p>
+  </footer>
 
   <!-- Babylon.js -->
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
   <script>
+    const translations = {
+      en: {
+        subtitle: "Engineering Draftsman · 3D Designer · BIM Specialist",
+        about_title: "About me",
+        about_text: "I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.",
+        what_title: "What you will find here",
+        what_text: "This page is not intended to be a professional portfolio; therefore, you won’t find detailed information about the projects I have worked on. Instead, it serves as a showroom of the different skills I have been developing.",
+        toc_title: "Table of Contents",
+        cad_link: "CAD Drawings",
+        models_link: "3D Models",
+        renders_link: "Renders",
+        animations_link: "Animations",
+        cad_title: "CAD Drawings",
+        cad_text: "Examples of technical 2D drawings made in AutoCAD and other drafting tools.",
+        models_title: "3D Models",
+        models_text: "Interactive 3D model. You can rotate, zoom, and explore the model below.",
+        renders_title: "Renders",
+        renders_text: "Photorealistic renders showcasing lighting, materials, and composition.",
+        animations_title: "Animations",
+        animations_text: "Animated representations of real scenarios using collected data.",
+        example_animation: "Example Animation",
+        animation_description: "In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties.",
+        reset_btn: "Reset View",
+        social_link: "Social network",
+      },
+      es: {
+        subtitle: "Delineante · Diseñador 3D · Especialista BIM",
+        about_title: "Sobre mí",
+        about_text: "Soy delineante profesional especializado en dibujo CAD, modelado 3D, renderizado y animación. Domino herramientas como Rhino, Grasshopper, AutoCAD y BIM para materializar ideas de ingeniería y arquitectura con precisión y creatividad.",
+        what_title: "Qué encontrarás aquí",
+        what_text: "Esta página no está pensada como un portfolio profesional; por lo tanto, no encontrarás información detallada sobre los proyectos en los que he trabajado. En su lugar, funciona como un escaparate de las habilidades que he ido desarrollando.",
+        toc_title: "Índice de contenidos",
+        cad_link: "Planos CAD",
+        models_link: "Modelos 3D",
+        renders_link: "Renderizados",
+        animations_link: "Animaciones",
+        cad_title: "Planos CAD",
+        cad_text: "Ejemplos de planos técnicos en 2D realizados con AutoCAD y otras herramientas.",
+        models_title: "Modelos 3D",
+        models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
+        renders_title: "Renderizados",
+        renders_text: "Renderizados fotorrealistas que muestran iluminación, materiales y composición.",
+        animations_title: "Animaciones",
+        animations_text: "Representaciones animadas de escenarios reales utilizando datos recogidos.",
+        example_animation: "Ejemplo de animación",
+        animation_description: "En este ejemplo se ha utilizado Grasshopper para generar un GIF del movimiento real de una noria. Con ello se pretende demostrar la utilidad de esta herramienta a la hora de expresar ideas de funcionamiento a terceros.",
+        reset_btn: "Reiniciar vista",
+        social_link: "Red social",
+      },
+      eu: {
+        subtitle: "Marrazkilari · 3D Diseinatzailea · BIM Espezialista",
+        about_title: "Niri buruz",
+        about_text: "Marrazkilari profesionala naiz, CAD marrazketan, 3D modelizazioan, renderizazioan eta animazioan aditua. Rhino, Grasshopper, AutoCAD eta BIM bezalako tresnak erabiltzen ditut ingeniaritza eta arkitektura kontzeptuak zehaztasunez eta sormenaz errealitate bihurtzeko.",
+        what_title: "Hemen zer aurkituko duzu",
+        what_text: "Orrialde hau ez da portfolio profesionala izateko pentsatuta; beraz, ez duzu aurkituko nire egindako proiektuen informazio zehatzik. Horren ordez, garatu ditudan gaitasun desberdinen erakustoki gisa balio du.",
+        toc_title: "Edukiaren aurkibidea",
+        cad_link: "CAD Marrazkiak",
+        models_link: "3D Ereduak",
+        renders_link: "Renderizazioak",
+        animations_link: "Animazioak",
+        cad_title: "CAD Marrazkiak",
+        cad_text: "AutoCAD eta bestelako marrazketa tresnekin egindako 2D marrazki teknikoen adibideak.",
+        models_title: "3D Ereduak",
+        models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
+        renders_title: "Renderizazioak",
+        renders_text: "Argiztapena, materialak eta konposizioa erakusten dituzten renderizazio fotorrealistak.",
+        animations_title: "Animazioak",
+        animations_text: "Datu errealekin egindako eszenatokien animazioak.",
+        example_animation: "Animazioaren adibidea",
+        animation_description: "Adibide honetan Grasshopper erabiliz benetako norabide bateko noria baten mugimenduaren GIF bat sortu da. Tresna honek hirugarrenei funtzionamendu-ideiak azaltzeko duen erabilgarritasuna erakustea da helburua.",
+        reset_btn: "Berrabiarazi ikuspegia",
+        social_link: "Sare soziala",
+      }
+    };
+
+    function changeLanguage() {
+      const lang = document.getElementById('language').value;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.textContent = translations[lang][key];
+        }
+      });
+    }
+    window.addEventListener('DOMContentLoaded', changeLanguage);
+
     const canvas = document.getElementById("renderCanvas");
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine);
 
-    // Cámara orbital
-    const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
 
-    // Luz
-    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
-    light.intensity = 0.8;
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-    // Material blanco
-    const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
-    whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+    const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
 
-    // Cargar modelo GLB
+    function resetCamera() {
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
+    }
+
+    canvas.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
       scene.createDefaultCameraOrLight(true, true, true);
-
-      // Crear menú
-      const meshMenu = document.getElementById("meshMenu");
-      meshMenu.innerHTML = "<h3>Model Parts</h3><ul></ul>";
-      const ul = meshMenu.querySelector("ul");
-
       scene.meshes.forEach(mesh => {
-        if (mesh.name && mesh.isVisible && mesh.name !== "__root__") {
+        if (mesh.material) {
+          const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
+          whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
           mesh.material = whiteMaterial;
-
-          const li = document.createElement("li");
-          li.textContent = mesh.name;
-          li.onclick = () => {
-            const box = mesh.getBoundingInfo().boundingBox;
-            const target = box.centerWorld;
-            camera.setTarget(target);
-            camera.radius = box.extendSizeWorld.length() * 3;
-          };
-
-          ul.appendChild(li);
         }
       });
     });
