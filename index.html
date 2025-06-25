@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mikel Baliño Zuazo | Portfolio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
   <style>
@@ -31,30 +31,38 @@
       font-size: 14px;
       cursor: pointer;
       border-radius: 4px;
-      z-index: 10;
+      z-index: 1000;
     }
-    .mesh-selector {
+    .context-menu {
       position: absolute;
-      top: 20px;
-      left: 130px;
-      z-index: 10;
-      background: rgba(255,255,255,0.9);
+      top: 80px;
+      right: 20px;
+      background: rgba(255,255,255,0.95);
       border: 1px solid #ccc;
-      padding: 5px;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    .animation-gif {
-      max-width: 100%;
       border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-top: 1rem;
+      padding: 10px;
+      max-width: 200px;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .language-selector {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 999;
+    .context-menu h3 {
+      margin-top: 0;
+      font-size: 16px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .context-menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .context-menu li {
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 4px;
+    }
+    .context-menu li:hover {
+      background-color: #eee;
     }
   </style>
 </head>
@@ -65,7 +73,7 @@
     <br>⚠️ Webgune hau oraindik garatzen ari da. Atal batzuk osatu gabe egon daitezke.
   </div>
 
-  <div class="language-selector">
+  <div class="language-selector" style="position: fixed; top: 10px; right: 10px; z-index: 999;">
     <select id="language" onchange="changeLanguage()">
       <option value="en" selected>English</option>
       <option value="es">Castellano</option>
@@ -81,147 +89,50 @@
     </div>
   </header>
 
-  <section class="about" id="about">
-    <h2 data-i18n="about_title">About me</h2>
-    <p data-i18n="about_text"></p>
-  </section>
-
-  <section class="what" id="what">
-    <h2 data-i18n="what_title">What you will find here</h2>
-    <p data-i18n="what_text"></p>
-  </section>
-
-  <section class="toc" id="toc">
-    <h2 data-i18n="toc_title">Table of Contents</h2>
-    <ul>
-      <li><a href="#cad" data-i18n="cad_link">CAD Drawings</a></li>
-      <li><a href="#3d-models" data-i18n="models_link">3D Models</a></li>
-      <li><a href="#renders" data-i18n="renders_link">Renders</a></li>
-      <li><a href="#animations" data-i18n="animations_link">Animations</a></li>
-    </ul>
-  </section>
-
-  <section id="cad">
-    <h2 data-i18n="cad_title">CAD Drawings</h2>
-    <p data-i18n="cad_text"></p>
-  </section>
-
   <section id="3d-models">
     <h2 data-i18n="models_title">3D Models</h2>
     <p data-i18n="models_text"></p>
 
-    <div style="display: flex;">
-  <div id="meshMenu" style="width: 200px; margin-right: 1rem; font-size: 14px; font-family: 'Poppins', sans-serif;"></div>
-  <canvas id="renderCanvas"></canvas>
-</div>
-
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
-    <select class="mesh-selector" id="meshSelector">
-      <option value="">-- Select Part --</option>
-    </select>
-  </section>
-
-  <section id="renders">
-    <h2 data-i18n="renders_title">Renders</h2>
-    <p data-i18n="renders_text"></p>
-  </section>
-
-  <section id="animations">
-    <h2 data-i18n="animations_title">Animations</h2>
-    <p data-i18n="animations_text"></p>
-    <h3 data-i18n="example_animation">Example Animation</h3>
-    <img src="images/Frame.gif" alt="Example Animation" class="animation-gif" />
-    <p data-i18n="animation_description"></p>
+    <div class="context-menu" id="meshMenu">
+      <h3>Model Parts</h3>
+      <ul id="meshList"></ul>
+    </div>
   </section>
 
   <footer>
     <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank" data-i18n="social_link">Social network</a></p>
   </footer>
 
-  <!-- Babylon.js -->
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
   <script>
-    const canvas = document.getElementById("renderCanvas");
-    const engine = new BABYLON.Engine(canvas, true);
-    const scene = new BABYLON.Scene(engine);
+    const translations = {
+      en: {
+        subtitle: "Engineering Draftsman · 3D Designer · BIM Specialist",
+        models_title: "3D Models",
+        models_text: "Interactive 3D model. You can rotate, zoom, and explore the model below.",
+        reset_btn: "Reset View",
+        social_link: "Social network",
+      },
+      es: {
+        subtitle: "Delineante · Diseñador 3D · Especialista BIM",
+        models_title: "Modelos 3D",
+        models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
+        reset_btn: "Reiniciar vista",
+        social_link: "Red social",
+      },
+      eu: {
+        subtitle: "Marrazkilari · 3D Diseinatzailea · BIM Espezialista",
+        models_title: "3D Ereduak",
+        models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
+        reset_btn: "Berrabiarazi ikuspegia",
+        social_link: "Sare soziala",
+      }
+    };
 
-    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
-    camera.attachControl(canvas, true);
-
-    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-
-    const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
-
-    function resetCamera() {
-      camera.setTarget(initialTarget);
-      camera.alpha = initialAlpha;
-      camera.beta = initialBeta;
-      camera.radius = initialRadius;
-    }
-
-    canvas.addEventListener("wheel", e => e.preventDefault(), { passive: false });
-
-    const meshSelector = document.getElementById("meshSelector");
-
-    const meshMenu = document.getElementById("meshMenu");
-let previousSelectedMesh = null;
-
-BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
-  scene.createDefaultCameraOrLight(true, true, true);
-
-  // Creamos un material de resalte
-  const highlightMaterial = new BABYLON.StandardMaterial("highlightMat", scene);
-  highlightMaterial.diffuseColor = new BABYLON.Color3(1, 0.6, 0); // color anaranjado
-
-  // Creamos el menú
-  scene.meshes.forEach(mesh => {
-    if (mesh.name && mesh.name !== "__root__") {
-      const item = document.createElement("div");
-      item.textContent = mesh.name;
-      item.style.cursor = "pointer";
-      item.style.padding = "6px";
-      item.style.borderBottom = "1px solid #ccc";
-
-      item.addEventListener("click", () => {
-        // Quitar resalte anterior
-        if (previousSelectedMesh && previousSelectedMesh.originalMaterial) {
-          previousSelectedMesh.material = previousSelectedMesh.originalMaterial;
-        }
-
-        // Guardamos el material original
-        if (!mesh.originalMaterial) {
-          mesh.originalMaterial = mesh.material;
-        }
-
-        // Aplicar resalte
-        mesh.material = highlightMaterial;
-        previousSelectedMesh = mesh;
-      });
-
-      meshMenu.appendChild(item);
-    }
-  });
-});
-
-
-      meshSelector.addEventListener("change", () => {
-        const selectedName = meshSelector.value;
-        const selectedMesh = scene.getMeshByName(selectedName);
-        if (selectedMesh) {
-          const target = selectedMesh.getBoundingInfo().boundingSphere.centerWorld;
-          camera.setTarget(target);
-        }
-      });
-    });
-
-    engine.runRenderLoop(() => scene.render());
-    window.addEventListener("resize", () => engine.resize());
-
-    // i18n
-    const translations = { /* tu objeto de traducciones, igual que antes */ };
     function changeLanguage() {
       const lang = document.getElementById('language').value;
       document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -232,6 +143,61 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
       });
     }
     window.addEventListener('DOMContentLoaded', changeLanguage);
+
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
+    const scene = new BABYLON.Scene(engine);
+
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
+
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+    const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
+    function resetCamera() {
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
+    }
+
+    canvas.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    }, { passive: false });
+
+    const highlightLayer = new BABYLON.HighlightLayer("hl1", scene);
+
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function () {
+      scene.createDefaultCameraOrLight(true, true, true);
+
+      const meshList = document.getElementById("meshList");
+      meshList.innerHTML = "";
+
+      scene.meshes.forEach(mesh => {
+        if (mesh.name && mesh.name !== "__root__") {
+          const li = document.createElement("li");
+          li.textContent = mesh.name;
+          li.onclick = () => {
+            highlightLayer.removeAllMeshes();
+            highlightLayer.addMesh(mesh, BABYLON.Color3.Yellow());
+            mesh.material.emissiveColor = new BABYLON.Color3(1, 1, 0);
+            setTimeout(() => {
+              highlightLayer.removeMesh(mesh);
+              mesh.material.emissiveColor = BABYLON.Color3.Black();
+            }, 2000);
+          };
+          meshList.appendChild(li);
+        }
+      });
+    });
+
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
+
+    window.addEventListener("resize", () => {
+      engine.resize();
+    });
   </script>
 </body>
 </html>
