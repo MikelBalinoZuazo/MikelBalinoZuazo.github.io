@@ -12,30 +12,47 @@
     html, body {
       margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
     }
+
+    /* Ajuste de espaciado general entre secciones */
+    section {
+        padding: 40px 20px; /* Reduce el padding vertical si es necesario, antes era 60px 20px */
+        margin-bottom: 0; /* Asegura que no haya margen extra abajo */
+    }
+    header.hero, footer {
+        padding: 40px 20px; /* Consistencia en el padding */
+    }
+    /* Puedes ajustar más finamente si 'style.css' tiene reglas que sobrescriben esto */
+
+
     #renderCanvas {
-      width: 100%;
+      width: 100%; /* Vuelve al 100% de ancho */
       height: 500px;
       display: block;
       border: 1px solid #ccc;
       margin-top: 1rem;
     }
-    /* NUEVO: Contenedor para el modelo 3D y la lista */
-    .model-container {
-        display: flex; /* Para poner el canvas y la lista uno al lado del otro */
-        gap: 20px; /* Espacio entre ellos */
+
+    /* Ajustes para el contenedor del modelo: ahora la lista va debajo */
+    .model-interaction-area {
+        display: flex;
+        flex-direction: column; /* Cambiado a columna para que la lista vaya debajo */
+        gap: 20px;
         margin-top: 1rem;
-        flex-wrap: wrap; /* Para que se adapte en pantallas pequeñas */
     }
-    /* NUEVO: Estilos para la lista de partes */
+
+    /* NUEVOS ESTILOS para la lista de partes */
     #partsList {
-        flex: 1; /* Para que ocupe espacio disponible */
-        min-width: 250px; /* Ancho mínimo para la lista */
+        width: 100%; /* La lista ocupa todo el ancho debajo del canvas */
         border: 1px solid #ccc;
         padding: 10px;
-        max-height: 500px; /* Misma altura que el canvas para alinear */
-        overflow-y: auto; /* Para scroll si la lista es muy larga */
+        max-height: 300px; /* Altura máxima más reducida para la lista */
+        overflow-y: auto;
         background-color: #f9f9f9;
         border-radius: 8px;
+    }
+    #partsList h3 {
+        margin-top: 0;
+        color: #333;
     }
     #partsList ul {
         list-style: none;
@@ -43,21 +60,28 @@
         margin: 0;
     }
     #partsList li {
-        padding: 8px 10px;
+        padding: 8px 12px;
         cursor: pointer;
         border-bottom: 1px solid #eee;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    #partsList li:last-child {
+        border-bottom: none; /* Elimina el borde del último elemento */
     }
     #partsList li:hover {
         background-color: #e0e0e0;
     }
-    #partsList li.selected { /* Clase para la parte seleccionada */
-        background-color: #ffd700; /* Color de tu tema */
+    #partsList li.selected {
+        background-color: gold; /* Color de tu tema */
+        color: black; /* Texto blanco para mayor contraste */
         font-weight: bold;
     }
 
     .ui-button {
-      position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
+        position: relative; /* Cambiado a relative para que no flote sobre el canvas */
+        margin-top: 10px; /* Margen superior para separarlo del canvas/lista */
+        background: rgba(0,0,0,0.7); /* Un poco más oscuro para que contraste más */
+        color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
     }
     .animation-gif {
@@ -108,7 +132,7 @@
     <h2 data-i18n="toc_title">Table of Contents</h2>
     <ul>
       <li><a href="#cad" data-i18n="cad_link">CAD Drawings</a></li>
-      <li><a href="#3d-models" data-i1     <li><a href="#3d-models" data-i18n="models_link">3D Models</a></li>
+      <li><a href="#3d-models" data-i18n="models_link">3D Models</a></li>
       <li><a href="#renders" data-i18n="renders_link">Renders</a></li>
       <li><a href="#animations" data-i18n="animations_link">Animations</a></li>
     </ul>
@@ -123,15 +147,15 @@
     <h2 data-i18n="models_title">3D Models</h2>
     <p data-i18n="models_text"></p>
 
-    <div class="model-container">
+    <div class="model-interaction-area">
         <canvas id="renderCanvas"></canvas>
         <div id="partsList">
             <h3>Partes del Modelo</h3>
             <ul id="modelPartsUL">
                 </ul>
         </div>
+        <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reiniciar Vista</button>
     </div>
-    <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
   </section>
 
   <section id="renders">
@@ -264,79 +288,97 @@
       event.preventDefault();
     }, { passive: false });
 
-    // NUEVO: Variables para la interacción con las partes del modelo
     let highlight;
-    let originalMaterials = new Map(); // Para guardar los materiales originales de las mallas
-    let activeMesh = null; // Para saber qué malla está actualmente seleccionada
+    let originalMaterials = new Map();
+    let activeMesh = null;
 
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
       scene.createDefaultCameraOrLight(true, true, true);
       // Ajusta el framing de la cámara al modelo completo
-      camera.useAutoRotationBehavior = true;
-      camera.setTarget(scene.meshes[0]); // Apunta al primer mesh cargado o al root
+      camera.useAutoRotationBehavior = false; // Desactivar rotación automática para mejor control
+      
+      // Ajustar la cámara para que el modelo se vea bien al cargar
+      if (scene.meshes.length > 0) {
+        const bounds = scene.get === undefined ? scene.getBoundingInfo() : scene.get meshes[0].getBoundingInfo(); // Fallback por si getBoundingInfo no está en scene directamente
+        // Calcular el centro de todas las mallas o del root
+        let center = BABYLON.Vector3.Zero();
+        if (scene.meshes.length > 0 && scene.getMeshByName("__root__")) {
+             center = scene.getMeshByName("__root__").position; // O su boundingInfo.boundingBox.center
+        } else if (scene.meshes.length > 1) { // Si hay varias mallas y no hay root claro
+            let min = new BABYLON.Vector3(Infinity, Infinity, Infinity);
+            let max = new BABYLON.Vector3(-Infinity, -Infinity, -Infinity);
+            scene.meshes.forEach(mesh => {
+                if (mesh.getBoundingInfo()) {
+                    min = BABYLON.Vector3.Minimize(min, mesh.getBoundingInfo().boundingBox.minimumWorld);
+                    max = BABYLON.Vector3.Maximize(max, mesh.getBoundingInfo().boundingBox.maximumWorld);
+                }
+            });
+            center = BABYLON.Vector3.Center(min, max);
+        } else if (scene.meshes.length === 1) { // Solo una malla
+            center = scene.meshes[0].position; // O su boundingInfo.boundingBox.center
+        }
+
+        camera.setTarget(center);
+        // Calcular radio inicial basado en el tamaño del modelo
+        const boundingBox = scene.getBoundingInfo(); // O de un mesh principal si es más complejo
+        if (boundingBox && boundingBox.boundingSphere) {
+            camera.radius = boundingBox.boundingSphere.radius * 2.5; // Ajusta este multiplicador (2.5) para el zoom inicial
+            // Ajustar posición de la cámara si el centro del modelo no está en (0,0,0)
+            camera.alpha = initialAlpha; // Mantiene el ángulo inicial
+            camera.beta = initialBeta;   // Mantiene el ángulo inicial
+            camera.target = center;
+        }
+
+      }
       scene.createDefaultEnvironment(); // Puedes agregar un entorno si quieres
 
       scene.meshes.forEach(mesh => {
-        // Comentamos esto para que se respeten los materiales del modelo
-        // if (mesh.material) {
-        //   const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
-        //   whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
-        //   mesh.material = whiteMaterial;
-        // }
-        // Guardamos los materiales originales si los tienen
         if (mesh.material) {
             originalMaterials.set(mesh.name, mesh.material);
         }
-        // Hacemos las mallas clickables
         mesh.isPickable = true;
       });
 
-      // NUEVO: Inicializar el highlight layer
       highlight = new BABYLON.HighlightLayer("highlight", scene);
-      highlight.innerGlow = true; // Efecto de brillo interno
-      highlight.outerGlow = false; // Puedes ponerlo a true si quieres un brillo exterior
-      highlight.blurVerticalSize = 0.5; // Ajusta el tamaño del desenfoque
-      highlight.blurHorizontalSize = 0.5; // Ajusta el tamaño del desenfoque
+      highlight.innerGlow = true;
+      highlight.outerGlow = false;
+      highlight.blurVerticalSize = 0.5;
+      highlight.blurHorizontalSize = 0.5;
 
-      // NUEVO: Generar la lista de partes
       generatePartsList();
     });
 
-    // NUEVO: Función para generar la lista de partes del modelo
     function generatePartsList() {
         const ul = document.getElementById('modelPartsUL');
-        ul.innerHTML = ''; // Limpiar la lista antes de llenarla
+        ul.innerHTML = '';
 
-        // Filtra para obtener solo las mallas que son "visibles" y no son "root" o auxiliares
         const selectableMeshes = scene.meshes.filter(mesh =>
             mesh.isVisible &&
-            !mesh.isUtility && // Excluye mallas de utilidad de Babylon.js
-            mesh.name !== "__root__" && // Excluye el nodo raíz
-            mesh.name !== "skyBox" && // Excluye el skybox si lo creaste con defaultEnvironment
-            mesh.id.indexOf("light") === -1 && // Excluye luces
-            mesh.id.indexOf("camera") === -1 // Excluye cámaras
-            // Puedes añadir más filtros si hay mallas que no quieres mostrar
+            !mesh.isUtility &&
+            mesh.name !== "__root__" &&
+            mesh.name !== "skyBox" &&
+            mesh.id.indexOf("light") === -1 &&
+            mesh.id.indexOf("camera") === -1 &&
+            mesh.name.trim() !== "" && // Asegúrate de que tenga un nombre
+            mesh.name !== "ground" // Excluye el suelo si defaultEnvironment lo crea
         );
+
+        // Opcional: Ordenar alfabéticamente
+        selectableMeshes.sort((a, b) => a.name.localeCompare(b.name));
 
         selectableMeshes.forEach(mesh => {
             const li = document.createElement('li');
-            li.textContent = mesh.name; // Usa el nombre de la malla
-            li.dataset.meshName = mesh.name; // Guarda el nombre de la malla como data-attribute
+            li.textContent = mesh.name;
+            li.dataset.meshName = mesh.name;
             li.addEventListener('click', () => selectMesh(mesh));
             ul.appendChild(li);
         });
     }
 
-    // NUEVO: Función para seleccionar una malla y resaltarla
     function selectMesh(meshToSelect) {
         // Limpiar selección anterior
         if (activeMesh) {
             highlight.removeMesh(activeMesh);
-            // Restaurar el material original si lo habíamos cambiado
-            if (originalMaterials.has(activeMesh.name)) {
-                activeMesh.material = originalMaterials.get(activeMesh.name);
-            }
-            // Quitar la clase 'selected' de la lista HTML
             const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
             if (prevLi) {
                 prevLi.classList.remove('selected');
@@ -345,23 +387,68 @@
 
         // Seleccionar la nueva malla
         activeMesh = meshToSelect;
-        highlight.addMesh(activeMesh, BABYLON.Color3.Teal()); // Color de resaltado, puedes cambiarlo
+        highlight.addMesh(activeMesh, BABYLON.Color3.Yellow()); // Color de resaltado amarillo
         
-        // Opcional: Cambiar el color del material de la malla seleccionada directamente
-        // if (!activeMesh.material.isFrozen) { // Asegúrate de que el material no esté congelado
-        //     activeMesh.material.diffuseColor = new BABYLON.Color3(0.1, 0.7, 0.7); // Un color distinto para el material
-        // }
-
         // Añadir la clase 'selected' a la lista HTML
         const currentLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
         if (currentLi) {
             currentLi.classList.add('selected');
+            // Desplazar la lista para que el elemento seleccionado sea visible
+            currentLi.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         // Mover la cámara para enfocar la malla seleccionada (opcional)
-        // camera.setTarget(activeMesh.position); // O activeMesh.getBoundingInfo().boundingSphere.center
-        // camera.radius = activeMesh.getBoundingInfo().boundingSphere.radius * 2; // Ajusta el zoom
+        // Puedes descomentar y ajustar estos valores
+        // if (activeMesh.getBoundingInfo()) {
+        //     const targetPosition = activeMesh.getBoundingInfo().boundingSphere.center;
+        //     const newRadius = activeMesh.getBoundingInfo().boundingSphere.radius * 2;
+            
+        //     BABYLON.Animation.CreateAndStartAnimation(
+        //         "cameraMove", camera, "target", 30, 120, camera.target, targetPosition, 
+        //         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT, new BABYLON.CubicEase()
+        //     );
+        //     BABYLON.Animation.CreateAndStartAnimation(
+        //         "cameraZoom", camera, "radius", 30, 120, camera.radius, newRadius, 
+        //         BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT, new BABYLON.CubicEase()
+        //     );
+        // }
     }
+
+    // Permitir selección de mallas haciendo click directamente en el canvas
+    scene.onPointerDown = function (evt, pickResult) {
+        if (pickResult.hit) {
+            const mesh = pickResult.pickedMesh;
+            // Solo si la malla es una de las que queremos seleccionar
+            const isSelectable = scene.meshes.some(m => m.name === mesh.name && 
+                                  m.isVisible && !m.isUtility && m.name !== "__root__" && 
+                                  m.name !== "skyBox" && m.id.indexOf("light") === -1 && 
+                                  m.id.indexOf("camera") === -1 && m.name.trim() !== "" &&
+                                  m.name !== "ground");
+            if (isSelectable) {
+                selectMesh(mesh);
+            } else {
+                // Si haces clic en algo no seleccionable (como el suelo o fondo), deselecciona
+                if (activeMesh) {
+                    highlight.removeMesh(activeMesh);
+                    const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
+                    if (prevLi) {
+                        prevLi.classList.remove('selected');
+                    }
+                    activeMesh = null;
+                }
+            }
+        } else {
+            // Si haces clic fuera de cualquier malla, deselecciona
+            if (activeMesh) {
+                highlight.removeMesh(activeMesh);
+                const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
+                if (prevLi) {
+                    prevLi.classList.remove('selected');
+                }
+                activeMesh = null;
+            }
+        }
+    };
 
     engine.runRenderLoop(() => {
       scene.render();
