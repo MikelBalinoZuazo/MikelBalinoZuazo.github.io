@@ -18,10 +18,12 @@
       display: block;
       border: 1px solid #ccc;
       margin-top: 1rem;
+      position: relative;
     }
     .ui-button {
       position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
+      z-index: 1000;
     }
     .animation-gif {
       max-width: 100%;
@@ -31,6 +33,30 @@
     }
     .language-selector {
       position: fixed; top: 10px; right: 10px; z-index: 999;
+    }
+
+    /* Context menu styles */
+    #contextMenu {
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      list-style: none;
+      padding: 5px 0;
+      margin: 0;
+      width: 200px;
+      display: none;
+      z-index: 2000;
+      font-size: 14px;
+    }
+    #contextMenu li {
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    #contextMenu li:hover {
+      background-color: #ffd700;
+      color: #000;
     }
   </style>
 </head>
@@ -82,12 +108,15 @@
     <p data-i18n="cad_text"></p>
   </section>
 
-  <section id="3d-models">
+  <section id="3d-models" style="position: relative;">
     <h2 data-i18n="models_title">3D Models</h2>
     <p data-i18n="models_text"></p>
 
     <canvas id="renderCanvas"></canvas>
     <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
+
+    <!-- Context menu for model parts -->
+    <ul id="contextMenu"></ul>
   </section>
 
   <section id="renders">
@@ -200,6 +229,7 @@
     window.addEventListener('DOMContentLoaded', changeLanguage);
 
     const canvas = document.getElementById("renderCanvas");
+    const contextMenu = document.getElementById("contextMenu");
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine);
 
@@ -221,24 +251,22 @@
       event.preventDefault();
     }, { passive: false });
 
+    let modelMeshes = [];
+
     BABYLON.SceneLoader.Append("./", "modelo.glb", scene, () => {
       scene.createDefaultCameraOrLight(true, true, true);
-      scene.meshes.forEach(mesh => {
+
+      // After model is loaded, grab the meshes (filter empty/hidden ones)
+      modelMeshes = scene.meshes.filter(mesh => mesh.name && mesh.isVisible && mesh.id !== "__root__");
+
+      // Replace materials with white material for all meshes
+      modelMeshes.forEach(mesh => {
         if (mesh.material) {
           const whiteMaterial = new BABYLON.StandardMaterial("whiteMat", scene);
           whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
           mesh.material = whiteMaterial;
         }
       });
-    });
 
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
-
-    window.addEventListener("resize", () => {
-      engine.resize();
-    });
-  </script>
-</body>
-</html>
+      // Build context menu items based on meshes
+      buildContextMenu
