@@ -15,37 +15,33 @@
 
     /* Ajuste de espaciado general entre secciones */
     section {
-        padding: 40px 20px !important; /* Usamos !important para asegurar que sobrescribe */
+        padding: 40px 20px !important;
         margin-bottom: 0 !important;
     }
     header.hero, footer {
         padding: 40px 20px !important;
     }
-    /* Asegúrate de que tu style.css no tenga reglas de margen/padding más fuertes */
-
 
     #renderCanvas {
-      width: 100%; /* Vuelve al 100% de ancho */
+      width: 100%;
       height: 500px;
       display: block;
       border: 1px solid #ccc;
       margin-top: 1rem;
     }
 
-    /* Ajustes para el contenedor del modelo: ahora la lista va debajo */
     .model-interaction-area {
         display: flex;
-        flex-direction: column; /* Cambiado a columna para que la lista vaya debajo */
+        flex-direction: column;
         gap: 20px;
         margin-top: 1rem;
     }
 
-    /* NUEVOS ESTILOS para la lista de partes */
     #partsList {
-        width: 100%; /* La lista ocupa todo el ancho debajo del canvas */
+        width: 100%;
         border: 1px solid #ccc;
         padding: 10px;
-        max-height: 300px; /* Altura máxima más reducida para la lista */
+        max-height: 300px;
         overflow-y: auto;
         background-color: #f9f9f9;
         border-radius: 8px;
@@ -66,21 +62,21 @@
         transition: background-color 0.2s ease, color 0.2s ease;
     }
     #partsList li:last-child {
-        border-bottom: none; /* Elimina el borde del último elemento */
+        border-bottom: none;
     }
     #partsList li:hover {
         background-color: #e0e0e0;
     }
     #partsList li.selected {
-        background-color: gold; /* Color de tu tema */
-        color: black; /* Texto negro para mayor contraste */
+        background-color: gold;
+        color: black;
         font-weight: bold;
     }
 
     .ui-button {
-        position: relative; /* Cambiado a relative para que no flote sobre el canvas */
-        margin-top: 10px; /* Margen superior para separarlo del canvas/lista */
-        background: rgba(0,0,0,0.7); /* Un poco más oscuro para que contraste más */
+        position: relative;
+        margin-top: 10px;
+        background: rgba(0,0,0,0.7);
         color: white;
       border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px;
     }
@@ -178,9 +174,10 @@
 
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>   <script>
-    // ... (Tu objeto translations no cambia) ...
-    const translations = {
+  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+  <script>
+    const translations = {
       en: {
         subtitle: "Engineering Draftsman · 3D Designer · BIM Specialist",
         about_title: "About me",
@@ -241,9 +238,9 @@
         renders_link: "Renderizazioak",
         animations_link: "Animazioak",
         cad_title: "CAD Marrazkiak",
-        cad_text: "AutoCAD eta bestelako marrazketa tresnekin egindako 2D marrazki teknikoen adibideak.",
-        models_title: "3D Ereduak",
-        models_text: "3D eredua interaktiboa. Puedes rotar, hacer zoom y explorar el modelo.",
+        cad_text: "Ejemplos de planos técnicos en 2D realizados con AutoCAD y otras herramientas.",
+        models_title: "Modelos 3D",
+        models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
         renders_title: "Renderizados",
         renders_text: "Argiztapena, materialak eta konposizioa erakusten dituzten renderizazio fotorrealistak.",
         animations_title: "Animazioak",
@@ -270,17 +267,20 @@
     const engine = new BABYLON.Engine(canvas, true);
     const scene = new BABYLON.Scene(engine);
 
-    // Cámara inicial más genérica para asegurar que siempre se vea algo
+    // Cámara y luz básicas que sabemos que funcionan
     const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
-    camera.wheelPrecision = 50; // Ajusta la sensibilidad del zoom
-    camera.lowerRadiusLimit = 2; // Distancia mínima de zoom
-    camera.upperRadiusLimit = 100; // Distancia máxima de zoom
+    camera.wheelPrecision = 50;
+    camera.lowerRadiusLimit = 2;
+    camera.upperRadiusLimit = 100;
 
     const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-    // Guardar estado inicial de la cámara para el botón de reset
-    const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
+    // Variables para el estado inicial de la cámara
+    let initialAlpha = camera.alpha;
+    let initialBeta = camera.beta;
+    let initialRadius = camera.radius;
+    let initialTarget = camera.target.clone();
 
     function resetCamera() {
       camera.setTarget(initialTarget);
@@ -306,50 +306,53 @@
     let originalMaterials = new Map();
     let activeMesh = null;
 
-    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, (meshes) => { // 'meshes' es el array de mallas cargadas
-        // Crear un entorno predeterminado si no lo tienes en tu modelo GLB
-        scene.createDefaultEnvironment({
-            createGround: true, // Crea un suelo
-            createSkyBox: false // No crea un skybox por defecto, puedes añadir uno si quieres
+    BABYLON.SceneLoader.Append("./", "modelo.glb", scene, (meshes) => {
+        // --- CAMBIOS CLAVE AQUÍ ---
+        // Elimina o comenta 'scene.createDefaultCameraOrLight(true, true, true);'
+        // ya que ya definimos cámara y luz arriba.
+
+        // Asegúrate de que el entorno predeterminado se cree SOLO si es necesario.
+        // Si tu modelo ya tiene su propio skybox/ground, esto puede causar duplicados o conflictos.
+        // Si quieres un entorno simple, puedes mantenerlo, pero si no se veía antes, prueba comentándolo.
+        const environmentHelper = scene.createDefaultEnvironment({
+            createGround: true,
+            createSkyBox: false,
+            // Puedes ajustar el nivel de intensidad del entorno si es necesario
+            // environmentTexture: "textures/environment.env" // Si tienes un archivo .env específico
         });
         
-        // La luz predeterminada ya existe, no necesitas scene.createDefaultCameraOrLight(true,true,true);
-        // Si tu modelo ya tiene cámaras y luces, esta línea puede generar conflictos.
-        // Si la eliminas, asegúrate de que haya al menos una luz en la escena.
+        // Ajuste de la cámara para que encuadre el modelo una vez cargado
+        // Esto es crucial para asegurar que el modelo sea visible
+        scene.createDefaultCameraOrLight(true, true, true); // <--- Reintroducimos esto, es el ajuste automático más fiable.
 
-        // Si el modelo contiene un nodo "__root__", ajusta la cámara a ese nodo
-        let rootMesh = scene.getMeshByName("__root__");
-        if (rootMesh) {
-            // Ajustar la cámara para que el modelo se vea bien al cargar
-            const boundingInfo = rootMesh.getBoundingInfo();
-            if (boundingInfo) {
-                camera.setTarget(boundingInfo.boundingSphere.center);
-                camera.radius = boundingInfo.boundingSphere.radius * 2.5; // Ajusta este multiplicador
-                // Reestablecer los valores iniciales para el botón reset si cambian
-                initialAlpha = camera.alpha;
-                initialBeta = camera.beta;
-                initialRadius = camera.radius;
-                initialTarget.copyFrom(camera.target);
-            }
-        } else if (meshes && meshes.length > 0) {
-            // Si no hay un root, intenta ajustar a la primera malla cargada o a un promedio
-             const boundingInfo = scene.getBoundingInfo(); // Esto obtiene el boundingInfo de toda la escena
-             if (boundingInfo && boundingInfo.boundingSphere) {
-                camera.setTarget(boundingInfo.boundingSphere.center);
-                camera.radius = boundingInfo.boundingSphere.radius * 2.5;
+        // Asegúrate de que la cámara esté apuntando y encuadrando el modelo correctamente
+        // Después de cargar el modelo, la cámara automática de Babylon.js debería hacer un buen trabajo
+        // para encuadrar la escena completa.
+        // Si no, puedes intentar apuntar al primer mesh o al root si existe
+        if (scene.meshes.length > 0) {
+            const root = scene.getMeshByName("__root__") || meshes[0];
+            if (root) {
+                // Esto hará que la cámara se centre y ajuste el radio al modelo cargado
+                camera.setTarget(root);
+                camera.radius = root.getBoundingInfo().boundingSphere.radius * 2; // O un valor que te guste
+                
+                // Actualiza los valores iniciales para el botón de reseteo
                 initialAlpha = camera.alpha;
                 initialBeta = camera.beta;
                 initialRadius = camera.radius;
                 initialTarget.copyFrom(camera.target);
             }
         }
+        // --- FIN CAMBIOS CLAVE ---
 
 
       scene.meshes.forEach(mesh => {
-        if (mesh.material) {
-            originalMaterials.set(mesh.name, mesh.material);
-        }
-        mesh.isPickable = true;
+            // No modificamos materiales aquí, Babylon.js debería usar los del GLB
+            // Pero guardamos el material original para poder restaurarlo
+            if (mesh.material) {
+                originalMaterials.set(mesh.name, mesh.material);
+            }
+            mesh.isPickable = true;
       });
 
       highlight = new BABYLON.HighlightLayer("highlight", scene);
@@ -359,13 +362,15 @@
       highlight.blurHorizontalSize = 0.5;
 
       generatePartsList();
-    }, null, (scene, message, exception) => { // Función de error para la carga del modelo
+    }, null, (scene, message, exception) => {
         console.error("Error al cargar el modelo GLB:", message, exception);
-        // Puedes mostrar un mensaje al usuario aquí
         const modelSection = document.getElementById('3d-models');
         if (modelSection) {
-            modelSection.querySelector('p[data-i18n="models_text"]').textContent = "Error: No se pudo cargar el modelo 3D. Asegúrate de que 'modelo.glb' está en la ruta correcta y no está dañado.";
-            modelSection.querySelector('p[data-i18n="models_text"]').style.color = "red";
+            const modelsTextElement = modelSection.querySelector('p[data-i18n="models_text"]');
+            if (modelsTextElement) {
+                modelsTextElement.textContent = "Error: No se pudo cargar el modelo 3D. Asegúrate de que 'modelo.glb' está en la ruta correcta y no está dañado.";
+                modelsTextElement.style.color = "red";
+            }
         }
     });
 
@@ -377,14 +382,12 @@
             mesh.isVisible &&
             !mesh.isUtility &&
             mesh.name !== "__root__" &&
-            mesh.name !== "skyBox" &&
+            mesh.name !== "skyBox" && // Excluir skyBox
             mesh.id.indexOf("light") === -1 &&
             mesh.id.indexOf("camera") === -1 &&
-            mesh.name.trim() !== "" && // Asegúrate de que tenga un nombre no vacío
-            mesh.name !== "ground" && // Excluye el suelo si defaultEnvironment lo crea
-            mesh.name.toLowerCase().indexOf("env") === -1 && // Excluye mallas de entorno generadas
-            mesh.name.toLowerCase().indexOf("light") === -1 && // Más filtros para luces
-            mesh.name.toLowerCase().indexOf("camera") === -1
+            mesh.name.trim() !== "" &&
+            mesh.name !== "ground" && // Excluir suelo
+            mesh.name.toLowerCase().indexOf("hdrskybox") === -1 // Añadido para algunos entornos
         );
 
         selectableMeshes.sort((a, b) => a.name.localeCompare(b.name));
@@ -405,7 +408,6 @@
     }
 
     function selectMesh(meshToSelect) {
-        // Limpiar selección anterior
         if (activeMesh) {
             highlight.removeMesh(activeMesh);
             const prevLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
@@ -414,11 +416,9 @@
             }
         }
 
-        // Seleccionar la nueva malla
         activeMesh = meshToSelect;
-        highlight.addMesh(activeMesh, BABYLON.Color3.Yellow()); // Color de resaltado amarillo
+        highlight.addMesh(activeMesh, BABYLON.Color3.Yellow());
         
-        // Añadir la clase 'selected' a la lista HTML
         const currentLi = document.querySelector(`#modelPartsUL li[data-mesh-name="${activeMesh.name}"]`);
         if (currentLi) {
             currentLi.classList.add('selected');
@@ -426,26 +426,18 @@
         }
     }
 
-    // Permitir selección de mallas haciendo click directamente en el canvas
     scene.onPointerDown = function (evt, pickResult) {
-        // Si no es un clic en una malla, no hacemos nada (la cámara seguirá rotando/panneando)
         if (!pickResult.hit || !pickResult.pickedMesh) {
-            // Si haces clic fuera de cualquier malla y ya hay una seleccionada, deselecciona
-            if (activeMesh && pickResult.hit && pickResult.pickedMesh.name === "ground") { // Clic en el suelo
-                 deselectMesh();
-            } else if (!pickResult.hit) { // Clic en el espacio vacío
-                deselectMesh();
-            }
-            return; 
+            deselectMesh();
+            return;
         }
 
         const mesh = pickResult.pickedMesh;
-        // Solo si la malla es una de las que queremos seleccionar
         const isSelectable = scene.meshes.some(m => m.name === mesh.name && 
                                   m.isVisible && !m.isUtility && m.name !== "__root__" && 
                                   m.name !== "skyBox" && m.id.indexOf("light") === -1 && 
                                   m.id.indexOf("camera") === -1 && m.name.trim() !== "" &&
-                                  m.name !== "ground" && m.name.toLowerCase().indexOf("env") === -1);
+                                  m.name !== "ground" && m.name.toLowerCase().indexOf("hdrskybox") === -1);
         
         if (isSelectable) {
             selectMesh(mesh);
@@ -454,7 +446,6 @@
         }
     };
 
-    // Nueva función para deseleccionar una malla
     function deselectMesh() {
         if (activeMesh) {
             highlight.removeMesh(activeMesh);
@@ -465,7 +456,6 @@
             activeMesh = null;
         }
     }
-
 
     engine.runRenderLoop(() => {
       scene.render();
