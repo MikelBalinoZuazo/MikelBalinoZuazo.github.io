@@ -20,6 +20,65 @@
   <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
 
   <style>
+
+    #chatbot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  max-height: 400px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+
+#chatbot-header {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+  user-select: none;
+}
+
+#chatbot-body {
+  background-color: white;
+  display: none;
+  flex-direction: column;
+  height: 300px;
+}
+
+#chatbot-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+#chatbot-input {
+  border: none;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  width: calc(100% - 20px);
+  box-sizing: border-box;
+}
+
+.message {
+  margin-bottom: 10px;
+}
+
+.message.user {
+  text-align: right;
+}
+
+.message.bot {
+  text-align: left;
+  color: #007bff;
+}
+    
+    
     html, body {
       margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
     }
@@ -46,6 +105,16 @@
   </style>
 </head>
 <body>
+
+<!-- Chatbot Bubble -->
+<div id="chatbot">
+  <div id="chatbot-header">💬 Chat</div>
+  <div id="chatbot-body">
+    <div id="chatbot-messages"></div>
+    <input type="text" id="chatbot-input" placeholder="Ask me about my portfolio..." />
+  </div>
+</div>
+
   
   <!--<div style="background-color: #ffd700; color: #000; padding: 10px; text-align: center; font-weight: 500;">
     ⚠️ This website is currently under development. Some sections might be incomplete.
@@ -279,9 +348,65 @@
     window.addEventListener("resize", () => {
       engine.resize();
     });
+
+// Abrir y cerrar la burbuja
+const chatbotHeader = document.getElementById("chatbot-header");
+const chatbotBody = document.getElementById("chatbot-body");
+chatbotHeader.addEventListener("click", () => {
+  chatbotBody.style.display = chatbotBody.style.display === "flex" ? "none" : "flex";
+});
+
+// Añadir mensajes
+function addMessage(sender, text) {
+  const messagesDiv = document.getElementById("chatbot-messages");
+  const msgDiv = document.createElement("div");
+  msgDiv.classList.add("message", sender);
+  msgDiv.textContent = text;
+  messagesDiv.appendChild(msgDiv);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Información de tu portfolio que el bot puede usar
+const portfolioData = [
+  { topic: "CAD", info: "I create precise 2D CAD drawings using Rhino and AutoCAD." },
+  { topic: "3D", info: "I model 3D projects in Rhino and Grasshopper." },
+  { topic: "Renders", info: "I create realistic renderings of my 3D models." },
+  { topic: "Animations", info: "I produce smooth 3D animations for project visualization." },
+  { topic: "experience", info: "I work as a BIM modeler at SAITEC and have experience as a draftsman and civil engineering consultant." }
+];
+
+// Función simple de búsqueda de respuestas
+function getBotResponse(message) {
+  const msg = message.toLowerCase();
+  for (let item of portfolioData) {
+    if (msg.includes(item.topic.toLowerCase())) {
+      return item.info;
+    }
+  }
+  return "Sorry, I can answer only questions about my portfolio for now.";
+}
+
+// Manejo del input del usuario
+const chatbotInput = document.getElementById("chatbot-input");
+chatbotInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter" && chatbotInput.value.trim() !== "") {
+    const userMessage = chatbotInput.value.trim();
+    addMessage("user", userMessage);
+    chatbotInput.value = "";
+
+    setTimeout(() => {
+      const botMessage = getBotResponse(userMessage);
+      addMessage("bot", botMessage);
+    }, 500);
+  }
+});
+
+    
   </script>
+  
 </body>
 </html>
+
 
 
 
