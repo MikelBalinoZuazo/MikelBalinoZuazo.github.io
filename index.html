@@ -280,261 +280,112 @@
       engine.resize();
     });
 
-<!-- Chat Flotante Premium Multilenguaje -->
-<style>
-  #chat-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 320px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    z-index: 1000;
-  }
-
-  #chat-button {
-    background-color: #1e40af;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    cursor: pointer;
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-    transition: transform 0.2s;
-  }
-  #chat-button:hover {
-    transform: scale(1.1);
-  }
-
-  #chat-window {
-    display: none;
-    flex-direction: column;
-    background: #f7f7f7;
-    border-radius: 15px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    height: 450px;
-    overflow: hidden;
-    margin-top: 10px;
-    animation: fadeIn 0.3s;
-  }
-
-  @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
-  }
-
-  #chat-messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .message {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .message.user {
-    justify-content: flex-end;
-  }
-
-  .message .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .message .text {
-    max-width: 70%;
-    padding: 10px 12px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.4;
-  }
-
-  .message.user .text {
-    background-color: #1e40af;
-    color: white;
-    border-bottom-right-radius: 0;
-  }
-
-  .message.bot .text {
-    background-color: #e0e0e0;
-    color: #333;
-    border-bottom-left-radius: 0;
-  }
-
-  #chat-input-container {
-    display: flex;
-    border-top: 1px solid #ccc;
-    padding: 10px;
-    background: #fff;
-  }
-
-  #chat-input {
-    flex: 1;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    padding: 8px 15px;
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s;
-  }
-
-  #chat-input:focus {
-    border-color: #1e40af;
-    box-shadow: 0 0 5px rgba(30,64,175,0.5);
-  }
-
-  #chat-send {
-    background-color: #1e40af;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: transform 0.2s;
-  }
-  #chat-send:hover {
-    transform: scale(1.1);
-  }
-</style>
-
-<div id="chat-container">
-  <button id="chat-button">💬</button>
-  <div id="chat-window">
-    <div id="chat-messages"></div>
-    <div id="chat-input-container">
-      <input type="text" id="chat-input" placeholder="Type your message...">
-      <button id="chat-send">➤</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  window.currentLang = 'en'; // Cambia según idioma por defecto
-
-  const chatButton = document.getElementById('chat-button');
-  const chatWindow = document.getElementById('chat-window');
-  const chatSend = document.getElementById('chat-send');
-  const chatInput = document.getElementById('chat-input');
-  const chatMessages = document.getElementById('chat-messages');
-
-  chatButton.addEventListener('click', () => {
-    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
-  });
-
+  // Datos del bot
   const chatData = {
     en: {
       intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
-      fallback: ["Sorry, I didn't understand that. Could you rephrase?", "I'm not sure about that. Can you ask differently?", "Hmm, I don't get it. Try another question!"],
-      intents: {
-        greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?", "Hey! I'm here to answer your questions."],
-        name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant.", "I assist with questions about Mikel."],
-        skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools.", "He is proficient in Rhino, Grasshopper, AutoCAD, and BIM.", "Mikel works with Rhino, Grasshopper, AutoCAD, and BIM tools."],
-        projects: ["You can explore Mikel's projects in the CAD, 3D, Renders, and Animations sections.", "Check out Mikel's portfolio: CAD, 3D, Renders, and Animations.", "Mikel's work is available in CAD, 3D, Renders, and Animations sections."],
-        contact: ["You can reach Mikel via email or LinkedIn.", "Contact Mikel through email or LinkedIn.", "Feel free to email Mikel or find him on LinkedIn."]
-      }
+      fallback: "Sorry, I didn't understand that. Could you rephrase?",
+      knowledge: [
+        { patterns: [/hello|hi|hey/i], response: "Hello! How can I help you today?" },
+        { patterns: [/your name|who are you/i], response: "I'm the virtual assistant of Mikel Baliño Zuazo." },
+        { patterns: [/skills|tools|software|programs|what do you use/i], response: "Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools." },
+        { patterns: [/projects|work|portfolio/i], response: "You can explore Mikel's projects in the CAD, 3D, Renders, and Animations sections." },
+        { patterns: [/contact|email|linkedin/i], response: "You can reach Mikel via email or LinkedIn." }
+      ]
     },
     es: {
-      intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame sobre su trabajo, habilidades o proyectos.",
-      fallback: ["Lo siento, no entendí eso. ¿Puedes reformular?", "No estoy seguro sobre eso. ¿Puedes preguntar de otra manera?", "Hmm, no lo entiendo. ¡Intenta otra pregunta!"],
-      intents: {
-        greeting: ["¡Hola! ¿Cómo puedo ayudarte hoy?", "¡Hola! ¿Qué te gustaría saber?", "¡Hey! Estoy aquí para responder tus preguntas."],
-        name: ["Soy el asistente virtual de Mikel Baliño Zuazo.", "Puedes llamarme el asistente de Mikel.", "Asisto con preguntas sobre Mikel."],
-        skills: ["Mikel usa principalmente Rhino, Grasshopper, AutoCAD y herramientas BIM.", "Es competente en Rhino, Grasshopper, AutoCAD y BIM.", "Mikel trabaja con Rhino, Grasshopper, AutoCAD y herramientas BIM."],
-        projects: ["Puedes explorar los proyectos de Mikel en las secciones CAD, 3D, Renders y Animaciones.", "Consulta el portfolio de Mikel: CAD, 3D, Renders y Animaciones.", "El trabajo de Mikel está disponible en CAD, 3D, Renders y Animaciones."],
-        contact: ["Puedes contactar a Mikel por email o LinkedIn.", "Contacta con Mikel por email o LinkedIn.", "No dudes en enviar un email a Mikel o buscarlo en LinkedIn."]
-      }
+      intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame lo que quieras sobre su trabajo, habilidades o proyectos.",
+      fallback: "Lo siento, no entendí eso. ¿Puedes reformularlo?",
+      knowledge: [
+        { patterns: [/hola|buenas/i], response: "¡Hola! ¿En qué puedo ayudarte hoy?" },
+        { patterns: [/tu nombre|cómo te llamas/i], response: "Soy el asistente virtual de Mikel Baliño Zuazo." },
+        { patterns: [/habilidades|herramientas|programas|software|qué usas/i], response: "Mikel trabaja principalmente con Rhino, Grasshopper, AutoCAD y herramientas BIM." },
+        { patterns: [/proyectos|trabajo|portfolio/i], response: "Puedes ver los proyectos de Mikel en las secciones CAD, 3D, Renders y Animaciones." },
+        { patterns: [/contacto|email|linkedin/i], response: "Puedes contactar con Mikel por email o LinkedIn." }
+      ]
     },
     eu: {
-      intro: "Kaixo! Mikel-en laguntzaile birtuala naiz. Bere lanari, trebetasunei edo proiektuei buruz galdetu nazakezu.",
-      fallback: ["Barkatu, ez dut hori ulertu. Berrestu dezakezu?", "Ez nago ziur horretan. Beste modu batean galdetu dezakezu?", "Hmm, ez dut ulertzen. Saiatu beste galdera batekin!"],
-      intents: {
-        greeting: ["Kaixo! Nola lagun zaitzaket gaur?", "Kaixo! Zer jakin nahi duzu?", "Hey! Hemen nago zure galderak erantzuteko."],
-        name: ["Mikel Baliño Zuazoren laguntzaile birtuala naiz.", "Mikel-en laguntzaile deitu nazakezu.", "Mikel-i buruzko galderetan laguntzen dut."],
-        skills: ["Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditu.", "Rhino, Grasshopper, AutoCAD eta BIM-tan trebea da.", "Mikel Rhino, Grasshopper, AutoCAD eta BIM tresnekin lan egiten du."],
-        projects: ["Mikel-en proiektuak CAD, 3D, Renders eta Animazioak ataletan aurki ditzakezu.", "Kontsultatu Mikel-en portfolioa: CAD, 3D, Renders eta Animazioak.", "Mikel-en lana CAD, 3D, Renders eta Animazioak ataletan dago eskuragarri."],
-        contact: ["Mikel-ekin email edo LinkedIn bidez harremanetan jar zaitezke.", "Harremanetan jarri Mikel-rekin email edo LinkedIn bidez.", "Barkatu, bidali email bat Mikel-i edo bilatu LinkedIn-en."]
-      }
+      intro: "Kaixo! Mikel-en laguntzaile birtuala naiz. Bere lana, trebetasunak edo proiektuak galdetu dezakezu.",
+      fallback: "Barkatu, hori ez dut ulertu. Berrazter dezakezu?",
+      knowledge: [
+        { patterns: [/kaixo|hola/i], response: "Kaixo! Nola lagundu dezaket?" },
+        { patterns: [/zure izena|nor zara/i], response: "Mikel Baliño Zuazo-ren laguntzaile birtuala naiz." },
+        { patterns: [/trebetasun|tresnak|software|programak|zer erabiltzen/i], response: "Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditu." },
+        { patterns: [/proiektu|lana|portfolio/i], response: "Mikel-en proiektuak CAD, 3D, Renders eta Animazioen ataletan ikus ditzakezu." },
+        { patterns: [/kontaktua|email|linkedin/i], response: "Mikel kontaktatu dezakezu email edo LinkedIn bidez." }
+      ]
     }
   };
 
-  function detectIntent(message) {
-    message = message.toLowerCase();
-    if (/(hello|hi|hey|hola|kaixo)/i.test(message)) return 'greeting';
-    if (/(your name|who are you|tu nombre|cómo te llamas|zure izena|nor zara)/i.test(message)) return 'name';
-    if (/(skills|tools|software|programs|habilidades|herramientas|trebetasun)/i.test(message)) return 'skills';
-    if (/(projects|work|portfolio|proyectos|trabajo|lana)/i.test(message)) return 'projects';
-    if (/(contact|email|linkedin|contacto|kontaktua)/i.test(message)) return 'contact';
-    return null;
-  }
-
+  // Función para obtener respuesta
   function getResponse(message, lang) {
-    const intent = detectIntent(message);
     const data = chatData[lang];
-    if (intent) {
-      const responses = data.intents[intent];
-      return responses[Math.floor(Math.random() * responses.length)];
-    } else {
-      const fallback = data.fallback;
-      return fallback[Math.floor(Math.random() * fallback.length)];
+    message = message.toLowerCase();
+
+    // Recorre todo el conocimiento y busca coincidencias parciales
+    for (const item of data.knowledge) {
+      if (item.patterns.some(p => p.test(message))) {
+        return item.response;
+      }
     }
+
+    // Si no encuentra coincidencia, intenta buscar palabras clave sueltas
+    const keywords = ['rhino','grasshopper','autocad','bim','projects','portfolio','email','linkedin'];
+    for (const key of keywords) {
+      if (message.includes(key)) return `You asked about "${key}". Check the relevant section in Mikel's portfolio.`;
+    }
+
+    // Si aún no hay coincidencia, mensaje de fallback
+    return data.fallback;
   }
 
-  function addMessage(text, sender) {
-    const msg = document.createElement('div');
-    msg.classList.add('message', sender);
-    const avatar = document.createElement('div');
-    avatar.classList.add('avatar');
-    avatar.style.backgroundImage = sender === 'user' ? "url('https://i.imgur.com/8Km9tLL.png')" : "url('https://i.imgur.com/7k12EPD.png')";
-    avatar.style.backgroundSize = "cover";
-
-    const messageText = document.createElement('div');
-    messageText.classList.add('text');
-    messageText.textContent = text;
-
-    msg.appendChild(avatar);
-    msg.appendChild(messageText);
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
+  // Función para enviar mensaje
   function sendMessage() {
-    const msg = chatInput.value.trim();
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
     if (!msg) return;
-    addMessage(msg, 'user');
-    const botReply = getResponse(msg, window.currentLang);
-    setTimeout(() => addMessage(botReply, 'bot'), 400);
-    chatInput.value = '';
+
+    const messages = document.getElementById('chat-messages');
+
+    // Mensaje del usuario
+    const userMsg = document.createElement('div');
+    userMsg.textContent = "You: " + msg;
+    userMsg.style.fontWeight = 'bold';
+    messages.appendChild(userMsg);
+
+    // Mensaje del bot
+    const lang = window.currentLang || 'en';
+    const botReply = getResponse(msg, lang);
+    const botMsg = document.createElement('div');
+    botMsg.textContent = "Bot: " + botReply;
+    messages.appendChild(botMsg);
+
+    messages.scrollTop = messages.scrollHeight;
+    input.value = '';
   }
 
-  chatSend.addEventListener('click', sendMessage);
-  chatInput.addEventListener('keypress', function(e) {
+  // Enviar con Enter
+  document.getElementById('chat-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') sendMessage();
   });
 
+  // Mostrar mensaje de bienvenida al cargar
   window.addEventListener('DOMContentLoaded', () => {
-    addMessage(chatData[window.currentLang].intro, 'bot');
+    const messages = document.getElementById('chat-messages');
+    const lang = window.currentLang || 'en';
+    const welcome = document.createElement('div');
+    welcome.textContent = "Bot: " + chatData[lang].intro;
+    messages.appendChild(welcome);
   });
 </script>
+
 
     
   </script>
 </body>
 </html>
+
 
 
 
