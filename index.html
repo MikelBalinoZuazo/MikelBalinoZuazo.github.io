@@ -279,90 +279,9 @@
     window.addEventListener("resize", () => {
       engine.resize();
     });
-
-//CHATBOT
-
-    <script>
-  const chatResponses = {
-    en: [
-      { keywords: ["hello", "hi", "hey"], response: "Hi! I'm Mikel's assistant. How can I help you today?" },
-      { keywords: ["name"], response: "My name is Mikel Baliño Zuazo." },
-      { keywords: ["skills", "tools", "software", "programs"], response: "Mikel works mainly with Rhino, Grasshopper, AutoCAD, and BIM tools." },
-      { keywords: ["projects", "work", "portfolio"], response: "You can check Mikel's projects in the CAD, 3D, Renders, and Animations sections." },
-      { keywords: ["contact", "email", "linkedin"], response: "You can contact Mikel via email or LinkedIn." },
-      { keywords: [], response: "Sorry, I didn't understand that. Can you rephrase?" }
-    ],
-    es: [
-      { keywords: ["hola", "buenas"], response: "¡Hola! Soy el asistente de Mikel. ¿En qué puedo ayudarte?" },
-      { keywords: ["nombre"], response: "Me llamo Mikel Baliño Zuazo." },
-      { keywords: ["habilidades", "herramientas", "programas", "software"], response: "Mikel trabaja principalmente con Rhino, Grasshopper, AutoCAD y herramientas BIM." },
-      { keywords: ["proyectos", "trabajo", "portfolio"], response: "Puedes ver los proyectos de Mikel en las secciones CAD, 3D, Renders y Animaciones." },
-      { keywords: ["contacto", "email", "linkedin"], response: "Puedes contactar con Mikel por email o LinkedIn." },
-      { keywords: [], response: "Lo siento, no entendí eso. ¿Puedes reformularlo?" }
-    ],
-    eu: [
-      { keywords: ["kaixo", "hola"], response: "Kaixo! Mikel-en laguntzailea naiz. Nola lagundu dezaket?" },
-      { keywords: ["izena", "name"], response: "Nire izena Mikel Baliño Zuazo da." },
-      { keywords: ["trebetasun", "tresnak", "software", "programak"], response: "Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditu." },
-      { keywords: ["proiektu", "lana", "portfolio"], response: "Mikel-en proiektuak CAD, 3D, Renders eta Animazioen ataletan ikus ditzakezu." },
-      { keywords: ["kontaktua", "email", "linkedin"], response: "Mikel kontaktatu dezakezu email edo LinkedIn bidez." },
-      { keywords: [], response: "Barkatu, hori ez dut ulertu. Berrazter dezakezu?" }
-    ]
-  };
-
-  function getResponse(message, lang) {
-    message = message.toLowerCase();
-    const responses = chatResponses[lang];
-    for (let item of responses) {
-      if (item.keywords.some(keyword => message.includes(keyword))) {
-        return item.response;
-      }
-    }
-    // Si no coincide con ninguna palabra clave, devuelve el mensaje por defecto
-    return responses[responses.length - 1].response;
-  }
-
-  function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    const messages = document.getElementById('chat-messages');
-
-    // Mensaje del usuario
-    const userMsg = document.createElement('div');
-    userMsg.textContent = "You: " + msg;
-    userMsg.style.fontWeight = 'bold';
-    messages.appendChild(userMsg);
-
-    // Mensaje del bot
-    const lang = window.currentLang || 'en';
-    const botReply = getResponse(msg, lang);
-    const botMsg = document.createElement('div');
-    botMsg.textContent = "Bot: " + botReply;
-    messages.appendChild(botMsg);
-
-    messages.scrollTop = messages.scrollHeight;
-    input.value = '';
-  }
-
-  // Permite enviar mensaje con Enter
-  document.getElementById('chat-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') sendMessage();
-  });
-</script>
-
-
-
-    
   </script>
 </body>
 </html>
-
-
-
-
-
 
 
 
