@@ -285,38 +285,41 @@
     <script>
   const chatResponses = {
     en: [
-      { patterns: [/hello|hi|hey/i], response: "Hi! I'm Mikel's assistant. How can I help you today?" },
-      { patterns: [/your name|who are you/i], response: "My name is Mikel Baliño Zuazo." },
-      { patterns: [/skills|tools|software|programs|what do you use/i], response: "Mikel works mainly with Rhino, Grasshopper, AutoCAD, and BIM tools." },
-      { patterns: [/projects|work|portfolio|show me your work/i], response: "You can check Mikel's projects in the CAD, 3D, Renders, and Animations sections." },
-      { patterns: [/contact|email|linkedin|how to reach/i], response: "You can contact Mikel via email or LinkedIn." },
-      { patterns: [/.*/], response: "Sorry, I didn't understand that. Can you rephrase?" }
+      { keywords: ["hello", "hi", "hey"], response: "Hi! I'm Mikel's assistant. How can I help you today?" },
+      { keywords: ["name"], response: "My name is Mikel Baliño Zuazo." },
+      { keywords: ["skills", "tools", "software", "programs"], response: "Mikel works mainly with Rhino, Grasshopper, AutoCAD, and BIM tools." },
+      { keywords: ["projects", "work", "portfolio"], response: "You can check Mikel's projects in the CAD, 3D, Renders, and Animations sections." },
+      { keywords: ["contact", "email", "linkedin"], response: "You can contact Mikel via email or LinkedIn." },
+      { keywords: [], response: "Sorry, I didn't understand that. Can you rephrase?" }
     ],
     es: [
-      { patterns: [/hola|buenas/i], response: "¡Hola! Soy el asistente de Mikel. ¿En qué puedo ayudarte?" },
-      { patterns: [/tu nombre|cómo te llamas/i], response: "Me llamo Mikel Baliño Zuazo." },
-      { patterns: [/habilidades|herramientas|programas|software|qué usas/i], response: "Mikel trabaja principalmente con Rhino, Grasshopper, AutoCAD y herramientas BIM." },
-      { patterns: [/proyectos|trabajo|portfolio|muéstrame tu trabajo/i], response: "Puedes ver los proyectos de Mikel en las secciones CAD, 3D, Renders y Animaciones." },
-      { patterns: [/contacto|email|linkedin|cómo contactar/i], response: "Puedes contactar con Mikel por email o LinkedIn." },
-      { patterns: [/.*/], response: "Lo siento, no entendí eso. ¿Puedes reformularlo?" }
+      { keywords: ["hola", "buenas"], response: "¡Hola! Soy el asistente de Mikel. ¿En qué puedo ayudarte?" },
+      { keywords: ["nombre"], response: "Me llamo Mikel Baliño Zuazo." },
+      { keywords: ["habilidades", "herramientas", "programas", "software"], response: "Mikel trabaja principalmente con Rhino, Grasshopper, AutoCAD y herramientas BIM." },
+      { keywords: ["proyectos", "trabajo", "portfolio"], response: "Puedes ver los proyectos de Mikel en las secciones CAD, 3D, Renders y Animaciones." },
+      { keywords: ["contacto", "email", "linkedin"], response: "Puedes contactar con Mikel por email o LinkedIn." },
+      { keywords: [], response: "Lo siento, no entendí eso. ¿Puedes reformularlo?" }
     ],
     eu: [
-      { patterns: [/kaixo|hola/i], response: "Kaixo! Mikel-en laguntzailea naiz. Nola lagundu dezaket?" },
-      { patterns: [/zure izena|nor zara/i], response: "Nire izena Mikel Baliño Zuazo da." },
-      { patterns: [/trebetasun|tresnak|software|programak|zer erabiltzen/i], response: "Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditu." },
-      { patterns: [/proiektu|lana|portfolio|erakutsi lan/i], response: "Mikel-en proiektuak CAD, 3D, Renders eta Animazioen ataletan ikus ditzakezu." },
-      { patterns: [/kontaktua|email|linkedin|nola jarri/i], response: "Mikel kontaktatu dezakezu email edo LinkedIn bidez." },
-      { patterns: [/.*/], response: "Barkatu, hori ez dut ulertu. Berrazter dezakezu?" }
+      { keywords: ["kaixo", "hola"], response: "Kaixo! Mikel-en laguntzailea naiz. Nola lagundu dezaket?" },
+      { keywords: ["izena", "name"], response: "Nire izena Mikel Baliño Zuazo da." },
+      { keywords: ["trebetasun", "tresnak", "software", "programak"], response: "Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditu." },
+      { keywords: ["proiektu", "lana", "portfolio"], response: "Mikel-en proiektuak CAD, 3D, Renders eta Animazioen ataletan ikus ditzakezu." },
+      { keywords: ["kontaktua", "email", "linkedin"], response: "Mikel kontaktatu dezakezu email edo LinkedIn bidez." },
+      { keywords: [], response: "Barkatu, hori ez dut ulertu. Berrazter dezakezu?" }
     ]
   };
 
   function getResponse(message, lang) {
+    message = message.toLowerCase();
     const responses = chatResponses[lang];
     for (let item of responses) {
-      if (item.patterns.some(pattern => pattern.test(message))) {
+      if (item.keywords.some(keyword => message.includes(keyword))) {
         return item.response;
       }
     }
+    // Si no coincide con ninguna palabra clave, devuelve el mensaje por defecto
+    return responses[responses.length - 1].response;
   }
 
   function sendMessage() {
@@ -355,6 +358,7 @@
   </script>
 </body>
 </html>
+
 
 
 
