@@ -290,29 +290,47 @@
     console.log('Framed scene: center=', center, 'radius=', radius, 'meshes=', meshes.length);
   }
 
-  // Load model (do NOT call createDefaultCameraOrLight)
-  BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
-    // sceneResult is the scene object; wait one frame to ensure boundinginfo updated
-    engine.runRenderLoop(() => scene.render()); // ensure rendering runs during load too
-    // small timeout to let glTF transform/update world matrices
-    setTimeout(() => {
-      try {
-        frameSceneAndStoreValues(sceneResult);
-      } catch (e) {
-        console.warn('Error framing model:', e);
-      }
-    }, 50);
-  }, null, function (sceneRef, message, exception) {
-    console.warn('Model load warning/error:', message, exception);
-  });
+ // Load model (do NOT call createDefaultCameraOrLight)
+BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
+  // 1) set a background color you like (adjust values 0..1)
+  scene.clearColor = new BABYLON.Color3(0.92, 0.94, 0.98); // suave azul claro — cámbialo si quieres
 
-  engine.runRenderLoop(() => {
-    if (scene) scene.render();
-  });
+  // 2) Ensure rendering runs during load too
+  engine.runRenderLoop(() => scene.render());
 
-  window.addEventListener("resize", () => {
-    engine.resize();
-  });
+  // small timeout to let glTF world matrices update, then frame + recolor materials
+  setTimeout(() => {
+    try {
+      // Apply a plain white StandardMaterial to each visible mesh
+      sceneResult.meshes.forEach(mesh => {
+        // skip lights/cameras by checking getTotalVertices (non-geometry can return 0)
+        try {
+          if (!mesh.getTotalVertices || mesh.getTotalVertices() === 0) return;
+        } catch(e) { /* ignore */ }
+
+        // create white material (unique per mesh to avoid shared state issues)
+        const whiteMat = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, scene);
+        whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
+        // reduce specular to avoid too-shiny look
+        whiteMat.specularColor = new BABYLON.Color3(0.15, 0.15, 0.15);
+        // assign
+        try {
+          mesh.material = whiteMat;
+        } catch (e) {
+          console.warn('Could not assign material to mesh', mesh.id, e);
+        }
+      });
+
+      // Now frame the scene (centra el modelo y ajusta radius)
+      frameSceneAndStoreValues(sceneResult);
+    } catch (e) {
+      console.warn('Error framing / recoloring model:', e);
+    }
+  }, 60);
+}, null, function (sceneRef, message, exception) {
+  console.warn('Model load warning/error:', message, exception);
+});
+
 })();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
 
   </script>
@@ -488,3 +506,4 @@
 
 </body>
 </html>
+
