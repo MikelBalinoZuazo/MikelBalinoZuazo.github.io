@@ -204,50 +204,126 @@
     }
     window.addEventListener('DOMContentLoaded', changeLanguage);
 
-    /* ---------- Babylon setup (safe) ---------- */
-    (function initBabylon() {
-      const canvas = document.getElementById("renderCanvas");
-      if (!canvas) return; // nothing to do if canvas missing
+    /* ---------- Babylon setup (safe + auto-frame) ---------- */
+(function initBabylon() {
+  const canvas = document.getElementById("renderCanvas");
+  if (!canvas) {
+    console.warn('No renderCanvas found.');
+    return; // nothing to do if canvas missing
+  }
 
-      const engine = new BABYLON.Engine(canvas, true);
-      const scene = new BABYLON.Scene(engine);
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+  scene.clearColor = new BABYLON.Color3(0.95, 0.95, 0.95); // soft background
 
-      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
-      camera.attachControl(canvas, true);
+  // Camera (start at a reasonable position, will be re-framed after load)
+  const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+  camera.wheelPrecision = 50;
+  camera.attachControl(canvas, true);
 
-      const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+  // Lights
+  const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+  hemi.intensity = 0.9;
+  const dir = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-0.5, -1, 0.5), scene);
+  dir.position = new BABYLON.Vector3(20, 40, 20);
+  dir.intensity = 0.6;
 
-      const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
+  // Stored "initial" framing values (we will set them after model loads)
+  let initialAlpha = camera.alpha;
+  let initialBeta = camera.beta;
+  let initialRadius = camera.radius;
+  let initialTarget = camera.target.clone();
 
-      window.resetCamera = function() {
-        camera.setTarget(initialTarget);
-        camera.alpha = initialAlpha;
-        camera.beta = initialBeta;
-        camera.radius = initialRadius;
-      };
+  // Expose resetCamera that restores to the framed view (updated on load)
+  window.resetCamera = function() {
+    try {
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
+    } catch (e) { console.warn('resetCamera failed', e); }
+  };
 
-      // prevent page scroll only when wheel over canvas
-      canvas.addEventListener("wheel", function (event) {
-        event.preventDefault();
-      }, { passive: false });
+  // prevent page scroll only when wheel over canvas
+  canvas.addEventListener("wheel", function (event) {
+    event.preventDefault();
+  }, { passive: false });
 
-      // Load model: do NOT create default camera/light (to avoid replacing camera)
-      BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneLoaded) {
-        sceneLoaded.meshes.forEach(mesh => {
-          if (mesh.material) {
-            const whiteMaterial = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, sceneLoaded);
-            whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
-            mesh.material = whiteMaterial;
-          }
-        });
-      }, null, function (sceneRef, message, exception) {
-        console.warn('Model load warning/error:', message, exception);
-      });
+  // Helper: frame the scene meshes and set camera appropriately
+  function frameSceneAndStoreValues(sceneRef) {
+    // collect visible geometry meshes (exclude lights/cameras/helpers)
+    const meshes = sceneRef.meshes.filter(m => m.isVisible && m.getTotalVertices && m.getTotalVertices() > 0);
+    if (!meshes || meshes.length === 0) {
+      console.warn('No geometry meshes found to frame.');
+      return;
+    }
 
-      engine.runRenderLoop(() => scene.render());
-      window.addEventListener("resize", () => engine.resize());
-    })();
-  </script>
+    // Compute global bounding box
+    let min = new BABYLON.Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    let max = new BABYLON.Vector3(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+    meshes.forEach(mesh => {
+      const bb = mesh.getBoundingInfo().boundingBox;
+      min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
+      max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
+    });
+
+    const center = min.add(max).scale(0.5);
+    const sizeVec = max.subtract(min);
+    const maxDimension = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
+    const diag = sizeVec.length();
+    // Choose radius so object fits well in view
+    const radius = Math.max(diag * 0.8, maxDimension * 1.2, 1);
+
+    // Update camera target and radius smoothly
+    camera.setTarget(center);
+    camera.radius = radius * 1.6;
+    // reasonable limits
+    camera.lowerRadiusLimit = Math.max(radius * 0.2, 0.1);
+    camera.upperRadiusLimit = radius * 20;
+
+    // store framed initial values for resetCamera
+    initialAlpha = camera.alpha;
+    initialBeta = camera.beta;
+    initialRadius = camera.radius;
+    initialTarget = center.clone();
+
+    console.log('Framed scene: center=', center, 'radius=', radius, 'meshes=', meshes.length);
+  }
+
+  // Load model (do NOT call createDefaultCameraOrLight)
+  BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
+    // sceneResult is the scene object; wait one frame to ensure boundinginfo updated
+    engine.runRenderLoop(() => scene.render()); // ensure rendering runs during load too
+    // small timeout to let glTF transform/update world matrices
+    setTimeout(() => {
+      try {
+        frameSceneAndStoreValues(sceneResult);
+      } catch (e) {
+        console.warn('Error framing model:', e);
+      }
+    }, 50);
+
+    // Optional: enforce visible materials if needed (uncomment if you want)
+    // sceneResult.meshes.forEach(mesh => {
+    //   if (mesh.material) {
+    //     const mat = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, sceneResult);
+    //     mat.diffuseColor = new BABYLON.Color3(1,1,1);
+    //     mesh.material = mat;
+    //   }
+    // });
+  }, null, function (sceneRef, message, exception) {
+    console.warn('Model load warning/error:', message, exception);
+  });
+
+  engine.runRenderLoop(() => {
+    if (scene) scene.render();
+  });
+
+  window.addEventListener("resize", () => {
+    engine.resize();
+  });
+})();
+
 
   <!-- MBZ Chat (isolated via Shadow DOM) -->
   <script>
@@ -420,6 +496,7 @@
 
 </body>
 </html>
+
 
 
 
