@@ -65,13 +65,426 @@
   <section id="cad">
     <h2 data-i18n="cad_title">CAD Drawings</h2>
     <p data-i18n="cad_text"></p>
-    <div style="margin-top: 1rem; border: 1px solid #ccc; border-radius: 8px;
+    <div style="margin-top: 1rem; border: 1px solid #ccc; border-radius: 8px; overflow: hidden;">
+      <embed src="FOUNDATIONS.pdf" type="application/pdf" width="100%" height="600px" style="border: none;"></embed>
+    </div>
+    <p style="margin-top: 0.5rem; font-size: 14px;">
+      <a href="FOUNDATIONS.pdf" target="_blank">📄 Open FOUNDATIONS.pdf in a new tab</a>
+    </p>
+  </section>
 
+  <section id="3d-models">
+    <h2 data-i18n="models_title">3D Models</h2>
+    <p data-i18n="models_text"></p>
+    <canvas id="renderCanvas"></canvas>
+    <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
 
+    <h3 data-i18n="gh_title">Parametric Models with Grasshopper</h3>
+    <p data-i18n="gh_text">Using Grasshopper we can create parametric models that allow us to control the variables of our design...</p>
+    <video controls class="animation-gif" style="max-width: 100%; margin-top: 1rem; border-radius: 8px; border: 1px solid #ccc;">
+      <source src="videos/grasshopper.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </section>
 
+  <section id="renders">
+    <h2 data-i18n="renders_title">Renders</h2>
+    <p data-i18n="renders_text"></p>
+    <img src="Render.jpg" alt="Example Render" class="animation-gif" />
+  </section>
 
+  <section id="animations">
+    <h2 data-i18n="animations_title">Animations</h2>
+    <p data-i18n="animations_text"></p>
+    <h3 data-i18n="example_animation">Example Animation</h3>
+    <img src="images/Frame.gif" alt="Example Animation" class="animation-gif" />
+    <p data-i18n="animation_description"></p>
+  </section>
 
+  <footer>
+    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank" data-i18n="social_link">Social network</a></p>
+  </footer>
 
+  <!-- Babylon.js -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 
+  <!-- Main scripts: translations + changeLanguage + Babylon init -->
+  <script>
+    // --- Translations (single definition) ---
+    const translations = {
+      en: {
+        subtitle: "Engineering Draftsman · 3D Designer · BIM Specialist",
+        about_title: "About me",
+        about_text: "I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.",
+        what_title: "What you will find here",
+        what_text: "This page is not intended to be a professional portfolio; therefore, you won’t find detailed information about the projects I have worked on. Instead, it serves as a showroom of the different skills I have been developing.",
+        toc_title: "Table of Contents",
+        cad_link: "CAD Drawings",
+        models_link: "3D Models",
+        renders_link: "Renders",
+        animations_link: "Animations",
+        cad_title: "CAD Drawings",
+        cad_text: "Examples of technical 2D drawings made in AutoCAD and other drafting tools.<br><br>In this example, an isolated foundation plan of a building is shown, along with sections to illustrate the reinforcement of the footings and tie beams.",
+        models_title: "3D Models",
+        models_text: "Interactive 3D model. You can rotate, zoom, and explore the model below.",
+        renders_title: "Renders",
+        renders_text: "Photorealistic renderings that showcase lighting, materials, and composition. This render is used to illustrate one of the construction phases of an industrial building and its relationship with the surrounding environment.",
+        animations_title: "Animations",
+        animations_text: "Animated representations of real scenarios using collected data.",
+        example_animation: "Example Animation",
+        animation_description: "In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties.",
+        reset_btn: "Reset View",
+        social_link: "Social network",
+        gh_title: "Parametric Models with Grasshopper",
+        gh_text: "Using Grasshopper we can create parametric models that allow us to control the variables of our design, giving us the option to generate different versions in a matter of seconds, saving many hours of work."
+      },
+      es: {
+        subtitle: "Delineante · Diseñador 3D · Especialista BIM",
+        about_title: "Sobre mí",
+        about_text: "Soy delineante profesional especializado en dibujo CAD, modelado 3D, renderizado y animación. Domino herramientas como Rhino, Grasshopper, AutoCAD y BIM para materializar ideas de ingeniería y arquitectura con precisión y creatividad.",
+        what_title: "Qué encontrarás aquí",
+        what_text: "Esta página no está pensada como un portfolio profesional; por lo tanto, no encontrarás información detallada sobre los proyectos en los que he trabajado. En su lugar, funciona como un escaparate de las habilidades que he ido desarrollando.",
+        toc_title: "Índice de contenidos",
+        cad_link: "Planos CAD",
+        models_link: "Modelos 3D",
+        renders_link: "Renderizados",
+        animations_link: "Animaciones",
+        cad_title: "Planos CAD",
+        cad_text: "Ejemplos de planos técnicos en 2D realizados con AutoCAD y otras herramientas.<br><br>En este ejemplo se muestra un plano de cimentaciones aisladas de un edificio en planta y se realizan unas secciones para mostrar el armado de las zapatas y vigas de atado.",
+        models_title: "Modelos 3D",
+        models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
+        renders_title: "Renderizados",
+        renders_text: "Renderizados fotorrealistas que muestran iluminación, materiales y composición. Este render es utilizado para mostrar una de las fases constructivas de un edificio industrial y la relacion que tiene dicho edificio con el entorno que le rodea.",
+        animations_title: "Animaciones",
+        animations_text: "Representaciones animadas de escenarios reales utilizando datos recogidos.",
+        example_animation: "Ejemplo de animación",
+        animation_description: "En este ejemplo se ha utilizado Grasshopper para generar un GIF del movimiento real de una noria. Con ello se pretende demostrar la utilidad de esta herramienta a la hora de expresar ideas de funcionamiento a terceros.",
+        reset_btn: "Reiniciar vista",
+        social_link: "Red social",
+        gh_title: "Modelos paramétricos con Grasshopper",
+        gh_text: "Utilizando Grasshopper podemos realizar modelos paramétricos con los que controlar las variables de nuestro modelo, dándonos la opción de generar versiones diferentes en cuestión de segundos, ahorrando de esta manera muchas horas de trabajo."
+      },
+      eu: {
+        subtitle: "Marrazkilari · 3D Diseinatzailea · BIM Espezialista",
+        about_title: "Niri buruz",
+        about_text: "Marrazkilari profesionala naiz, CAD marrazketan, 3D modelizazioan, renderizazioan eta animazioan aditua. Rhino, Grasshopper, AutoCAD eta BIM bezalako tresnak erabiltzen ditut ingeniaritza eta arkitektura kontzeptuak zehaztasunez eta sormenaz errealitate bihurtzeko.",
+        what_title: "Hemen zer aurkituko duzu",
+        what_text: "Orrialde hau ez da portfolio profesionala izateko pentsatuta; beraz, ez duzu aurkituko nire egindako proiektuen informazio zehatzik. Horren ordez, garatu ditudan gaitasun desberdinen erakustoki gisa balio du.",
+        toc_title: "Edukiaren aurkibidea",
+        cad_link: "CAD Marrazkiak",
+        models_link: "3D Ereduak",
+        renders_link: "Renderizazioak",
+        animations_link: "Animazioak",
+        cad_title: "CAD Marrazkiak",
+        cad_text: "AutoCAD eta bestelako marrazketa tresnekin egindako 2D marrazki teknikoen adibideak.<br><br>Adibide honetan eraikin baten zimendu isolatuen planoa erakusten da, eta sekzio batzuk egiten dira zapaten eta lotura-habearen armadura erakusteko.",
+        models_title: "3D Ereduak",
+        models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
+        renders_title: "Renderizazioak",
+        renders_text: "Argiak, materialak eta konposizioa erakusten dituzten errendaketa fotorealista. Errendaketa hau eraikin industrial baten eraikuntza-faseetako bat eta ingurunearekiko duen harremana erakusteko erabiltzen da.",
+        animations_title: "Animazioak",
+        animations_text: "Datu errealekin egindako eszenatokien animazioak.",
+        example_animation: "Animazioaren adibidea",
+        animation_description: "Adibide honetan Grasshopper erabiliz benetako norabide bateko noria baten mugimenduaren GIF bat sortu da. Tresna honek hirugarrenei funtzionamendu-ideiak azaltzeko duen erabilgarritasuna erakustea da helburua.",
+        reset_btn: "Berrabiarazi ikuspegia",
+        social_link: "Sare soziala",
+        gh_title: "Grasshopper-ekin modelo parametrikoak",
+        gh_text: "Grasshopper erabiliz modelo parametrikoak sor ditzakegu, gure modeloko aldagaiak kontrolatzeko aukera ematen digutenak, eta horrela, segundo gutxitan bertsio desberdinak sortzeko aukera izango dugu, lan ordu asko aurrezteko."
+      }
+    };
 
+    function changeLanguage() {
+      const lang = document.getElementById('language').value;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
+        }
+      });
+    }
+    window.addEventListener('DOMContentLoaded', changeLanguage);
 
+    /* ---------- Babylon setup (safe + auto-frame) ---------- */
+(function initBabylon() {
+  const canvas = document.getElementById("renderCanvas");
+  if (!canvas) {
+    console.warn('No renderCanvas found.');
+    return; // nothing to do if canvas missing
+  }
+
+  const engine = new BABYLON.Engine(canvas, true);
+  const scene = new BABYLON.Scene(engine);
+  scene.clearColor = new BABYLON.Color3(0.95, 0.95, 0.95); // soft background
+
+  // Camera (start at a reasonable position, will be re-framed after load)
+  const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+  camera.wheelPrecision = 50;
+  camera.attachControl(canvas, true);
+
+  // Lights
+  const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+  hemi.intensity = 0.9;
+  const dir = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-0.5, -1, 0.5), scene);
+  dir.position = new BABYLON.Vector3(20, 40, 20);
+  dir.intensity = 0.6;
+
+  // Stored "initial" framing values (we will set them after model loads)
+  let initialAlpha = camera.alpha;
+  let initialBeta = camera.beta;
+  let initialRadius = camera.radius;
+  let initialTarget = camera.target.clone();
+
+  // Expose resetCamera that restores to the framed view (updated on load)
+  window.resetCamera = function() {
+    try {
+      camera.setTarget(initialTarget);
+      camera.alpha = initialAlpha;
+      camera.beta = initialBeta;
+      camera.radius = initialRadius;
+    } catch (e) { console.warn('resetCamera failed', e); }
+  };
+
+  // prevent page scroll only when wheel over canvas
+  canvas.addEventListener("wheel", function (event) {
+    event.preventDefault();
+  }, { passive: false });
+
+  // Helper: frame the scene meshes and set camera appropriately
+  function frameSceneAndStoreValues(sceneRef) {
+    // collect visible geometry meshes (exclude lights/cameras/helpers)
+    const meshes = sceneRef.meshes.filter(m => m.isVisible && m.getTotalVertices && m.getTotalVertices() > 0);
+    if (!meshes || meshes.length === 0) {
+      console.warn('No geometry meshes found to frame.');
+      return;
+    }
+
+    // Compute global bounding box
+    let min = new BABYLON.Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    let max = new BABYLON.Vector3(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+    meshes.forEach(mesh => {
+      const bb = mesh.getBoundingInfo().boundingBox;
+      min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
+      max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
+    });
+
+    const center = min.add(max).scale(0.5);
+    const sizeVec = max.subtract(min);
+    const maxDimension = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
+    const diag = sizeVec.length();
+    // Choose radius so object fits well in view
+    const radius = Math.max(diag * 0.8, maxDimension * 1.2, 1);
+
+    // Update camera target and radius smoothly
+    camera.setTarget(center);
+    camera.radius = radius * 1.6;
+    // reasonable limits
+    camera.lowerRadiusLimit = Math.max(radius * 0.2, 0.1);
+    camera.upperRadiusLimit = radius * 20;
+
+    // store framed initial values for resetCamera
+    initialAlpha = camera.alpha;
+    initialBeta = camera.beta;
+    initialRadius = camera.radius;
+    initialTarget = center.clone();
+
+    console.log('Framed scene: center=', center, 'radius=', radius, 'meshes=', meshes.length);
+  }
+
+  // Load model (do NOT call createDefaultCameraOrLight)
+  BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
+    // sceneResult is the scene object; wait one frame to ensure boundinginfo updated
+    engine.runRenderLoop(() => scene.render()); // ensure rendering runs during load too
+    // small timeout to let glTF transform/update world matrices
+    setTimeout(() => {
+      try {
+        frameSceneAndStoreValues(sceneResult);
+      } catch (e) {
+        console.warn('Error framing model:', e);
+      }
+    }, 50);
+  }, null, function (sceneRef, message, exception) {
+    console.warn('Model load warning/error:', message, exception);
+  });
+
+  engine.runRenderLoop(() => {
+    if (scene) scene.render();
+  });
+
+  window.addEventListener("resize", () => {
+    engine.resize();
+  });
+})();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
+
+  </script>
+
+  <!-- MBZ Chat (isolated via Shadow DOM) -->
+  <script>
+    (function(){
+      const host = document.createElement('mbz-chat-host');
+      document.body.appendChild(host);
+
+      class MBZChat extends HTMLElement {
+        constructor() {
+          super();
+          this._shadow = this.attachShadow({ mode: 'open' });
+          this._lang = (document.documentElement && document.documentElement.lang) ? document.documentElement.lang.slice(0,2) : 'en';
+          if (!['en','es','eu'].includes(this._lang)) this._lang = 'en';
+          this._storageKey = 'mbz_chat_history_v3';
+          this._render();
+          this._bind();
+          this._loadHistory();
+        }
+
+        _messagesForLang() {
+          return {
+            en: { title: 'Assistant', greeting: 'Hi — I can help with your portfolio.', unknown: "Sorry, I didn't understand that.", placeholder: "Ask me something..." },
+            es: { title: 'Asistente', greeting: 'Hola — puedo ayudarte con tu portfolio.', unknown: "Lo siento, no entendí eso.", placeholder: "Pregunta algo..." },
+            eu: { title: 'Laguntzailea', greeting: 'Kaixo — lagundu dezaket zure portfolioarekin.', unknown: "Barkatu, ez dut ulertu.", placeholder: "Galdera egin..." }
+          }[this._lang];
+        }
+
+        _render() {
+          const M = this._messagesForLang();
+          this._shadow.innerHTML = `
+            <style>
+              :host { all: initial; }
+              .mbz-host { position: fixed; right: 18px; bottom: 18px; z-index: 2147483646; font-family: 'Poppins', sans-serif; }
+              .toggle { width:54px; height:54px; border-radius:50%; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.25); border:none; }
+              .panel { width:320px; max-width:calc(100vw - 40px); height:420px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.35); overflow:hidden; display:flex; flex-direction:column; margin-bottom:10px; }
+              .header { padding:12px 14px; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+              .title { font-weight:600; font-size:14px; }
+              .close { background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px; }
+              .body { flex:1; padding:12px; overflow:auto; background:linear-gradient(180deg,#fafafa,#fff); }
+              .msg { margin-bottom:10px; max-width:80%; word-wrap:break-word; }
+              .bot { text-align:left; }
+              .user { text-align:right; margin-left:auto; }
+              .bubble { display:inline-block; padding:8px 10px; border-radius:10px; font-size:13px; line-height:1.3; }
+              .bot .bubble { background:#f2f2f2; color:#111; border-radius:8px 8px 8px 2px; }
+              .user .bubble { background:#0b74da; color:#fff; border-radius:8px 8px 2px 8px; }
+              .footer { display:flex; gap:8px; padding:10px; border-top:1px solid #eee; }
+              .input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
+              .send { padding:8px 12px; border-radius:8px; border:none; background:#0b74da; color:#fff; cursor:pointer; }
+            </style>
+
+            <div class="mbz-host" role="dialog" aria-label="MBZ chat">
+              <div id="panel" style="display:none;" class="panel">
+                <div class="header">
+                  <div class="title">${M.title}</div>
+                  <button id="close" class="close" aria-label="Close">✕</button>
+                </div>
+                <div id="body" class="body" tabindex="0" aria-live="polite"></div>
+                <div class="footer">
+                  <input id="input" class="input" placeholder="${M.placeholder}" />
+                  <button id="send" class="send">Send</button>
+                </div>
+              </div>
+              <button id="toggle" class="toggle" aria-label="Open chat">💬</button>
+            </div>
+          `;
+        }
+
+        _bind(){
+          const s = this._shadow;
+          this._panel = s.getElementById('panel');
+          this._toggle = s.getElementById('toggle');
+          this._close = s.getElementById('close');
+          this._body = s.getElementById('body');
+          this._input = s.getElementById('input');
+          this._send = s.getElementById('send');
+
+          this._toggle.addEventListener('click', ()=> {
+            this._panel.style.display = this._panel.style.display === 'none' ? 'flex' : 'none';
+            if (this._panel.style.display === 'flex') this._input.focus();
+          });
+          this._close.addEventListener('click', ()=> { this._panel.style.display = 'none'; this._toggle.focus(); });
+          this._send.addEventListener('click', ()=> this._handleSend());
+          this._input.addEventListener('keydown', (e)=> {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this._handleSend(); }
+          });
+        }
+
+        _loadHistory(){
+          try {
+            const raw = localStorage.getItem(this._storageKey);
+            if (raw) {
+              const hist = JSON.parse(raw);
+              hist.forEach(m => this._appendMessage(m.text, m.who, false));
+            } else {
+              this._appendMessage(this._messagesForLang().greeting, 'bot', false);
+            }
+          } catch(e){
+            this._appendMessage(this._messagesForLang().greeting, 'bot', false);
+          }
+        }
+
+        _persistHistory() {
+          try {
+            const items = Array.from(this._body.querySelectorAll('.msg')).map(node=>({
+              who: node.dataset.who,
+              text: node.querySelector('.bubble').innerHTML,
+              date: node.dataset.date
+            }));
+            localStorage.setItem(this._storageKey, JSON.stringify(items));
+          } catch(e){}
+        }
+
+        _appendMessage(text, who='bot', persist=true){
+          const wrapper = document.createElement('div');
+          wrapper.className = `msg ${who}`;
+          wrapper.dataset.who = who;
+          wrapper.dataset.date = new Date().toISOString();
+          const bubble = document.createElement('div');
+          bubble.className = 'bubble';
+          bubble.innerHTML = text;
+          wrapper.appendChild(bubble);
+          this._body.appendChild(wrapper);
+          this._body.scrollTop = this._body.scrollHeight;
+          if (persist) this._persistHistory();
+        }
+
+        _getBotReply(userText) {
+          const t = (userText||'').trim().toLowerCase();
+          if (!t) return this._messagesForLang().unknown;
+          if (t.includes('cad') || t.includes('planos') || t.includes('ciment')) {
+            return {
+              en: "There is an embedded PDF named FOUNDATIONS.pdf in the CAD section. Open or download it.",
+              es: "En la sección CAD tienes el PDF incrustado llamado FOUNDATIONS.pdf. Puedes abrirlo o descargarlo.",
+              eu: "CAD atalean FOUNDATIONS.pdf izeneko PDF txertatua dago. Ireki edo deskargatu dezakezu."
+            }[this._lang];
+          }
+          if (t.includes('3d') || t.includes('modelo') || t.includes('babylon')) {
+            return {
+              en: "The 3D viewer uses Babylon.js. Use the 'Reset View' button in the page to recenter the camera.",
+              es: "El visor 3D usa Babylon.js. Usa el botón 'Reset View' en la página para centrar la cámara.",
+              eu: "3D ikuslea Babylon.js erabiltzen du. Orrialdeko 'Reset View' botoia erabili kamerari berriro zentratzeko."
+            }[this._lang];
+          }
+          if (t.includes('idioma') || t.includes('language') || t.includes('lengua')) {
+            return {
+              en: "Change the site language using the top-right selector — this chat is independent and won't change the page text.",
+              es: "Cambia el idioma del sitio con el selector superior derecho — este chat es independiente y no modificará el texto de la página.",
+              eu: "Aldatu hizkuntza goiko eskuineko hautatzailearekin — txat hau independentea da eta ez du orrialdeko testua aldatuko."
+            }[this._lang];
+          }
+          return this._messagesForLang().unknown;
+        }
+
+        _handleSend(){
+          const txt = this._input.value.trim();
+          if (!txt) return;
+          this._appendMessage(txt, 'user');
+          this._input.value = '';
+          setTimeout(()=> {
+            const reply = this._getBotReply(txt);
+            this._appendMessage(reply, 'bot');
+          }, 300);
+        }
+      }
+
+      customElements.define('mbz-chat-host', MBZChat);
+    })();
+  </script>
+  <!-- END MBZ Chat -->
+
+</body>
+</html>
