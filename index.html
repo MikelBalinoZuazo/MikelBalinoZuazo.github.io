@@ -281,202 +281,358 @@
     });
 
 
-    <!-- START: Simple Chatbot for Mikel (paste before </body>) -->
-<style>
-  /* Namespaced styles to avoid collisions */
-  #mbz-chatbot { position: fixed; right: 20px; bottom: 20px; z-index: 2147483646; font-family: 'Poppins', sans-serif; }
-  #mbz-chatbot .mbz-toggler { width:56px; height:56px; border-radius:50%; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.25); border:none; }
-  #mbz-chatbot .mbz-panel { width:320px; max-width:calc(100vw - 40px); height:420px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.35); overflow:hidden; display:flex; flex-direction:column; margin-bottom:10px; }
-  #mbz-chatbot .mbz-header { padding:12px 14px; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:space-between; }
-  #mbz-chatbot .mbz-title { font-weight:600; font-size:14px; }
-  #mbz-chatbot .mbz-close { background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px; }
-  #mbz-chatbot .mbz-body { flex:1; padding:12px; overflow:auto; background:linear-gradient(180deg,#fafafa,#fff); }
-  #mbz-chatbot .mbz-msg { margin-bottom:10px; max-width:80%; }
-  #mbz-chatbot .mbz-msg.bot { text-align:left; }
-  #mbz-chatbot .mbz-msg.user { text-align:right; margin-left:auto; }
-  #mbz-chatbot .mbz-msg .bubble { display:inline-block; padding:8px 10px; border-radius:10px; font-size:13px; line-height:1.3; }
-  #mbz-chatbot .mbz-msg.bot .bubble { background:#f2f2f2; color:#111; border-radius:8px 8px 8px 2px; }
-  #mbz-chatbot .mbz-msg.user .bubble { background:#0b74da; color:#fff; border-radius:8px 8px 2px 8px; }
-  #mbz-chatbot .mbz-footer { display:flex; gap:8px; padding:10px; border-top:1px solid #eee; }
-  #mbz-chatbot .mbz-input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
-  #mbz-chatbot .mbz-send { padding:8px 12px; border-radius:8px; border:none; background:#0b74da; color:#fff; cursor:pointer; }
-  /* Avoid capturing wheel events intended for the canvas by requiring focus on input */
-  #mbz-chatbot * { box-sizing:border-box; }
-</style>
+     <script>
+    /* ---------- Translations ---------- */
+    const translations = {
+      en: {
+        subtitle: "Engineering Draftsman · 3D Designer · BIM Specialist",
+        about_title: "About me",
+        about_text: "I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.",
+        what_title: "What you will find here",
+        what_text: "This page is not intended to be a professional portfolio; therefore, you won’t find detailed information about the projects I have worked on. Instead, it serves as a showroom of the different skills I have been developing.",
+        toc_title: "Table of Contents",
+        cad_link: "CAD Drawings",
+        models_link: "3D Models",
+        renders_link: "Renders",
+        animations_link: "Animations",
+        cad_title: "CAD Drawings",
+        cad_text: "Examples of technical 2D drawings made in AutoCAD and other drafting tools.<br><br>In this example, an isolated foundation plan of a building is shown, along with sections to illustrate the reinforcement of the footings and tie beams.",
+        models_title: "3D Models",
+        models_text: "Interactive 3D model. You can rotate, zoom, and explore the model below.",
+        renders_title: "Renders",
+        renders_text: "Photorealistic renderings that showcase lighting, materials, and composition. This render is used to illustrate one of the construction phases of an industrial building and its relationship with the surrounding environment.",
+        animations_title: "Animations",
+        animations_text: "Animated representations of real scenarios using collected data.",
+        example_animation: "Example Animation",
+        animation_description: "In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties.",
+        reset_btn: "Reset View",
+        social_link: "Social network",
+        gh_title: "Parametric Models with Grasshopper",
+        gh_text: "Using Grasshopper we can create parametric models that allow us to control the variables of our design, giving us the option to generate different versions in a matter of seconds, saving many hours of work.",
+        /* chat keys used by the chatbot */
+        chat_title: "Assistant",
+        greeting: "Hi — I can help with your portfolio.",
+        unknown: "Sorry, I didn't understand that."
+      },
+      es: {
+        subtitle: "Delineante · Diseñador 3D · Especialista BIM",
+        about_title: "Sobre mí",
+        about_text: "Soy delineante profesional especializado en dibujo CAD, modelado 3D, renderizado y animación. Domino herramientas como Rhino, Grasshopper, AutoCAD y BIM para materializar ideas de ingeniería y arquitectura con precisión y creatividad.",
+        what_title: "Qué encontrarás aquí",
+        what_text: "Esta página no está pensada como un portfolio profesional; por lo tanto, no encontrarás información detallada sobre los proyectos en los que he trabajado. En su lugar, funciona como un escaparate de las habilidades que he ido desarrollando.",
+        toc_title: "Índice de contenidos",
+        cad_link: "Planos CAD",
+        models_link: "Modelos 3D",
+        renders_link: "Renderizados",
+        animations_link: "Animaciones",
+        cad_title: "Planos CAD",
+        cad_text: "Ejemplos de planos técnicos en 2D realizados con AutoCAD y otras herramientas.<br><br>En este ejemplo se muestra un plano de cimentaciones aisladas de un edificio en planta y se realizan unas secciones para mostrar el armado de las zapatas y vigas de atado.",
+        models_title: "Modelos 3D",
+        models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
+        renders_title: "Renderizados",
+        renders_text: "Renderizados fotorrealistas que muestran iluminación, materiales y composición. Este render es utilizado para mostrar una de las fases constructivas de un edificio industrial y la relacion que tiene dicho edificio con el entorno que le rodea.",
+        animations_title: "Animaciones",
+        animations_text: "Representaciones animadas de escenarios reales utilizando datos recogidos.",
+        example_animation: "Ejemplo de animación",
+        animation_description: "En este ejemplo se ha utilizado Grasshopper para generar un GIF del movimiento real de una noria. Con ello se pretende demostrar la utilidad de esta herramienta a la hora de expresar ideas de funcionamiento a terceros.",
+        reset_btn: "Reiniciar vista",
+        social_link: "Red social",
+        gh_title: "Modelos paramétricos con Grasshopper",
+        gh_text: "Utilizando Grasshopper podemos realizar modelos paramétricos con los que controlar las variables de nuestro modelo, dándonos la opción de generar versiones diferentes en cuestión de segundos, ahorrando de esta manera muchas horas de trabajo.",
+        /* chat keys */
+        chat_title: "Asistente",
+        greeting: "Hola — puedo ayudarte con tu portfolio.",
+        unknown: "Lo siento, no entendí eso."
+      },
+      eu: {
+        subtitle: "Marrazkilari · 3D Diseinatzailea · BIM Espezialista",
+        about_title: "Niri buruz",
+        about_text: "Marrazkilari profesionala naiz, CAD marrazketan, 3D modelizazioan, renderizazioan eta animazioan aditua. Rhino, Grasshopper, AutoCAD eta BIM bezalako tresnak erabiltzen ditut ingeniaritza eta arkitektura kontzeptuak zehaztasunez eta sormenaz errealitate bihurtzeko.",
+        what_title: "Hemen zer aurkituko duzu",
+        what_text: "Orrialde hau ez da portfolio profesionala izateko pentsatuta; beraz, ez duzu aurkituko nire egindako proiektuen informazio zehatzik. Horren ordez, garatu ditudan gaitasun desberdinen erakustoki gisa balio du.",
+        toc_title: "Edukiaren aurkibidea",
+        cad_link: "CAD Marrazkiak",
+        models_link: "3D Ereduak",
+        renders_link: "Renderizazioak",
+        animations_link: "Animazioak",
+        cad_title: "CAD Marrazkiak",
+        cad_text: "AutoCAD eta bestelako marrazketa tresnekin egindako 2D marrazki teknikoen adibideak.<br><br>Adibide honetan eraikin baten zimendu isolatuen planoa erakusten da, eta sekzio batzuk egiten dira zapaten eta lotura-habearen armadura erakusteko.",
+        models_title: "3D Ereduak",
+        models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
+        renders_title: "Renderizazioak",
+        renders_text: "Argiak, materialak eta konposizioa erakusten dituzten errendaketa fotorealista. Errendaketa hau eraikin industrial baten eraikuntza-faseetako bat eta ingurunearekiko duen harremana erakusteko erabiltzen da.",
+        animations_title: "Animazioak",
+        animations_text: "Datu errealekin egindako eszenatokien animazioak.",
+        example_animation: "Animazioaren adibidea",
+        animation_description: "Adibide honetan Grasshopper erabiliz benetako norabide bateko noria baten mugimenduaren GIF bat sortu da. Tresna honek hirugarrenei funtzionamendu-ideiak azaltzeko duen erabilgarritasuna erakustea da helburua.",
+        reset_btn: "Berrabiarazi ikuspegia",
+        social_link: "Sare soziala",
+        gh_title: "Grasshopper-ekin modelo parametrikoak",
+        gh_text: "Grasshopper erabiliz modelo parametrikoak sor ditzakegu, gure modeloko aldagaiak kontrolatzeko aukera ematen digutenak, eta horrela, segundo gutxitan bertsio desberdinak sortzeko aukera izango dugu, lan ordu asko aurrezteko.",
+        /* chat keys */
+        chat_title: "Asistentzia",
+        greeting: "Kaixo — lagundu dezaket zure portfolioarekin.",
+        unknown: "Barkatu, ez dut ulertu."
+      }
+    };
 
-<div id="mbz-chatbot" aria-live="polite">
-  <div id="mbz-panel-container" style="display:none;">
-    <div class="mbz-panel" role="dialog" aria-label="Chatbot">
-      <div class="mbz-header">
-        <div class="mbz-title" id="mbz-title">MBZ Assistant</div>
-        <button class="mbz-close" id="mbz-close" aria-label="Close chat">✕</button>
-      </div>
-      <div class="mbz-body" id="mbz-body" aria-live="polite" tabindex="0"></div>
-      <div class="mbz-footer">
-        <input id="mbz-input" class="mbz-input" placeholder="Ask me something..." />
-        <button id="mbz-send" class="mbz-send">Send</button>
+    function changeLanguage() {
+      const lang = document.getElementById('language').value;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
+        }
+      });
+    }
+    window.addEventListener('DOMContentLoaded', changeLanguage);
+
+    /* ---------- Babylon setup (con comprobaciones) ---------- */
+    (function initBabylon() {
+      const canvas = document.getElementById("renderCanvas");
+      if (!canvas) return; // no canvas -> no engine
+
+      const engine = new BABYLON.Engine(canvas, true);
+      const scene = new BABYLON.Scene(engine);
+
+      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+      camera.attachControl(canvas, true);
+
+      const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+      const initialAlpha = camera.alpha, initialBeta = camera.beta, initialRadius = camera.radius, initialTarget = camera.target.clone();
+
+      window.resetCamera = function() {
+        camera.setTarget(initialTarget);
+        camera.alpha = initialAlpha;
+        camera.beta = initialBeta;
+        camera.radius = initialRadius;
+      };
+
+      // Only prevent wheel default on the canvas so page can still scroll
+      canvas.addEventListener("wheel", function (event) {
+        // If the mouse is over the canvas, prevent page scroll
+        event.preventDefault();
+      }, { passive: false });
+
+      // Load model (do NOT create default camera/lights to avoid interfering with the custom camera)
+      BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneLoaded) {
+        // Avoid scene.createDefaultCameraOrLight(...) because you already have a custom camera.
+        // Set all existing materials to a white material as you wanted:
+        sceneLoaded.meshes.forEach(mesh => {
+          if (mesh.material) {
+            const whiteMaterial = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, sceneLoaded);
+            whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1);
+            mesh.material = whiteMaterial;
+          }
+        });
+      }, null, function (scene, message, exception) {
+        // error callback (optional): log to console for debugging
+        console.warn('Model load warning/error:', message, exception);
+      });
+
+      engine.runRenderLoop(() => {
+        scene.render();
+      });
+
+      window.addEventListener("resize", () => {
+        engine.resize();
+      });
+    })();
+  </script>
+
+  <!-- START: Simple Chatbot for Mikel (paste before </body>) -->
+  <style>
+    /* Namespaced styles to avoid collisions */
+    #mbz-chatbot { position: fixed; right: 20px; bottom: 20px; z-index: 2147483646; font-family: 'Poppins', sans-serif; }
+    #mbz-chatbot .mbz-toggler { width:56px; height:56px; border-radius:50%; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.25); border:none; }
+    #mbz-chatbot .mbz-panel { width:320px; max-width:calc(100vw - 40px); height:420px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.35); overflow:hidden; display:flex; flex-direction:column; margin-bottom:10px; }
+    #mbz-chatbot .mbz-header { padding:12px 14px; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    #mbz-chatbot .mbz-title { font-weight:600; font-size:14px; }
+    #mbz-chatbot .mbz-close { background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px; }
+    #mbz-chatbot .mbz-body { flex:1; padding:12px; overflow:auto; background:linear-gradient(180deg,#fafafa,#fff); }
+    #mbz-chatbot .mbz-msg { margin-bottom:10px; max-width:80%; }
+    #mbz-chatbot .mbz-msg.bot { text-align:left; }
+    #mbz-chatbot .mbz-msg.user { text-align:right; margin-left:auto; }
+    #mbz-chatbot .mbz-msg .bubble { display:inline-block; padding:8px 10px; border-radius:10px; font-size:13px; line-height:1.3; }
+    #mbz-chatbot .mbz-msg.bot .bubble { background:#f2f2f2; color:#111; border-radius:8px 8px 8px 2px; }
+    #mbz-chatbot .mbz-msg.user .bubble { background:#0b74da; color:#fff; border-radius:8px 8px 2px 8px; }
+    #mbz-chatbot .mbz-footer { display:flex; gap:8px; padding:10px; border-top:1px solid #eee; }
+    #mbz-chatbot .mbz-input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
+    #mbz-chatbot .mbz-send { padding:8px 12px; border-radius:8px; border:none; background:#0b74da; color:#fff; cursor:pointer; }
+    /* Avoid capturing wheel events intended for the canvas by requiring focus on input */
+    #mbz-chatbot * { box-sizing:border-box; }
+  </style>
+
+  <div id="mbz-chatbot" aria-live="polite">
+    <div id="mbz-panel-container" style="display:none;">
+      <div class="mbz-panel" role="dialog" aria-label="Chatbot">
+        <div class="mbz-header">
+          <div class="mbz-title" id="mbz-title">MBZ Assistant</div>
+          <button class="mbz-close" id="mbz-close" aria-label="Close chat">✕</button>
+        </div>
+        <div class="mbz-body" id="mbz-body" aria-live="polite" tabindex="0"></div>
+        <div class="mbz-footer">
+          <input id="mbz-input" class="mbz-input" placeholder="Ask me something..." />
+          <button id="mbz-send" class="mbz-send">Send</button>
+        </div>
       </div>
     </div>
+
+    <button class="mbz-toggler" id="mbz-open" aria-label="Open chat">💬</button>
   </div>
 
-  <button class="mbz-toggler" id="mbz-open" aria-label="Open chat">💬</button>
-</div>
+  <script>
+    (function () {
+      // Encapsulado para evitar colisiones
+      const ns = 'mbz_'; // namespace prefix
+      const panelContainer = document.getElementById('mbz-panel-container');
+      const openBtn = document.getElementById('mbz-open');
+      const closeBtn = document.getElementById('mbz-close');
+      const bodyEl = document.getElementById('mbz-body');
+      const inputEl = document.getElementById('mbz-input');
+      const sendBtn = document.getElementById('mbz-send');
+      const titleEl = document.getElementById('mbz-title');
 
-<script>
-(function () {
-  // Encapsulado para evitar colisiones
-  const ns = 'mbz_'; // namespace prefix
-  const panelContainer = document.getElementById('mbz-panel-container');
-  const openBtn = document.getElementById('mbz-open');
-  const closeBtn = document.getElementById('mbz-close');
-  const bodyEl = document.getElementById('mbz-body');
-  const inputEl = document.getElementById('mbz-input');
-  const sendBtn = document.getElementById('mbz-send');
-  const titleEl = document.getElementById('mbz-title');
+      // Try to reuse existing translations object if present
+      const T = (typeof translations !== 'undefined') ? translations : {
+        en: { chat_title: "Assistant", greeting: "Hi — I can help with your portfolio.", unknown: "Sorry, I didn't understand that." },
+        es: { chat_title: "Asistente", greeting: "Hola — puedo ayudarte con tu portfolio.", unknown: "Lo siento, no entendí eso." }
+      };
 
-  // Try to reuse existing translations object if present
-  const T = (typeof translations !== 'undefined') ? translations : {
-    en: { chat_title: "Assistant", greeting: "Hi — I can help with your portfolio.", unknown: "Sorry, I didn't understand that." },
-    es: { chat_title: "Asistente", greeting: "Hola — puedo ayudarte con tu portfolio.", unknown: "Lo siento, no entendí eso." }
-  };
+      // detect selected lang from your selector if present, else default en
+      function getCurrentLang() {
+        const sel = document.getElementById('language');
+        if (sel && sel.value && T[sel.value]) return sel.value;
+        return 'en';
+      }
 
-  // detect selected lang from your selector if present, else default en
-  function getCurrentLang() {
-    const sel = document.getElementById('language');
-    if (sel && sel.value && T[sel.value]) return sel.value;
-    return 'en';
-  }
+      function localized(key) {
+        const lang = getCurrentLang();
+        return (T[lang] && T[lang][key]) ? T[lang][key] : (T['en'][key] || '');
+      }
 
-  function localized(key) {
-    const lang = getCurrentLang();
-    return (T[lang] && T[lang][key]) ? T[lang][key] : (T['en'][key] || '');
-  }
-
-  titleEl.textContent = localized('chat_title') || 'Assistant';
-
-  // UX: restore messages from localStorage if available
-  const storageKey = 'mbz_chat_history_v1';
-  let history = [];
-  try {
-    const raw = localStorage.getItem(storageKey);
-    if (raw) history = JSON.parse(raw) || [];
-  } catch (e) { history = []; }
-
-  function persistHistory() {
-    try { localStorage.setItem(storageKey, JSON.stringify(history)); } catch(e) {}
-  }
-
-  function appendMessage(text, who = 'bot') {
-    const msgWrap = document.createElement('div');
-    msgWrap.className = 'mbz-msg ' + who;
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.innerHTML = text;
-    msgWrap.appendChild(bubble);
-    bodyEl.appendChild(msgWrap);
-    bodyEl.scrollTop = bodyEl.scrollHeight;
-    history.push({ who, text, date: new Date().toISOString() });
-    persistHistory();
-  }
-
-  // initial greeting only if no history
-  if (history.length === 0) {
-    appendMessage(localized('greeting') || 'Hi — I can help with your portfolio.', 'bot');
-  } else {
-    // render stored
-    bodyEl.innerHTML = '';
-    history.forEach(m => appendMessage(m.text, m.who));
-  }
-
-  // Example simple reply engine — extend this function to call APIs later
-  function getBotReply(userText) {
-    const text = (userText || '').trim().toLowerCase();
-
-    // simple rule-based quick replies about portfolio content
-    if (!text) return localized('unknown') || "Please write something.";
-    if (text.includes('cad') || text.includes('planos') || text.includes('ciment')) {
-      return (getCurrentLang() === 'es')
-        ? "En la sección CAD tienes el PDF incrustado llamado FOUNDATIONS.pdf. Puedes abrirlo o descargarlo."
-        : "In the CAD section you have the embedded PDF named FOUNDATIONS.pdf. You can open or download it.";
-    }
-    if (text.includes('3d') || text.includes('modelo') || text.includes('babylon')) {
-      return (getCurrentLang() === 'es')
-        ? "El visor 3D usa Babylon.js. Usa el botón 'Reset View' para centrar la cámara. Evito interferir con el canvas."
-        : "The 3D viewer uses Babylon.js. Use the 'Reset View' button to center the camera. I avoid interfering with the canvas.";
-    }
-    if (text.includes('languages') || text.includes('idioma') || text.includes('lengua')) {
-      return (getCurrentLang() === 'es')
-        ? "Puedes cambiar el idioma con el selector en la esquina superior derecha."
-        : "You can change language with the selector in the top-right corner.";
-    }
-    // fallback
-    return localized('unknown') || "Sorry, I didn't understand that. Try asking about CAD, 3D, or renders.";
-  }
-
-  // event handlers
-  function sendMessage() {
-    const txt = inputEl.value.trim();
-    if (!txt) return;
-    appendMessage(txt, 'user');
-    inputEl.value = '';
-    // small delay to simulate thinking
-    setTimeout(() => {
-      const reply = getBotReply(txt);
-      appendMessage(reply, 'bot');
-    }, 350);
-  }
-
-  // Open / close toggles
-  openBtn.addEventListener('click', function (e) {
-    panelContainer.style.display = panelContainer.style.display === 'none' ? 'block' : 'none';
-    // focus input on open
-    if (panelContainer.style.display === 'block') setTimeout(() => inputEl.focus(), 80);
-  });
-
-  closeBtn.addEventListener('click', function (e) {
-    panelContainer.style.display = 'none';
-  });
-
-  sendBtn.addEventListener('click', sendMessage);
-  inputEl.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter' && !ev.shiftKey) {
-      ev.preventDefault();
-      sendMessage();
-    }
-  });
-
-  // Accessibility: allow Esc to close if panel open
-  document.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Escape' && panelContainer.style.display === 'block') {
-      panelContainer.style.display = 'none';
-      openBtn.focus();
-    }
-  });
-
-  // If language selector changes, update title and greeting
-  const langSelector = document.getElementById('language');
-  if (langSelector) {
-    langSelector.addEventListener('change', function () {
       titleEl.textContent = localized('chat_title') || 'Assistant';
-      // optional: add a note message in new language
-      appendMessage(localized('greeting') || 'Hi — I can help with your portfolio.', 'bot');
-    });
-  }
 
-  // Prevent interfering with canvas pointer/wheel behavior:
-  // We never add global wheel listeners here; the chat inputs only receive events when focused.
-  // Also ensure the chat is outside the canvas area via z-index and position.
+      // UX: restore messages from localStorage if available
+      const storageKey = 'mbz_chat_history_v1';
+      let history = [];
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) history = JSON.parse(raw) || [];
+      } catch (e) { history = []; }
 
-  // Public debug hook (namespaced) - doesn't pollute window with common names
-  window[ns + 'dumpHistory'] = function () { return history.slice(); };
+      function persistHistory() {
+        try { localStorage.setItem(storageKey, JSON.stringify(history)); } catch(e) {}
+      }
 
-})();
-</script>
-<!-- END: Simple Chatbot for Mikel -->
+      function appendMessage(text, who = 'bot') {
+        const msgWrap = document.createElement('div');
+        msgWrap.className = 'mbz-msg ' + who;
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.innerHTML = text;
+        msgWrap.appendChild(bubble);
+        bodyEl.appendChild(msgWrap);
+        bodyEl.scrollTop = bodyEl.scrollHeight;
+        history.push({ who, text, date: new Date().toISOString() });
+        persistHistory();
+      }
 
+      // initial greeting only if no history
+      if (history.length === 0) {
+        appendMessage(localized('greeting') || 'Hi — I can help with your portfolio.', 'bot');
+      } else {
+        // render stored
+        bodyEl.innerHTML = '';
+        history.forEach(m => appendMessage(m.text, m.who));
+      }
+
+      // Example simple reply engine — extend this function to call APIs later
+      function getBotReply(userText) {
+        const text = (userText || '').trim().toLowerCase();
+
+        // simple rule-based quick replies about portfolio content
+        if (!text) return localized('unknown') || "Please write something.";
+        if (text.includes('cad') || text.includes('planos') || text.includes('ciment')) {
+          return (getCurrentLang() === 'es')
+            ? "En la sección CAD tienes el PDF incrustado llamado FOUNDATIONS.pdf. Puedes abrirlo o descargarlo."
+            : "In the CAD section you have the embedded PDF named FOUNDATIONS.pdf. You can open or download it.";
+        }
+        if (text.includes('3d') || text.includes('modelo') || text.includes('babylon')) {
+          return (getCurrentLang() === 'es')
+            ? "El visor 3D usa Babylon.js. Usa el botón 'Reset View' para centrar la cámara. Evito interferir con el canvas."
+            : "The 3D viewer uses Babylon.js. Use the 'Reset View' button to center the camera. I avoid interfering with the canvas.";
+        }
+        if (text.includes('languages') || text.includes('idioma') || text.includes('lengua')) {
+          return (getCurrentLang() === 'es')
+            ? "Puedes cambiar el idioma con el selector en la esquina superior derecha."
+            : "You can change language with the selector in the top-right corner.";
+        }
+        // fallback
+        return localized('unknown') || "Sorry, I didn't understand that. Try asking about CAD, 3D, or renders.";
+      }
+
+      // event handlers
+      function sendMessage() {
+        const txt = inputEl.value.trim();
+        if (!txt) return;
+        appendMessage(txt, 'user');
+        inputEl.value = '';
+        // small delay to simulate thinking
+        setTimeout(() => {
+          const reply = getBotReply(txt);
+          appendMessage(reply, 'bot');
+        }, 350);
+      }
+
+      // Open / close toggles
+      openBtn.addEventListener('click', function (e) {
+        panelContainer.style.display = panelContainer.style.display === 'none' ? 'block' : 'none';
+        // focus input on open
+        if (panelContainer.style.display === 'block') setTimeout(() => inputEl.focus(), 80);
+      });
+
+      closeBtn.addEventListener('click', function (e) {
+        panelContainer.style.display = 'none';
+      });
+
+      sendBtn.addEventListener('click', sendMessage);
+      inputEl.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && !ev.shiftKey) {
+          ev.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // Accessibility: allow Esc to close if panel open
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && panelContainer.style.display === 'block') {
+          panelContainer.style.display = 'none';
+          openBtn.focus();
+        }
+      });
+
+      // If language selector changes, update title and greeting
+      const langSelector = document.getElementById('language');
+      if (langSelector) {
+        langSelector.addEventListener('change', function () {
+          titleEl.textContent = localized('chat_title') || 'Assistant';
+          // optional: add a note message in new language
+          appendMessage(localized('greeting') || 'Hi — I can help with your portfolio.', 'bot');
+        });
+      }
+
+      // Public debug hook (namespaced) - doesn't pollute window with common names
+      window[ns + 'dumpHistory'] = function () { return history.slice(); };
+
+    })();
   </script>
+  <!-- END: Simple Chatbot for Mikel -->
+
 </body>
 </html>
+
 
 
 
