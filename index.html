@@ -293,7 +293,7 @@
  // Load model (do NOT call createDefaultCameraOrLight)
 BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
   // 1) set a background color you like (adjust values 0..1)
-  scene.clearColor = new BABYLON.Color3(0.92, 0.94, 0.98); // suave azul claro — cámbialo si quieres
+  scene.clearColor = new BABYLON.Color3(0, 0, 0); // suave azul claro — cámbialo si quieres
 
   // 2) Ensure rendering runs during load too
   engine.runRenderLoop(() => scene.render());
@@ -506,6 +506,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
 </body>
 </html>
+
 
 
 
