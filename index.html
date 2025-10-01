@@ -214,7 +214,7 @@
 
   const engine = new BABYLON.Engine(canvas, true);
   const scene = new BABYLON.Scene(engine);
-  scene.clearColor = new BABYLON.Color4(0, 0, 0, 1); // default
+  scene.clearColor = new BABYLON.Color3(0, 0, 0); // black
 
   // Camera (start at a reasonable position, will be re-framed after load)
   const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
@@ -506,6 +506,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
 </body>
 </html>
+
 
 
 
