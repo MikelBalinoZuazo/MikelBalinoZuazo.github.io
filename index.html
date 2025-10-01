@@ -336,177 +336,201 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
   </script>
 
-  <!-- MBZ Chat (isolated via Shadow DOM) -->
-  <script>
-    (function(){
-      const host = document.createElement('mbz-chat-host');
-      document.body.appendChild(host);
+ <!-- Chat flotante avanzado (no tapa contenido) -->
+<style>
+  #chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    pointer-events: none; /* El portfolio sigue interactivo */
+  }
 
-      class MBZChat extends HTMLElement {
-        constructor() {
-          super();
-          this._shadow = this.attachShadow({ mode: 'open' });
-          this._lang = (document.documentElement && document.documentElement.lang) ? document.documentElement.lang.slice(0,2) : 'en';
-          if (!['en','es','eu'].includes(this._lang)) this._lang = 'en';
-          this._storageKey = 'mbz_chat_history_v3';
-          this._render();
-          this._bind();
-          this._loadHistory();
-        }
+  #chat-button {
+    pointer-events: auto;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+  }
+  #chat-button:hover { transform: scale(1.1); }
 
-        _messagesForLang() {
-          return {
-            en: { title: 'Assistant', greeting: 'Hi — I can help with your portfolio.', unknown: "Sorry, I didn't understand that.", placeholder: "Ask me something..." },
-            es: { title: 'Asistente', greeting: 'Hola — puedo ayudarte con tu portfolio.', unknown: "Lo siento, no entendí eso.", placeholder: "Pregunta algo..." },
-            eu: { title: 'Laguntzailea', greeting: 'Kaixo — lagundu dezaket zure portfolioarekin.', unknown: "Barkatu, ez dut ulertu.", placeholder: "Galdera egin..." }
-          }[this._lang];
-        }
+  #chat-window {
+    display: none;
+    pointer-events: auto;
+    flex-direction: column;
+    background: #f7f7f7;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    height: 450px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    animation: slideUp 0.3s;
+  }
 
-        _render() {
-          const M = this._messagesForLang();
-          this._shadow.innerHTML = `
-            <style>
-              :host { all: initial; }
-              .mbz-host { position: fixed; right: 18px; bottom: 18px; z-index: 2147483646; font-family: 'Poppins', sans-serif; }
-              .toggle { width:54px; height:54px; border-radius:50%; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.25); border:none; }
-              .panel { width:320px; max-width:calc(100vw - 40px); height:420px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.35); overflow:hidden; display:flex; flex-direction:column; margin-bottom:10px; }
-              .header { padding:12px 14px; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:space-between; }
-              .title { font-weight:600; font-size:14px; }
-              .close { background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px; }
-              .body { flex:1; padding:12px; overflow:auto; background:linear-gradient(180deg,#fafafa,#fff); }
-              .msg { margin-bottom:10px; max-width:80%; word-wrap:break-word; }
-              .bot { text-align:left; }
-              .user { text-align:right; margin-left:auto; }
-              .bubble { display:inline-block; padding:8px 10px; border-radius:10px; font-size:13px; line-height:1.3; }
-              .bot .bubble { background:#f2f2f2; color:#111; border-radius:8px 8px 8px 2px; }
-              .user .bubble { background:#0b74da; color:#fff; border-radius:8px 8px 2px 8px; }
-              .footer { display:flex; gap:8px; padding:10px; border-top:1px solid #eee; }
-              .input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
-              .send { padding:8px 12px; border-radius:8px; border:none; background:#0b74da; color:#fff; cursor:pointer; }
-            </style>
+  @keyframes slideUp {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
 
-            <div class="mbz-host" role="dialog" aria-label="MBZ chat">
-              <div id="panel" style="display:none;" class="panel">
-                <div class="header">
-                  <div class="title">${M.title}</div>
-                  <button id="close" class="close" aria-label="Close">✕</button>
-                </div>
-                <div id="body" class="body" tabindex="0" aria-live="polite"></div>
-                <div class="footer">
-                  <input id="input" class="input" placeholder="${M.placeholder}" />
-                  <button id="send" class="send">Send</button>
-                </div>
-              </div>
-              <button id="toggle" class="toggle" aria-label="Open chat">💬</button>
-            </div>
-          `;
-        }
+  #chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-        _bind(){
-          const s = this._shadow;
-          this._panel = s.getElementById('panel');
-          this._toggle = s.getElementById('toggle');
-          this._close = s.getElementById('close');
-          this._body = s.getElementById('body');
-          this._input = s.getElementById('input');
-          this._send = s.getElementById('send');
+  .message { display: flex; align-items: flex-start; gap: 10px; }
+  .message.user { justify-content: flex-end; }
+  .message .avatar {
+    width: 32px; height: 32px; border-radius: 50%; background-size: cover;
+  }
+  .message .text {
+    max-width: 70%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .message.user .text { background-color: #007bff; color: white; border-bottom-right-radius: 0; }
+  .message.bot .text { background-color: #e0e0e0; color: #333; border-bottom-left-radius: 0; }
 
-          this._toggle.addEventListener('click', ()=> {
-            this._panel.style.display = this._panel.style.display === 'none' ? 'flex' : 'none';
-            if (this._panel.style.display === 'flex') this._input.focus();
-          });
-          this._close.addEventListener('click', ()=> { this._panel.style.display = 'none'; this._toggle.focus(); });
-          this._send.addEventListener('click', ()=> this._handleSend());
-          this._input.addEventListener('keydown', (e)=> {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this._handleSend(); }
-          });
-        }
+  #chat-input-container {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    background: #fff;
+  }
+  #chat-input {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  #chat-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+  }
+  #chat-send {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s;
+  }
+  #chat-send:hover { transform: scale(1.1); }
+</style>
 
-        _loadHistory(){
-          try {
-            const raw = localStorage.getItem(this._storageKey);
-            if (raw) {
-              const hist = JSON.parse(raw);
-              hist.forEach(m => this._appendMessage(m.text, m.who, false));
-            } else {
-              this._appendMessage(this._messagesForLang().greeting, 'bot', false);
-            }
-          } catch(e){
-            this._appendMessage(this._messagesForLang().greeting, 'bot', false);
-          }
-        }
+<div id="chat-container">
+  <div id="chat-window">
+    <div id="chat-messages"></div>
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+  <button id="chat-button">💬</button>
+</div>
 
-        _persistHistory() {
-          try {
-            const items = Array.from(this._body.querySelectorAll('.msg')).map(node=>({
-              who: node.dataset.who,
-              text: node.querySelector('.bubble').innerHTML,
-              date: node.dataset.date
-            }));
-            localStorage.setItem(this._storageKey, JSON.stringify(items));
-          } catch(e){}
-        }
+<script>
+  const chatButton = document.getElementById('chat-button');
+  const chatWindow = document.getElementById('chat-window');
+  const chatSend = document.getElementById('chat-send');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
 
-        _appendMessage(text, who='bot', persist=true){
-          const wrapper = document.createElement('div');
-          wrapper.className = `msg ${who}`;
-          wrapper.dataset.who = who;
-          wrapper.dataset.date = new Date().toISOString();
-          const bubble = document.createElement('div');
-          bubble.className = 'bubble';
-          bubble.innerHTML = text;
-          wrapper.appendChild(bubble);
-          this._body.appendChild(wrapper);
-          this._body.scrollTop = this._body.scrollHeight;
-          if (persist) this._persistHistory();
-        }
-
-        _getBotReply(userText) {
-          const t = (userText||'').trim().toLowerCase();
-          if (!t) return this._messagesForLang().unknown;
-          if (t.includes('cad') || t.includes('planos') || t.includes('ciment')) {
-            return {
-              en: "There is an embedded PDF named FOUNDATIONS.pdf in the CAD section. Open or download it.",
-              es: "En la sección CAD tienes el PDF incrustado llamado FOUNDATIONS.pdf. Puedes abrirlo o descargarlo.",
-              eu: "CAD atalean FOUNDATIONS.pdf izeneko PDF txertatua dago. Ireki edo deskargatu dezakezu."
-            }[this._lang];
-          }
-          if (t.includes('3d') || t.includes('modelo') || t.includes('babylon')) {
-            return {
-              en: "The 3D viewer uses Babylon.js. Use the 'Reset View' button in the page to recenter the camera.",
-              es: "El visor 3D usa Babylon.js. Usa el botón 'Reset View' en la página para centrar la cámara.",
-              eu: "3D ikuslea Babylon.js erabiltzen du. Orrialdeko 'Reset View' botoia erabili kamerari berriro zentratzeko."
-            }[this._lang];
-          }
-          if (t.includes('idioma') || t.includes('language') || t.includes('lengua')) {
-            return {
-              en: "Change the site language using the top-right selector — this chat is independent and won't change the page text.",
-              es: "Cambia el idioma del sitio con el selector superior derecho — este chat es independiente y no modificará el texto de la página.",
-              eu: "Aldatu hizkuntza goiko eskuineko hautatzailearekin — txat hau independentea da eta ez du orrialdeko testua aldatuko."
-            }[this._lang];
-          }
-          return this._messagesForLang().unknown;
-        }
-
-        _handleSend(){
-          const txt = this._input.value.trim();
-          if (!txt) return;
-          this._appendMessage(txt, 'user');
-          this._input.value = '';
-          setTimeout(()=> {
-            const reply = this._getBotReply(txt);
-            this._appendMessage(reply, 'bot');
-          }, 300);
-        }
+  const chatData = {
+    en: {
+      intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
+      fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
+      intents: {
+        greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
+        name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
+        skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
+        projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
+        contact: ["You can reach Mikel via email or LinkedIn."]
       }
+    }
+  };
 
-      customElements.define('mbz-chat-host', MBZChat);
-    })();
-  </script>
-  <!-- END MBZ Chat -->
+  chatButton.addEventListener('click', () => {
+    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  function detectIntent(message) {
+    message = message.toLowerCase();
+    if (/(hello|hi|hey|hola|kaixo)/i.test(message)) return 'greeting';
+    if (/(your name|who are you|tu nombre|cómo te llamas|zure izena|nor zara)/i.test(message)) return 'name';
+    if (/(skills|tools|software|programs|habilidades|herramientas|trebetasun)/i.test(message)) return 'skills';
+    if (/(projects|work|portfolio|proyectos|trabajo|lana)/i.test(message)) return 'projects';
+    if (/(contact|email|linkedin|contacto|kontaktua)/i.test(message)) return 'contact';
+    return null;
+  }
+
+  function getResponse(message, lang) {
+    const intent = detectIntent(message);
+    const data = chatData[lang];
+    if (intent) return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
+    return data.fallback[Math.floor(Math.random() * data.fallback.length)];
+  }
+
+  function addMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.classList.add('message', sender);
+    const avatar = document.createElement('div');
+    avatar.classList.add('avatar');
+    avatar.style.backgroundImage = sender === 'user' ? "url('https://i.imgur.com/8Km9tLL.png')" : "url('https://i.imgur.com/7k12EPD.png')";
+    const messageText = document.createElement('div');
+    messageText.classList.add('text');
+    messageText.textContent = text;
+    msg.appendChild(avatar);
+    msg.appendChild(messageText);
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    addMessage(msg, 'user');
+    const botReply = getResponse(msg, 'en');
+    setTimeout(() => addMessage(botReply, 'bot'), 400);
+    chatInput.value = '';
+  }
+
+  chatSend.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    addMessage(chatData['en'].intro, 'bot');
+  });
+</script>
+
 
 </body>
 </html>
+
 
 
 
