@@ -441,197 +441,192 @@
     })();
   </script>
 
-  <!-- START: Simple Chatbot for Mikel (paste before </body>) -->
-  <style>
-    /* Namespaced styles to avoid collisions */
-    #mbz-chatbot { position: fixed; right: 20px; bottom: 20px; z-index: 2147483646; font-family: 'Poppins', sans-serif; }
-    #mbz-chatbot .mbz-toggler { width:56px; height:56px; border-radius:50%; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.25); border:none; }
-    #mbz-chatbot .mbz-panel { width:320px; max-width:calc(100vw - 40px); height:420px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.35); overflow:hidden; display:flex; flex-direction:column; margin-bottom:10px; }
-    #mbz-chatbot .mbz-header { padding:12px 14px; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:space-between; }
-    #mbz-chatbot .mbz-title { font-weight:600; font-size:14px; }
-    #mbz-chatbot .mbz-close { background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px; }
-    #mbz-chatbot .mbz-body { flex:1; padding:12px; overflow:auto; background:linear-gradient(180deg,#fafafa,#fff); }
-    #mbz-chatbot .mbz-msg { margin-bottom:10px; max-width:80%; }
-    #mbz-chatbot .mbz-msg.bot { text-align:left; }
-    #mbz-chatbot .mbz-msg.user { text-align:right; margin-left:auto; }
-    #mbz-chatbot .mbz-msg .bubble { display:inline-block; padding:8px 10px; border-radius:10px; font-size:13px; line-height:1.3; }
-    #mbz-chatbot .mbz-msg.bot .bubble { background:#f2f2f2; color:#111; border-radius:8px 8px 8px 2px; }
-    #mbz-chatbot .mbz-msg.user .bubble { background:#0b74da; color:#fff; border-radius:8px 8px 2px 8px; }
-    #mbz-chatbot .mbz-footer { display:flex; gap:8px; padding:10px; border-top:1px solid #eee; }
-    #mbz-chatbot .mbz-input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
-    #mbz-chatbot .mbz-send { padding:8px 12px; border-radius:8px; border:none; background:#0b74da; color:#fff; cursor:pointer; }
-    /* Avoid capturing wheel events intended for the canvas by requiring focus on input */
-    #mbz-chatbot * { box-sizing:border-box; }
-  </style>
+<!-- MBZ Chat (isolated via Shadow DOM) - paste before </body> and remove any previous chatbot blocks -->
+<script>
+(function(){
+  // Create host element and attach to body
+  const host = document.createElement('mbz-chat-host');
+  document.body.appendChild(host);
 
-  <div id="mbz-chatbot" aria-live="polite">
-    <div id="mbz-panel-container" style="display:none;">
-      <div class="mbz-panel" role="dialog" aria-label="Chatbot">
-        <div class="mbz-header">
-          <div class="mbz-title" id="mbz-title">MBZ Assistant</div>
-          <button class="mbz-close" id="mbz-close" aria-label="Close chat">✕</button>
+  class MBZChat extends HTMLElement {
+    constructor() {
+      super();
+      this._shadow = this.attachShadow({ mode: 'open' });
+      this._lang = (document.documentElement && document.documentElement.lang) ? document.documentElement.lang.slice(0,2) : 'en';
+      if (!['en','es','eu'].includes(this._lang)) this._lang = 'en';
+      this._storageKey = 'mbz_chat_history_v3';
+      this._render();
+      this._bind();
+      this._loadHistory();
+    }
+
+    _messagesForLang() {
+      return {
+        en: { title: 'Assistant', greeting: 'Hi — I can help with your portfolio.', unknown: "Sorry, I didn't understand that.", placeholder: "Ask me something..." },
+        es: { title: 'Asistente', greeting: 'Hola — puedo ayudarte con tu portfolio.', unknown: "Lo siento, no entendí eso.", placeholder: "Pregunta algo..." },
+        eu: { title: 'Laguntzailea', greeting: 'Kaixo — lagundu dezaket zure portfolioarekin.', unknown: "Barkatu, ez dut ulertu.", placeholder: "Galdera egin..." }
+      }[this._lang];
+    }
+
+    _render() {
+      const M = this._messagesForLang();
+      this._shadow.innerHTML = `
+        <style>
+          :host { all: initial; }
+          .mbz-host { position: fixed; right: 18px; bottom: 18px; z-index: 2147483646; font-family: 'Poppins', sans-serif; }
+          .toggle { width:54px; height:54px; border-radius:50%; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.25); border:none; }
+          .panel { width:320px; max-width:calc(100vw - 40px); height:420px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.35); overflow:hidden; display:flex; flex-direction:column; margin-bottom:10px; }
+          .header { padding:12px 14px; background:#0b74da; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+          .title { font-weight:600; font-size:14px; }
+          .close { background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px; }
+          .body { flex:1; padding:12px; overflow:auto; background:linear-gradient(180deg,#fafafa,#fff); }
+          .msg { margin-bottom:10px; max-width:80%; word-wrap:break-word; }
+          .bot { text-align:left; }
+          .user { text-align:right; margin-left:auto; }
+          .bubble { display:inline-block; padding:8px 10px; border-radius:10px; font-size:13px; line-height:1.3; }
+          .bot .bubble { background:#f2f2f2; color:#111; border-radius:8px 8px 8px 2px; }
+          .user .bubble { background:#0b74da; color:#fff; border-radius:8px 8px 2px 8px; }
+          .footer { display:flex; gap:8px; padding:10px; border-top:1px solid #eee; }
+          .input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:14px; }
+          .send { padding:8px 12px; border-radius:8px; border:none; background:#0b74da; color:#fff; cursor:pointer; }
+          /* keep keyboard and wheel behavior local: do not add global wheel handlers */
+        </style>
+
+        <div class="mbz-host" role="dialog" aria-label="MBZ chat">
+          <div id="panel" style="display:none;" class="panel">
+            <div class="header">
+              <div class="title">${M.title}</div>
+              <button id="close" class="close" aria-label="Close">✕</button>
+            </div>
+            <div id="body" class="body" tabindex="0" aria-live="polite"></div>
+            <div class="footer">
+              <input id="input" class="input" placeholder="${M.placeholder}" />
+              <button id="send" class="send">Send</button>
+            </div>
+          </div>
+          <button id="toggle" class="toggle" aria-label="Open chat">💬</button>
         </div>
-        <div class="mbz-body" id="mbz-body" aria-live="polite" tabindex="0"></div>
-        <div class="mbz-footer">
-          <input id="mbz-input" class="mbz-input" placeholder="Ask me something..." />
-          <button id="mbz-send" class="mbz-send">Send</button>
-        </div>
-      </div>
-    </div>
+      `;
+    }
 
-    <button class="mbz-toggler" id="mbz-open" aria-label="Open chat">💬</button>
-  </div>
+    _bind(){
+      const s = this._shadow;
+      this._panel = s.getElementById('panel');
+      this._toggle = s.getElementById('toggle');
+      this._close = s.getElementById('close');
+      this._body = s.getElementById('body');
+      this._input = s.getElementById('input');
+      this._send = s.getElementById('send');
 
-  <script>
-    (function () {
-      // Encapsulado para evitar colisiones
-      const ns = 'mbz_'; // namespace prefix
-      const panelContainer = document.getElementById('mbz-panel-container');
-      const openBtn = document.getElementById('mbz-open');
-      const closeBtn = document.getElementById('mbz-close');
-      const bodyEl = document.getElementById('mbz-body');
-      const inputEl = document.getElementById('mbz-input');
-      const sendBtn = document.getElementById('mbz-send');
-      const titleEl = document.getElementById('mbz-title');
+      this._toggle.addEventListener('click', ()=> {
+        this._panel.style.display = this._panel.style.display === 'none' ? 'flex' : 'none';
+        if (this._panel.style.display === 'flex') this._input.focus();
+      });
+      this._close.addEventListener('click', ()=> { this._panel.style.display = 'none'; this._toggle.focus(); });
+      this._send.addEventListener('click', ()=> this._handleSend());
+      this._input.addEventListener('keydown', (e)=> {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this._handleSend(); }
+      });
 
-      // Try to reuse existing translations object if present
-      const T = (typeof translations !== 'undefined') ? translations : {
-        en: { chat_title: "Assistant", greeting: "Hi — I can help with your portfolio.", unknown: "Sorry, I didn't understand that." },
-        es: { chat_title: "Asistente", greeting: "Hola — puedo ayudarte con tu portfolio.", unknown: "Lo siento, no entendí eso." }
-      };
+      // small accessible close on Escape when panel is open
+      this._shadow.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape' && this._panel.style.display === 'flex') {
+          this._panel.style.display = 'none';
+          this._toggle.focus();
+        }
+      });
+    }
 
-      // detect selected lang from your selector if present, else default en
-      function getCurrentLang() {
-        const sel = document.getElementById('language');
-        if (sel && sel.value && T[sel.value]) return sel.value;
-        return 'en';
-      }
-
-      function localized(key) {
-        const lang = getCurrentLang();
-        return (T[lang] && T[lang][key]) ? T[lang][key] : (T['en'][key] || '');
-      }
-
-      titleEl.textContent = localized('chat_title') || 'Assistant';
-
-      // UX: restore messages from localStorage if available
-      const storageKey = 'mbz_chat_history_v1';
-      let history = [];
+    _loadHistory(){
       try {
-        const raw = localStorage.getItem(storageKey);
-        if (raw) history = JSON.parse(raw) || [];
-      } catch (e) { history = []; }
-
-      function persistHistory() {
-        try { localStorage.setItem(storageKey, JSON.stringify(history)); } catch(e) {}
-      }
-
-      function appendMessage(text, who = 'bot') {
-        const msgWrap = document.createElement('div');
-        msgWrap.className = 'mbz-msg ' + who;
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        bubble.innerHTML = text;
-        msgWrap.appendChild(bubble);
-        bodyEl.appendChild(msgWrap);
-        bodyEl.scrollTop = bodyEl.scrollHeight;
-        history.push({ who, text, date: new Date().toISOString() });
-        persistHistory();
-      }
-
-      // initial greeting only if no history
-      if (history.length === 0) {
-        appendMessage(localized('greeting') || 'Hi — I can help with your portfolio.', 'bot');
-      } else {
-        // render stored
-        bodyEl.innerHTML = '';
-        history.forEach(m => appendMessage(m.text, m.who));
-      }
-
-      // Example simple reply engine — extend this function to call APIs later
-      function getBotReply(userText) {
-        const text = (userText || '').trim().toLowerCase();
-
-        // simple rule-based quick replies about portfolio content
-        if (!text) return localized('unknown') || "Please write something.";
-        if (text.includes('cad') || text.includes('planos') || text.includes('ciment')) {
-          return (getCurrentLang() === 'es')
-            ? "En la sección CAD tienes el PDF incrustado llamado FOUNDATIONS.pdf. Puedes abrirlo o descargarlo."
-            : "In the CAD section you have the embedded PDF named FOUNDATIONS.pdf. You can open or download it.";
+        const raw = localStorage.getItem(this._storageKey);
+        if (raw) {
+          const hist = JSON.parse(raw);
+          hist.forEach(m => this._appendMessage(m.text, m.who, false));
+        } else {
+          this._appendMessage(this._messagesForLang().greeting, 'bot', false);
         }
-        if (text.includes('3d') || text.includes('modelo') || text.includes('babylon')) {
-          return (getCurrentLang() === 'es')
-            ? "El visor 3D usa Babylon.js. Usa el botón 'Reset View' para centrar la cámara. Evito interferir con el canvas."
-            : "The 3D viewer uses Babylon.js. Use the 'Reset View' button to center the camera. I avoid interfering with the canvas.";
-        }
-        if (text.includes('languages') || text.includes('idioma') || text.includes('lengua')) {
-          return (getCurrentLang() === 'es')
-            ? "Puedes cambiar el idioma con el selector en la esquina superior derecha."
-            : "You can change language with the selector in the top-right corner.";
-        }
-        // fallback
-        return localized('unknown') || "Sorry, I didn't understand that. Try asking about CAD, 3D, or renders.";
+      } catch(e){
+        this._appendMessage(this._messagesForLang().greeting, 'bot', false);
       }
+    }
 
-      // event handlers
-      function sendMessage() {
-        const txt = inputEl.value.trim();
-        if (!txt) return;
-        appendMessage(txt, 'user');
-        inputEl.value = '';
-        // small delay to simulate thinking
-        setTimeout(() => {
-          const reply = getBotReply(txt);
-          appendMessage(reply, 'bot');
-        }, 350);
+    _persistHistory() {
+      try {
+        const items = Array.from(this._body.querySelectorAll('.msg')).map(node=>({
+          who: node.dataset.who,
+          text: node.querySelector('.bubble').innerHTML,
+          date: node.dataset.date
+        }));
+        localStorage.setItem(this._storageKey, JSON.stringify(items));
+      } catch(e){}
+    }
+
+    _appendMessage(text, who='bot', persist=true){
+      const wrapper = document.createElement('div');
+      wrapper.className = `msg ${who}`;
+      wrapper.dataset.who = who;
+      wrapper.dataset.date = new Date().toISOString();
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = text;
+      wrapper.appendChild(bubble);
+      this._body.appendChild(wrapper);
+      this._body.scrollTop = this._body.scrollHeight;
+      if (persist) this._persistHistory();
+    }
+
+    _getBotReply(userText) {
+      const t = (userText||'').trim().toLowerCase();
+      if (!t) return this._messagesForLang().unknown;
+      // simple domain-aware replies (doesn't read globals)
+      if (t.includes('cad') || t.includes('planos') || t.includes('ciment')) {
+        return {
+          en: "There is an embedded PDF named FOUNDATIONS.pdf in the CAD section. Open or download it.",
+          es: "En la sección CAD tienes el PDF incrustado llamado FOUNDATIONS.pdf. Puedes abrirlo o descargarlo.",
+          eu: "CAD atalean FOUNDATIONS.pdf izeneko PDF txertatua dago. Ireki edo deskargatu dezakezu."
+        }[this._lang];
       }
-
-      // Open / close toggles
-      openBtn.addEventListener('click', function (e) {
-        panelContainer.style.display = panelContainer.style.display === 'none' ? 'block' : 'none';
-        // focus input on open
-        if (panelContainer.style.display === 'block') setTimeout(() => inputEl.focus(), 80);
-      });
-
-      closeBtn.addEventListener('click', function (e) {
-        panelContainer.style.display = 'none';
-      });
-
-      sendBtn.addEventListener('click', sendMessage);
-      inputEl.addEventListener('keydown', function (ev) {
-        if (ev.key === 'Enter' && !ev.shiftKey) {
-          ev.preventDefault();
-          sendMessage();
-        }
-      });
-
-      // Accessibility: allow Esc to close if panel open
-      document.addEventListener('keydown', function (ev) {
-        if (ev.key === 'Escape' && panelContainer.style.display === 'block') {
-          panelContainer.style.display = 'none';
-          openBtn.focus();
-        }
-      });
-
-      // If language selector changes, update title and greeting
-      const langSelector = document.getElementById('language');
-      if (langSelector) {
-        langSelector.addEventListener('change', function () {
-          titleEl.textContent = localized('chat_title') || 'Assistant';
-          // optional: add a note message in new language
-          appendMessage(localized('greeting') || 'Hi — I can help with your portfolio.', 'bot');
-        });
+      if (t.includes('3d') || t.includes('modelo') || t.includes('babylon')) {
+        return {
+          en: "The 3D viewer uses Babylon.js. Use the 'Reset View' button in the page to recenter the camera.",
+          es: "El visor 3D usa Babylon.js. Usa el botón 'Reset View' en la página para centrar la cámara.",
+          eu: "3D ikuslea Babylon.js erabiltzen du. Orrialdeko 'Reset View' botoia erabili kamerari berriro zentratzeko."
+        }[this._lang];
       }
+      if (t.includes('idioma') || t.includes('language') || t.includes('lengua')) {
+        return {
+          en: "Change the site language using the top-right selector — this chat is independent and won't change the page text.",
+          es: "Cambia el idioma del sitio con el selector superior derecho — este chat es independiente y no modificará el texto de la página.",
+          eu: "Aldatu hizkuntza goiko eskuineko hautatzailearekin — txat hau independentea da eta ez du orrialdeko testua aldatuko."
+        }[this._lang];
+      }
+      // fallback
+      return this._messagesForLang().unknown;
+    }
 
-      // Public debug hook (namespaced) - doesn't pollute window with common names
-      window[ns + 'dumpHistory'] = function () { return history.slice(); };
+    _handleSend(){
+      const txt = this._input.value.trim();
+      if (!txt) return;
+      this._appendMessage(txt, 'user');
+      this._input.value = '';
+      // simulate thinking
+      setTimeout(()=>{
+        const reply = this._getBotReply(txt);
+        this._appendMessage(reply, 'bot');
+      }, 300);
+    }
+  }
 
-    })();
-  </script>
-  <!-- END: Simple Chatbot for Mikel -->
+  customElements.define('mbz-chat-host', MBZChat);
+})();
+</script>
+<!-- END MBZ Chat -->
+
 
 </body>
 </html>
+
 
 
 
