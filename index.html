@@ -471,7 +471,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
         projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
         contact: [ "You can reach Mikel via email: tu-email-aqui@example.com",
                    "Here is Mikel's LinkedIn: https://www.linkedin.com/in/mikel-baliño-zuazo-697447153",
-                   "You can contact Mikel at mikelbz99@hotmail.com or via LinkedIn: https://www.linkedin.com/in/mikel-baliño-zuazo-697447153"
+                   "You can contact Mikel at Contact Mikel at <a href='mailto:mikelbz99@hotmail.com.com'>tu-email-aqui@example.com</a> or on <a href='www.linkedin.com/in/mikel-baliño-zuazo-697447153' target='_blank'>LinkedIn</a>."
 ]
 
       }
@@ -507,7 +507,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     avatar.style.backgroundImage = sender === 'user' ? "url('https://i.imgur.com/8Km9tLL.png')" : "url('https://i.imgur.com/7k12EPD.png')";
     const messageText = document.createElement('div');
     messageText.classList.add('text');
-    messageText.textContent = text;
+    messageText.innerHTML = text;
     msg.appendChild(avatar);
     msg.appendChild(messageText);
     chatMessages.appendChild(msg);
@@ -534,6 +534,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
 </body>
 </html>
+
 
 
 
