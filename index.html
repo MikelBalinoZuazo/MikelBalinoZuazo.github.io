@@ -335,6 +335,19 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 })();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
 
 
+  // Now frame the scene (centra el modelo y ajusta radius)
+      frameSceneAndStoreValues(sceneResult);
+    } catch (e) {
+      console.warn('Error framing / recoloring model:', e);
+    }
+  }, 60);
+}, null, function (sceneRef, message, exception) {
+  console.warn('Model load warning/error:', message, exception);
+});
+
+})();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
+
+
 const chatButton = document.getElementById('chat-button');
 const chatWindow = document.getElementById('chat-window');
 const chatSend = document.getElementById('chat-send');
@@ -498,25 +511,11 @@ chatButton.addEventListener('click', () => {
   chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
 });
 
-</script>
 
 
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
