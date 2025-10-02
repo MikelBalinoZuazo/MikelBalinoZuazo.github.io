@@ -336,7 +336,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
   </script>
 
- <!-- Chat flotante avanzado (no tapa contenido) -->
+<!-- Chat flotante avanzado (no tapa contenido) -->
 <style>
   #chat-container {
     position: fixed;
@@ -347,7 +347,6 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     pointer-events: none; /* El portfolio sigue interactivo */
   }
-
   #chat-button {
     pointer-events: auto;
     background-color: #007bff;
@@ -365,7 +364,6 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     transition: transform 0.2s;
   }
   #chat-button:hover { transform: scale(1.1); }
-
   #chat-window {
     display: none;
     pointer-events: auto;
@@ -378,12 +376,10 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     margin-bottom: 10px;
     animation: slideUp 0.3s;
   }
-
   @keyframes slideUp {
     from {opacity: 0; transform: translateY(20px);}
     to {opacity: 1; transform: translateY(0);}
   }
-
   #chat-messages {
     flex: 1;
     padding: 15px;
@@ -392,11 +388,13 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     flex-direction: column;
     gap: 10px;
   }
-
   .message { display: flex; align-items: flex-start; gap: 10px; }
   .message.user { justify-content: flex-end; }
   .message .avatar {
-    width: 32px; height: 32px; border-radius: 50%; background-size: cover;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-size: cover;
   }
   .message .text {
     max-width: 70%;
@@ -405,9 +403,16 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     font-size: 14px;
     line-height: 1.4;
   }
-  .message.user .text { background-color: #007bff; color: white; border-bottom-right-radius: 0; }
-  .message.bot .text { background-color: #e0e0e0; color: #333; border-bottom-left-radius: 0; }
-
+  .message.user .text {
+    background-color: #007bff;
+    color: white;
+    border-bottom-right-radius: 0;
+  }
+  .message.bot .text {
+    background-color: #e0e0e0;
+    color: #333;
+    border-bottom-left-radius: 0;
+  }
   #chat-input-container {
     display: flex;
     border-top: 1px solid #ccc;
@@ -440,11 +445,31 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
     transition: transform 0.2s;
   }
   #chat-send:hover { transform: scale(1.1); }
+  #suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background: #fafafa;
+  }
+  .suggestion-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .suggestion-btn:hover { background: #0056b3; }
 </style>
 
 <div id="chat-container">
   <div id="chat-window">
     <div id="chat-messages"></div>
+    <div id="suggestions"></div>
     <div id="chat-input-container">
       <input type="text" id="chat-input" placeholder="Type your message...">
       <button id="chat-send">➤</button>
@@ -454,86 +479,106 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 </div>
 
 <script>
-  const chatButton = document.getElementById('chat-button');
-  const chatWindow = document.getElementById('chat-window');
-  const chatSend = document.getElementById('chat-send');
-  const chatInput = document.getElementById('chat-input');
-  const chatMessages = document.getElementById('chat-messages');
+const chatButton = document.getElementById('chat-button');
+const chatWindow = document.getElementById('chat-window');
+const chatSend = document.getElementById('chat-send');
+const chatInput = document.getElementById('chat-input');
+const chatMessages = document.getElementById('chat-messages');
+const suggestionsContainer = document.getElementById('suggestions');
 
-  const chatData = {
-    en: {
-      intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
-      fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
-      intents: {
-        greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
-        name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
-        skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
-        projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
-        contact: [  "You can reach Mikel via email: <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a>",
-  "Here is Mikel's LinkedIn: <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153' target='_blank'>LinkedIn Profile</a>",
-  "You can contact Mikel at <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a> or on <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153' target='_blank'>LinkedIn</a>."
-]
+const chatData = {
+  en: {
+    intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
+    fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
+    intents: {
+      greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
+      name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
+      skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
+      projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
+      contact: [
+        "You can reach Mikel via email: <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a>",
+        "Here is Mikel's LinkedIn: <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153/' target='_blank'>LinkedIn Profile</a>",
+        "Contact Mikel at <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a> or on <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153/' target='_blank'>LinkedIn</a>."
+      ]
+    },
+    suggestions: [
+      "What skills does Mikel have?",
+      "Can you show me his projects?",
+      "How can I contact Mikel?",
+      "What software does he use?"
+    ]
+  }
+};
 
-      }
-    }
-  };
+chatButton.addEventListener('click', () => {
+  chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+});
 
-  chatButton.addEventListener('click', () => {
-    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+function detectIntent(message) {
+  message = message.toLowerCase();
+  if (/(hello|hi|hey|hola|kaixo)/i.test(message)) return 'greeting';
+  if (/(your name|who are you|tu nombre|cómo te llamas|zure izena|nor zara)/i.test(message)) return 'name';
+  if (/(skills|tools|software|programs|habilidades|herramientas|trebetasun)/i.test(message)) return 'skills';
+  if (/(projects|work|portfolio|proyectos|trabajo|lana)/i.test(message)) return 'projects';
+  if (/(contact|email|linkedin|contacto|kontaktua)/i.test(message)) return 'contact';
+  return null;
+}
+
+function getResponse(message, lang) {
+  const intent = detectIntent(message);
+  const data = chatData[lang];
+  if (intent) return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
+  return data.fallback[Math.floor(Math.random() * data.fallback.length)];
+}
+
+function addMessage(text, sender) {
+  const msg = document.createElement('div');
+  msg.classList.add('message', sender);
+  const avatar = document.createElement('div');
+  avatar.classList.add('avatar');
+  avatar.style.backgroundImage = sender === 'user'
+    ? "url('https://i.imgur.com/8Km9tLL.png')"
+    : "url('https://i.imgur.com/7k12EPD.png')";
+  const messageText = document.createElement('div');
+  messageText.classList.add('text');
+  messageText.innerHTML = text; // permite enlaces HTML
+  msg.appendChild(avatar);
+  msg.appendChild(messageText);
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function sendMessage(msgText = null) {
+  const msg = msgText || chatInput.value.trim();
+  if (!msg) return;
+  addMessage(msg, 'user');
+  const botReply = getResponse(msg, 'en');
+  setTimeout(() => addMessage(botReply, 'bot'), 400);
+  chatInput.value = '';
+}
+
+chatSend.addEventListener('click', () => sendMessage());
+chatInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  addMessage(chatData['en'].intro, 'bot');
+  chatData['en'].suggestions.forEach(q => {
+    const btn = document.createElement('button');
+    btn.classList.add('suggestion-btn');
+    btn.textContent = q;
+    btn.addEventListener('click', () => sendMessage(q));
+    suggestionsContainer.appendChild(btn);
   });
-
-  function detectIntent(message) {
-    message = message.toLowerCase();
-    if (/(hello|hi|hey|hola|kaixo)/i.test(message)) return 'greeting';
-    if (/(your name|who are you|tu nombre|cómo te llamas|zure izena|nor zara)/i.test(message)) return 'name';
-    if (/(skills|tools|software|programs|habilidades|herramientas|trebetasun)/i.test(message)) return 'skills';
-    if (/(projects|work|portfolio|proyectos|trabajo|lana)/i.test(message)) return 'projects';
-    if (/(contact|email|linkedin|contacto|kontaktua)/i.test(message)) return 'contact';
-    return null;
-  }
-
-  function getResponse(message, lang) {
-    const intent = detectIntent(message);
-    const data = chatData[lang];
-    if (intent) return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
-    return data.fallback[Math.floor(Math.random() * data.fallback.length)];
-  }
-
-  function addMessage(text, sender) {
-    const msg = document.createElement('div');
-    msg.classList.add('message', sender);
-    const avatar = document.createElement('div');
-    avatar.classList.add('avatar');
-    avatar.style.backgroundImage = sender === 'user' ? "url('https://i.imgur.com/8Km9tLL.png')" : "url('https://i.imgur.com/7k12EPD.png')";
-    const messageText = document.createElement('div');
-    messageText.classList.add('text');
-    messageText.innerHTML = text;
-    msg.appendChild(avatar);
-    msg.appendChild(messageText);
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function sendMessage() {
-    const msg = chatInput.value.trim();
-    if (!msg) return;
-    addMessage(msg, 'user');
-    const botReply = getResponse(msg, 'en');
-    setTimeout(() => addMessage(botReply, 'bot'), 400);
-    chatInput.value = '';
-  }
-
-  chatSend.addEventListener('click', sendMessage);
-  chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
-
-  window.addEventListener('DOMContentLoaded', () => {
-    addMessage(chatData['en'].intro, 'bot');
-  });
+});
 </script>
+
 
 
 </body>
 </html>
+
 
 
 
