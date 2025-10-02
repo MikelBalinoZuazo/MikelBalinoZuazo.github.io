@@ -334,6 +334,7 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
 })();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
 
+
 const chatButton = document.getElementById('chat-button');
 const chatWindow = document.getElementById('chat-window');
 const chatSend = document.getElementById('chat-send');
@@ -480,7 +481,6 @@ function sendMessage(msgText = null) {
   } else {
     const botReply = getResponse(msg, selectedLang);
     setTimeout(() => addMessage(botReply, 'bot'), 400);
-    showSuggestions(selectedLang); // Actualiza sugerencias después de cada mensaje
   }
   chatInput.value = '';
 }
@@ -498,33 +498,12 @@ chatButton.addEventListener('click', () => {
   chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
 });
 
+</script>
+
+
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
