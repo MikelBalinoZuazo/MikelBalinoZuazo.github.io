@@ -334,173 +334,250 @@ BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
 
 })();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
 
-const chatButton = document.getElementById('chat-button');
-const chatWindow = document.getElementById('chat-window');
-const chatSend = document.getElementById('chat-send');
-const chatInput = document.getElementById('chat-input');
-const chatMessages = document.getElementById('chat-messages');
-const suggestionsContainer = document.getElementById('suggestions');
+ // Now frame the scene (centra el modelo y ajusta radius)
+      frameSceneAndStoreValues(sceneResult);
+    } catch (e) {
+      console.warn('Error framing / recoloring model:', e);
+    }
+  }, 60);
+}, null, function (sceneRef, message, exception) {
+  console.warn('Model load warning/error:', message, exception);
+});
 
-const chatData = {
-  en: {
-    intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
-    fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
-    intents: {
-      greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
-      name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
-      skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
-      projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
-      contact: [
-        "You can reach Mikel via email: <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a>",
-        "Here is Mikel's LinkedIn: <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153/' target='_blank'>LinkedIn Profile</a>"
-      ]
-    },
-    suggestions: [
-      "What skills does Mikel have?",
-      "Can you show me his projects?",
-      "How can I contact Mikel?",
-      "What software does he use?"
-    ]
-  },
-  es: {
-    intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame sobre su trabajo, habilidades o proyectos.",
-    fallback: ["Lo siento, no entendí eso.", "No estoy seguro sobre eso.", "¡Intenta preguntar otra cosa!"],
-    intents: {
-      greeting: ["¡Hola! ¿Cómo puedo ayudarte hoy?", "¡Hola! ¿Qué te gustaría saber?"],
-      name: ["Soy el asistente virtual de Mikel Baliño Zuazo.", "Puedes llamarme el asistente de Mikel."],
-      skills: ["Mikel utiliza principalmente Rhino, Grasshopper, AutoCAD y herramientas BIM."],
-      projects: ["Explora los proyectos de Mikel en las secciones de CAD, 3D, Renders y Animaciones."],
-      contact: [
-        "Puedes contactar a Mikel vía email: <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a>",
-        "Aquí está el perfil de LinkedIn de Mikel: <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153/' target='_blank'>LinkedIn</a>"
-      ]
-    },
-    suggestions: [
-      "¿Qué habilidades tiene Mikel?",
-      "¿Puedes mostrarme sus proyectos?",
-      "¿Cómo puedo contactar a Mikel?",
-      "¿Qué software utiliza?"
-    ]
-  },
-  eu: {
-    intro: "Kaixo! Mikel-en laguntzaile birtuala naiz. Bere lanaz, trebetasunetaz edo proiektuez galdetu iezadazu.",
-    fallback: ["Barkatu, hori ez dut ulertu.", "Ez nago horretaz ziur.", "Saiatu beste galdera batekin!"],
-    intents: {
-      greeting: ["Kaixo! Nola lagundu dezaket gaur?", "Kaixo! Zer jakin nahi duzu?"],
-      name: ["Ni naiz Mikel Baliño Zuazoren laguntzaile birtuala.", "Mikel-en laguntzaile deitu nazakezu."],
-      skills: ["Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnak erabiltzen ditu."],
-      projects: ["Ikusi Mikel-en proiektuak CAD, 3D, Renders eta Animazioetan."],
-      contact: [
-        "Mikel kontaktatu dezakezu email bidez: <a href='mailto:mikelbz99@hotmail.com'>mikelbz99@hotmail.com</a>",
-        "Hemen dago Mikel-en LinkedIn profila: <a href='https://www.linkedin.com/in/mikel-baliño-zuazo-697447153/' target='_blank'>LinkedIn</a>"
-      ]
-    },
-    suggestions: [
-      "Zer trebetasun ditu Mikel-ek?",
-      "Bere proiektuak erakutsi ditzakezu?",
-      "Nola kontaktatu dezaket Mikel?",
-      "Zer software erabiltzen du?"
-    ]
+})();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
+
+  </script>
+
+<!-- Chat flotante avanzado (multilenguaje) -->
+<style>
+  #chat-container {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 320px; z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    pointer-events: none;
   }
-};
-
-let selectedLang = null;
-
-// Función para mostrar preguntas predefinidas
-function showSuggestions(lang) {
-  suggestionsContainer.innerHTML = '';
-  chatData[lang].suggestions.forEach(q => {
-    const btn = document.createElement('button');
-    btn.classList.add('suggestion-btn');
-    btn.textContent = q;
-    btn.addEventListener('click', () => sendMessage(q));
-    suggestionsContainer.appendChild(btn);
-  });
-}
-
-// Mostrar selector de idioma al inicio
-function askLanguage() {
-  suggestionsContainer.innerHTML = '';
-  addMessage("Please select a language / Por favor, selecciona un idioma / Mesedez, hautatu hizkuntza:", 'bot');
-
-  ['en', 'es', 'eu'].forEach(lang => {
-    const btn = document.createElement('button');
-    btn.classList.add('suggestion-btn');
-    btn.textContent = lang === 'en' ? 'English' : lang === 'es' ? 'Español' : 'Euskera';
-    btn.addEventListener('click', () => {
-      selectedLang = lang;
-      chatMessages.innerHTML = ''; // limpia mensajes anteriores
-      addMessage(chatData[lang].intro, 'bot');
-      showSuggestions(lang);
-    });
-    suggestionsContainer.appendChild(btn);
-  });
-}
-
-function detectIntent(message) {
-  message = message.toLowerCase();
-  if (/(hello|hi|hey|hola|kaixo)/i.test(message)) return 'greeting';
-  if (/(your name|who are you|tu nombre|cómo te llamas|zure izena|nor zara)/i.test(message)) return 'name';
-  if (/(skills|tools|software|programs|habilidades|herramientas|trebetasun)/i.test(message)) return 'skills';
-  if (/(projects|work|portfolio|proyectos|trabajo|lana)/i.test(message)) return 'projects';
-  if (/(contact|email|linkedin|contacto|kontaktua)/i.test(message)) return 'contact';
-  return null;
-}
-
-function getResponse(message, lang) {
-  const intent = detectIntent(message);
-  const data = chatData[lang];
-  if (intent) return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
-  return data.fallback[Math.floor(Math.random() * data.fallback.length)];
-}
-
-function addMessage(text, sender) {
-  const msg = document.createElement('div');
-  msg.classList.add('message', sender);
-  const avatar = document.createElement('div');
-  avatar.classList.add('avatar');
-  avatar.style.backgroundImage = sender === 'user'
-    ? "url('https://i.imgur.com/8Km9tLL.png')"
-    : "url('https://i.imgur.com/7k12EPD.png')";
-  const messageText = document.createElement('div');
-  messageText.classList.add('text');
-  messageText.innerHTML = text;
-  msg.appendChild(avatar);
-  msg.appendChild(messageText);
-  chatMessages.appendChild(msg);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function sendMessage(msgText = null) {
-  const msg = msgText || chatInput.value.trim();
-  if (!msg) return;
-  addMessage(msg, 'user');
-  if (!selectedLang) {
-    addMessage("Please select a language first!", 'bot');
-  } else {
-    const botReply = getResponse(msg, selectedLang);
-    setTimeout(() => addMessage(botReply, 'bot'), 400);
-    showSuggestions(selectedLang); // Actualiza sugerencias después de cada mensaje
+  #chat-button {
+    pointer-events: auto;
+    background-color: #007bff; color: white;
+    border: none; border-radius: 50%;
+    width: 60px; height: 60px;
+    cursor: pointer; font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
   }
-  chatInput.value = '';
-}
+  #chat-button:hover { transform: scale(1.1); }
+  #chat-window {
+    display: none; pointer-events: auto;
+    flex-direction: column;
+    background: #f7f7f7; border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    height: 450px; overflow: hidden;
+    margin-bottom: 10px; animation: slideUp 0.3s;
+  }
+  @keyframes slideUp {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  #chat-messages {
+    flex: 1; padding: 15px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .message { display: flex; align-items: flex-start; gap: 10px; }
+  .message.user { justify-content: flex-end; }
+  .message .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background-size: cover;
+  }
+  .message .text {
+    max-width: 70%; padding: 10px 12px;
+    border-radius: 12px; font-size: 14px; line-height: 1.4;
+  }
+  .message.user .text {
+    background-color: #007bff; color: white;
+    border-bottom-right-radius: 0;
+  }
+  .message.bot .text {
+    background-color: #e0e0e0; color: #333;
+    border-bottom-left-radius: 0;
+  }
+  #chat-input-container {
+    display: flex; border-top: 1px solid #ccc;
+    padding: 10px; background: #fff;
+  }
+  #chat-input {
+    flex: 1; border: 1px solid #ccc;
+    border-radius: 20px; padding: 8px 15px;
+    font-size: 14px; outline: none; transition: all 0.2s;
+  }
+  #chat-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+  }
+  #chat-send {
+    background-color: #007bff; color: white;
+    border: none; border-radius: 50%;
+    width: 40px; height: 40px;
+    margin-left: 10px; cursor: pointer; font-size: 16px;
+    transition: transform 0.2s;
+  }
+  #chat-send:hover { transform: scale(1.1); }
+</style>
 
-chatSend.addEventListener('click', () => sendMessage());
-chatInput.addEventListener('keypress', e => {
-  if (e.key === 'Enter') sendMessage();
-});
+<div id="chat-container">
+  <div id="chat-window">
+    <div id="chat-messages"></div>
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Type your message...">
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+  <button id="chat-button">💬</button>
+</div>
 
-window.addEventListener('DOMContentLoaded', () => {
-  askLanguage();
-});
+<script>
+  const chatButton = document.getElementById('chat-button');
+  const chatWindow = document.getElementById('chat-window');
+  const chatSend = document.getElementById('chat-send');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
 
-chatButton.addEventListener('click', () => {
-  chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
-});
+  let selectedLang = null;
+
+  const chatData = {
+    en: {
+      intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
+      fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
+      intents: {
+        greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
+        name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
+        skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
+        projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
+        contact: ["You can reach Mikel via <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> or <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+      }
+    },
+    es: {
+      intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame lo que quieras sobre su trabajo, habilidades o proyectos.",
+      fallback: ["Lo siento, no entendí eso.", "No estoy seguro de eso.", "¡Intenta con otra pregunta!"],
+      intents: {
+        greeting: ["¡Hola! ¿En qué puedo ayudarte hoy?", "¡Buenas! ¿Qué te gustaría saber?"],
+        name: ["Soy el asistente virtual de Mikel Baliño Zuazo.", "Puedes llamarme el asistente de Mikel."],
+        skills: ["Mikel trabaja sobre todo con Rhino, Grasshopper, AutoCAD y herramientas BIM."],
+        projects: ["Explora los proyectos de Mikel en las secciones de CAD, 3D, Renders y Animaciones."],
+        contact: ["Puedes contactar con Mikel en <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> o en su <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+      }
+    },
+    eu: {
+      intro: "Kaixo! Mikel-en laguntzailea naiz. Galdetu bere lanari, trebetasunei edo proiektuei buruz.",
+      fallback: ["Barkatu, ez dut ulertu.", "Ez nago ziur horretaz.", "Saiatu beste zerbait galdetzen!"],
+      intents: {
+        greeting: ["Kaixo! Nola lagun diezazuket gaur?", "Epa! Zer jakin nahi duzu?"],
+        name: ["Mikel Baliño Zuazo-ren laguntzailea naiz.", "Mikel-en laguntzaile birtuala deitu nazakezu."],
+        skills: ["Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnekin egiten du lan."],
+        projects: ["Mikelen proiektuak CAD, 3D, Render eta Animazioen atalean ikus ditzakezu."],
+        contact: ["Mikelen emaila da <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> eta <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>-en aurkituko duzu."]
+      }
+    }
+  };
+
+  function detectIntent(message) {
+    if (!selectedLang) return null;
+    message = message.toLowerCase();
+
+    if (selectedLang === "en") {
+      if (/(hello|hi|hey)/i.test(message)) return 'greeting';
+      if (/(your name|who are you|name)/i.test(message)) return 'name';
+      if (/(skills|tools|software|programs)/i.test(message)) return 'skills';
+      if (/(projects|work|portfolio)/i.test(message)) return 'projects';
+      if (/(contact|email|linkedin)/i.test(message)) return 'contact';
+    }
+
+    if (selectedLang === "es") {
+      if (/(hola|buenas)/i.test(message)) return 'greeting';
+      if (/(tu nombre|cómo te llamas|quién eres)/i.test(message)) return 'name';
+      if (/(habilidades|herramientas|programas|software)/i.test(message)) return 'skills';
+      if (/(proyectos|trabajo|portfolio)/i.test(message)) return 'projects';
+      if (/(contacto|email|correo|linkedin)/i.test(message)) return 'contact';
+    }
+
+    if (selectedLang === "eu") {
+      if (/(kaixo|epa|hola)/i.test(message)) return 'greeting';
+      if (/(zure izena|nor zara)/i.test(message)) return 'name';
+      if (/(trebetasun|tresnak|software)/i.test(message)) return 'skills';
+      if (/(proiektuak|lana|portfolio)/i.test(message)) return 'projects';
+      if (/(kontaktua|email|posta|linkedin)/i.test(message)) return 'contact';
+    }
+
+    return null;
+  }
+
+  function getResponse(message) {
+    if (!selectedLang) return "Please select a language first.";
+    const intent = detectIntent(message);
+    const data = chatData[selectedLang];
+    if (intent) {
+      return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
+    }
+    return data.fallback[Math.floor(Math.random() * data.fallback.length)];
+  }
+
+  function addMessage(text, sender, allowHTML = false) {
+    const msg = document.createElement('div');
+    msg.classList.add('message', sender);
+    const avatar = document.createElement('div');
+    avatar.classList.add('avatar');
+    avatar.style.backgroundImage =
+      sender === 'user'
+        ? "url('https://i.imgur.com/8Km9tLL.png')"
+        : "url('https://i.imgur.com/7k12EPD.png')";
+    const messageText = document.createElement('div');
+    messageText.classList.add('text');
+    if (allowHTML) {
+      messageText.innerHTML = text;
+    } else {
+      messageText.textContent = text;
+    }
+    msg.appendChild(avatar);
+    msg.appendChild(messageText);
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    addMessage(msg, 'user');
+    const botReply = getResponse(msg);
+    setTimeout(() => addMessage(botReply, 'bot', true), 400);
+    chatInput.value = '';
+  }
+
+  chatButton.addEventListener('click', () => {
+    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+  });
+  chatSend.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+  // Primer mensaje: elegir idioma
+  window.addEventListener('DOMContentLoaded', () => {
+    addMessage("Choose a language / Elige un idioma / Hautatu hizkuntza:<br><button onclick=\"selectLang('en')\">English</button> <button onclick=\"selectLang('es')\">Español</button> <button onclick=\"selectLang('eu')\">Euskara</button>", 'bot', true);
+  });
+
+  function selectLang(lang) {
+    selectedLang = lang;
+    addMessage(chatData[lang].intro, 'bot');
+  }
+</script>
+
 
 
 </body>
 </html>
+
+
+
+
+
 
 
 
