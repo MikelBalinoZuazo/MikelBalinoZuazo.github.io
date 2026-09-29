@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,14 +19,61 @@
   <meta name="description" content="Portfolio of Mikel Baliño Zuazo, Draftsman specialized in CAD design, 3D and BIM. Discover engineering projects and 3D models.">
 
   <style>
-    html, body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-    #renderCanvas { width: 100%; height: 500px; display: block; border: 1px solid #ccc; margin-top: 1rem; }
-    .ui-button { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); color: white; border: none; padding: 8px 12px; font-size: 14px; cursor: pointer; border-radius: 4px; }
-    .animation-gif { max-width: 70%; border-radius: 8px; border: 1px solid #ccc; margin-top: 1rem; }
-    .language-selector { position: fixed; top: 10px; right: 10px; z-index: 999; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #renderCanvas {
+      width: 100%;
+      height: 500px;
+      display: block;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
+    }
+
+    .ui-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .animation-gif {
+      max-width: 70%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
+    }
+
+    /* SOLO para la imagen del armado del pilar */
+    .imagen-pilar {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 1rem;
+    }
+
+    .language-selector {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 999;
+    }
   </style>
 </head>
+
 <body>
+
   <div class="language-selector">
     <select id="language" onchange="changeLanguage()">
       <option value="en" selected>English</option>
@@ -66,9 +113,11 @@
   <section id="cad">
     <h2 data-i18n="cad_title">CAD Drawings</h2>
     <p data-i18n="cad_text"></p>
+
     <div style="margin-top: 1rem; border: 1px solid #ccc; border-radius: 8px; overflow: hidden;">
       <embed src="FOUNDATIONS.pdf" type="application/pdf" width="100%" height="600px" style="border: none;"></embed>
     </div>
+
     <p style="margin-top: 0.5rem; font-size: 14px;">
       <a href="FOUNDATIONS.pdf" target="_blank">📄 Open FOUNDATIONS.pdf in a new tab</a>
     </p>
@@ -77,11 +126,19 @@
   <section id="3d-models">
     <h2 data-i18n="models_title">3D Models</h2>
     <p data-i18n="models_text"></p>
+
     <canvas id="renderCanvas"></canvas>
-    <button class="ui-button" onclick="resetCamera()" data-i18n="reset_btn">Reset View</button>
+
+    <button class="ui-button" onclick="resetCamera" data-i18n="reset_btn">
+      Reset View
+    </button>
 
     <h3 data-i18n="gh_title">Parametric Models with Grasshopper</h3>
-    <p data-i18n="gh_text">Using Grasshopper we can create parametric models that allow us to control the variables of our design...</p>
+
+    <p data-i18n="gh_text">
+      Using Grasshopper we can create parametric models that allow us to control the variables of our design...
+    </p>
+
     <video controls class="animation-gif" style="max-width: 100%; margin-top: 1rem; border-radius: 8px; border: 1px solid #ccc;">
       <source src="videos/grasshopper.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -90,15 +147,17 @@
 
   <section id="renders">
     <h2 data-i18n="renders_title">Renders</h2>
+
     <p data-i18n="renders_text"></p>
 
     <img src="Render.jpg" alt="Example Render" class="animation-gif" />
 
-    <!-- Nueva imagen: armado de pilar -->
+    <!-- Imagen del armado de pilar -->
     <figure>
       <img src="ARMADO_PILAR.jpg"
            alt="Detalle de armado de pilar"
-           class="animation-gif" />
+           class="imagen-pilar" />
+
       <figcaption data-i18n="pillar_reinforcement_caption">
         Detalle de armado de pilar
       </figcaption>
@@ -107,14 +166,27 @@
 
   <section id="animations">
     <h2 data-i18n="animations_title">Animations</h2>
+
     <p data-i18n="animations_text"></p>
+
     <h3 data-i18n="example_animation">Example Animation</h3>
-    <img src="images/Frame.gif" alt="Example Animation" class="animation-gif" />
+
+    <img src="images/Frame.gif"
+         alt="Example Animation"
+         class="animation-gif" />
+
     <p data-i18n="animation_description"></p>
   </section>
 
   <footer>
-    <p>&copy; 2025 Mikel Baliño Zuazo · Portfolio · <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/" target="_blank" data-i18n="social_link">Social network</a></p>
+    <p>
+      &copy; 2025 Mikel Baliño Zuazo · Portfolio ·
+      <a href="https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo-697447153/"
+         target="_blank"
+         data-i18n="social_link">
+        Social network
+      </a>
+    </p>
   </footer>
 
   <!-- Babylon.js -->
@@ -123,436 +195,1056 @@
 
   <!-- Main scripts: translations + changeLanguage + Babylon init -->
   <script>
+
     // --- Translations (single definition) ---
     const translations = {
+
       en: {
         subtitle: "Engineering Draftsman · 3D Designer · BIM Specialist",
+
         about_title: "About me",
+
         about_text: "I am a professional draftsman with expertise in CAD drawing, 3D modeling, rendering, and animation. I specialize in using Rhino, Grasshopper, AutoCAD, and BIM tools to bring engineering and architectural concepts to life with precision and creativity.",
+
         what_title: "What you will find here",
+
         what_text: "This page is not intended to be a professional portfolio; therefore, you won’t find detailed information about the projects I have worked on. Instead, it serves as a showroom of the different skills I have been developing.",
+
         toc_title: "Table of Contents",
+
         cad_link: "CAD Drawings",
         models_link: "3D Models",
         renders_link: "Renders",
         animations_link: "Animations",
+
         cad_title: "CAD Drawings",
+
         cad_text: "Examples of technical 2D drawings made in AutoCAD and other drafting tools.<br><br>In this example, an isolated foundation plan of a building is shown, along with sections to illustrate the reinforcement of the footings and tie beams.",
+
         models_title: "3D Models",
+
         models_text: "Interactive 3D model. You can rotate, zoom, and explore the model below.",
+
         renders_title: "Renders",
+
         renders_text: "Photorealistic renderings that showcase lighting, materials, and composition. This render is used to illustrate one of the construction phases of an industrial building and its relationship with the surrounding environment.",
+
         pillar_reinforcement_caption: "Column reinforcement detail.",
+
         animations_title: "Animations",
+
         animations_text: "Animated representations of real scenarios using collected data.",
+
         example_animation: "Example Animation",
+
         animation_description: "In this example Grasshopper has been used to make a GIF of the real movement of a ferris wheel. With this, it is pretended to demonstrate the utility of this tool when it comes to expressing operating ideas to third parties.",
+
         reset_btn: "Reset View",
+
         social_link: "Social network",
+
         gh_title: "Parametric Models with Grasshopper",
+
         gh_text: "Using Grasshopper we can create parametric models that allow us to control the variables of our design, giving us the option to generate different versions in a matter of seconds, saving many hours of work."
       },
 
+
       es: {
         subtitle: "Delineante · Diseñador 3D · Especialista BIM",
+
         about_title: "Sobre mí",
+
         about_text: "Soy delineante profesional especializado en dibujo CAD, modelado 3D, renderizado y animación. Domino herramientas como Rhino, Grasshopper, AutoCAD y BIM para materializar ideas de ingeniería y arquitectura con precisión y creatividad.",
+
         what_title: "Qué encontrarás aquí",
+
         what_text: "Esta página no está pensada como un portfolio profesional; por lo tanto, no encontrarás información detallada sobre los proyectos en los que he trabajado. En su lugar, funciona como un escaparate de las habilidades que he ido desarrollando.",
+
         toc_title: "Índice de contenidos",
+
         cad_link: "Planos CAD",
         models_link: "Modelos 3D",
         renders_link: "Renderizados",
         animations_link: "Animaciones",
+
         cad_title: "Planos CAD",
+
         cad_text: "Ejemplos de planos técnicos en 2D realizados con AutoCAD y otras herramientas.<br><br>En este ejemplo se muestra un plano de cimentaciones aisladas de un edificio en planta y se realizan unas secciones para mostrar el armado de las zapatas y vigas de atado.",
+
         models_title: "Modelos 3D",
+
         models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
+
         renders_title: "Renderizados",
+
         renders_text: "Renderizados fotorrealistas que muestran iluminación, materiales y composición. Este render es utilizado para mostrar una de las fases constructivas de un edificio industrial y la relacion que tiene dicho edificio con el entorno que le rodea.",
+
         pillar_reinforcement_caption: "Detalle de armado de pilar",
+
         animations_title: "Animaciones",
+
         animations_text: "Representaciones animadas de escenarios reales utilizando datos recogidos.",
+
         example_animation: "Ejemplo de animación",
+
         animation_description: "En este ejemplo se ha utilizado Grasshopper para generar un GIF del movimiento real de una noria. Con ello se pretende demostrar la utilidad de esta herramienta a la hora de expresar ideas de funcionamiento a terceros.",
+
         reset_btn: "Reiniciar vista",
+
         social_link: "Red social",
+
         gh_title: "Modelos paramétricos con Grasshopper",
+
         gh_text: "Utilizando Grasshopper podemos realizar modelos paramétricos con los que controlar las variables de nuestro modelo, dándonos la opción de generar versiones diferentes en cuestión de segundos, ahorrando de esta manera muchas horas de trabajo."
       },
 
+
       eu: {
         subtitle: "Marrazkilari · 3D Diseinatzailea · BIM Espezialista",
+
         about_title: "Niri buruz",
+
         about_text: "Marrazkilari profesionala naiz, CAD marrazketan, 3D modelizazioan, renderizazioan eta animazioan aditua. Rhino, Grasshopper, AutoCAD eta BIM bezalako tresnak erabiltzen ditut ingeniaritza eta arkitektura kontzeptuak zehaztasunez eta sormenaz errealitate bihurtzeko.",
+
         what_title: "Hemen zer aurkituko duzu",
+
         what_text: "Orrialde hau ez da portfolio profesionala izateko pentsatuta; beraz, ez duzu aurkituko nire egindako proiektuen informazio zehatzik. Horren ordez, garatu ditudan gaitasun desberdinen erakustoki gisa balio du.",
+
         toc_title: "Edukiaren aurkibidea",
+
         cad_link: "CAD Marrazkiak",
         models_link: "3D Ereduak",
         renders_link: "Renderizazioak",
         animations_link: "Animazioak",
+
         cad_title: "CAD Marrazkiak",
+
         cad_text: "AutoCAD eta bestelako marrazketa tresnekin egindako 2D marrazki teknikoen adibideak.<br><br>Adibide honetan eraikin baten zimendu isolatuen planoa erakusten da, eta sekzio batzuk egiten dira zapaten eta lotura-habearen armadura erakusteko.",
+
         models_title: "3D Ereduak",
+
         models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
+
         renders_title: "Renderizazioak",
+
         renders_text: "Argiak, materialak eta konposizioa erakusten dituzten errendaketa fotorealista. Errendaketa hau eraikin industrial baten eraikuntza-faseetako bat eta ingurunearekiko duen harremana erakusteko erabiltzen da.",
+
         pillar_reinforcement_caption: "Zutoinaren armaduraren xehetasuna.",
+
         animations_title: "Animazioak",
+
         animations_text: "Datu errealekin egindako eszenatokien animazioak.",
+
         example_animation: "Animazioaren adibidea",
+
         animation_description: "Adibide honetan Grasshopper erabiliz benetako norabide bateko noria baten mugimenduaren GIF bat sortu da. Tresna honek hirugarrenei funtzionamendu-ideiak azaltzeko duen erabilgarritasuna erakustea da helburua.",
+
         reset_btn: "Berrabiarazi ikuspegia",
+
         social_link: "Sare soziala",
+
         gh_title: "Grasshopper-ekin modelo parametrikoak",
+
         gh_text: "Grasshopper erabiliz modelo parametrikoak sor ditzakegu, gure modeloko aldagaiak kontrolatzeko aukera ematen digutenak, eta horrela, segundo gutxitan bertsio desberdinak sortzeko aukera izango dugu, lan ordu asko aurrezteko."
       }
     };
 
+
     function changeLanguage() {
+
       const lang = document.getElementById('language').value;
+
       document.querySelectorAll('[data-i18n]').forEach(el => {
+
         const key = el.getAttribute('data-i18n');
+
         if (translations[lang] && translations[lang][key]) {
           el.innerHTML = translations[lang][key];
         }
+
       });
     }
 
+
     window.addEventListener('DOMContentLoaded', changeLanguage);
 
+
     /* ---------- Babylon setup (safe + auto-frame) ---------- */
+
     (function initBabylon() {
+
       const canvas = document.getElementById("renderCanvas");
+
       if (!canvas) {
         console.warn('No renderCanvas found.');
         return;
       }
 
       const engine = new BABYLON.Engine(canvas, true);
+
       const scene = new BABYLON.Scene(engine);
+
       scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9);
 
-      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+      const camera = new BABYLON.ArcRotateCamera(
+        "camera",
+        Math.PI / 2,
+        Math.PI / 2.5,
+        10,
+        BABYLON.Vector3.Zero(),
+        scene
+      );
+
       camera.wheelPrecision = 1;
+
       camera.attachControl(canvas, true);
 
-      const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+
+      const hemi = new BABYLON.HemisphericLight(
+        "hemi",
+        new BABYLON.Vector3(0, 1, 0),
+        scene
+      );
+
       hemi.intensity = 0.9;
-      const dir = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-0.5, -1, 0.5), scene);
+
+
+      const dir = new BABYLON.DirectionalLight(
+        "dir",
+        new BABYLON.Vector3(-0.5, -1, 0.5),
+        scene
+      );
+
       dir.position = new BABYLON.Vector3(20, 40, 20);
+
       dir.intensity = 0.6;
+
 
       let initialAlpha = camera.alpha;
       let initialBeta = camera.beta;
       let initialRadius = camera.radius;
       let initialTarget = camera.target.clone();
 
+
       window.resetCamera = function() {
+
         try {
+
           camera.setTarget(initialTarget);
           camera.alpha = initialAlpha;
           camera.beta = initialBeta;
           camera.radius = initialRadius;
+
         } catch (e) {
+
           console.warn('resetCamera failed', e);
+
         }
+
       };
 
+
       canvas.addEventListener("wheel", function (event) {
+
         event.preventDefault();
+
       }, { passive: false });
 
+
       function frameSceneAndStoreValues(sceneRef) {
-        const meshes = sceneRef.meshes.filter(m => m.isVisible && m.getTotalVertices && m.getTotalVertices() > 0);
+
+        const meshes = sceneRef.meshes.filter(
+          m => m.isVisible &&
+               m.getTotalVertices &&
+               m.getTotalVertices() > 0
+        );
+
+
         if (!meshes || meshes.length === 0) {
+
           console.warn('No geometry meshes found to frame.');
           return;
+
         }
 
-        let min = new BABYLON.Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-        let max = new BABYLON.Vector3(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+
+        let min = new BABYLON.Vector3(
+          Number.POSITIVE_INFINITY,
+          Number.POSITIVE_INFINITY,
+          Number.POSITIVE_INFINITY
+        );
+
+
+        let max = new BABYLON.Vector3(
+          Number.NEGATIVE_INFINITY,
+          Number.NEGATIVE_INFINITY,
+          Number.NEGATIVE_INFINITY
+        );
+
 
         meshes.forEach(mesh => {
+
           const bb = mesh.getBoundingInfo().boundingBox;
-          min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
-          max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
+
+          min = BABYLON.Vector3.Minimize(
+            min,
+            bb.minimumWorld
+          );
+
+          max = BABYLON.Vector3.Maximize(
+            max,
+            bb.maximumWorld
+          );
+
         });
 
+
         const center = min.add(max).scale(0.5);
+
         const sizeVec = max.subtract(min);
-        const maxDimension = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
+
+        const maxDimension = Math.max(
+          sizeVec.x,
+          sizeVec.y,
+          sizeVec.z
+        );
+
         const diag = sizeVec.length();
-        const radius = Math.max(diag * 0.8, maxDimension * 1.2, 1);
+
+        const radius = Math.max(
+          diag * 0.8,
+          maxDimension * 1.2,
+          1
+        );
+
 
         camera.setTarget(center);
+
         camera.radius = radius * 1.6;
-        camera.lowerRadiusLimit = Math.max(radius * 0.2, 0.1);
+
+        camera.lowerRadiusLimit = Math.max(
+          radius * 0.2,
+          0.1
+        );
+
         camera.upperRadiusLimit = radius * 20;
+
 
         initialAlpha = camera.alpha;
         initialBeta = camera.beta;
         initialRadius = camera.radius;
         initialTarget = center.clone();
 
-        console.log('Framed scene: center=', center, 'radius=', radius, 'meshes=', meshes.length);
+
+        console.log(
+          'Framed scene: center=',
+          center,
+          'radius=',
+          radius,
+          'meshes=',
+          meshes.length
+        );
+
       }
 
-      BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
-        scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9);
-        engine.runRenderLoop(() => scene.render());
 
-        setTimeout(() => {
-          try {
-            sceneResult.meshes.forEach(mesh => {
-              try {
-                if (!mesh.getTotalVertices || mesh.getTotalVertices() === 0) return;
-              } catch(e) {}
+      BABYLON.SceneLoader.Append(
+        "./",
+        "modelo.glb",
+        scene,
 
-              const whiteMat = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, scene);
-              whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-              whiteMat.specularColor = new BABYLON.Color3(0.15, 0.15, 0.15);
+        function (sceneResult) {
 
-              try {
-                mesh.material = whiteMat;
-              } catch (e) {
-                console.warn('Could not assign material to mesh', mesh.id, e);
-              }
-            });
+          scene.clearColor = new BABYLON.Color3(
+            0.9,
+            0.9,
+            0.9
+          );
 
-            frameSceneAndStoreValues(sceneResult);
-          } catch (e) {
-            console.warn('Error framing / recoloring model:', e);
-          }
-        }, 60);
-      }, null, function (sceneRef, message, exception) {
-        console.warn('Model load warning/error:', message, exception);
-      });
+
+          engine.runRenderLoop(() => scene.render());
+
+
+          setTimeout(() => {
+
+            try {
+
+              sceneResult.meshes.forEach(mesh => {
+
+                try {
+
+                  if (
+                    !mesh.getTotalVertices ||
+                    mesh.getTotalVertices() === 0
+                  ) return;
+
+                } catch(e) {}
+
+
+                const whiteMat =
+                  new BABYLON.StandardMaterial(
+                    "whiteMat_" + mesh.id,
+                    scene
+                  );
+
+
+                whiteMat.diffuseColor =
+                  new BABYLON.Color3(1, 1, 1);
+
+
+                whiteMat.specularColor =
+                  new BABYLON.Color3(
+                    0.15,
+                    0.15,
+                    0.15
+                  );
+
+
+                try {
+
+                  mesh.material = whiteMat;
+
+                } catch (e) {
+
+                  console.warn(
+                    'Could not assign material to mesh',
+                    mesh.id,
+                    e
+                  );
+
+                }
+
+              });
+
+
+              frameSceneAndStoreValues(sceneResult);
+
+
+            } catch (e) {
+
+              console.warn(
+                'Error framing / recoloring model:',
+                e
+              );
+
+            }
+
+          }, 60);
+
+        },
+
+        null,
+
+        function (
+          sceneRef,
+          message,
+          exception
+        ) {
+
+          console.warn(
+            'Model load warning/error:',
+            message,
+            exception
+          );
+
+        }
+      );
+
     })();
+
   </script>
 
+
   <!-- Chat flotante avanzado (multilenguaje) -->
+
   <style>
+
     #chat-container {
-      position: fixed; bottom: 20px; right: 20px;
-      width: 320px; z-index: 1000;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      z-index: 1000;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       pointer-events: none;
     }
+
+
     #chat-button {
       pointer-events: auto;
-      background-color: #007bff; color: white;
-      border: none; border-radius: 50%;
-      width: 60px; height: 60px;
-      cursor: pointer; font-size: 28px;
-      display: flex; align-items: center; justify-content: center;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-shadow: 0 6px 12px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     }
-    #chat-button:hover { transform: scale(1.1); }
+
+
+    #chat-button:hover {
+      transform: scale(1.1);
+    }
+
+
     #chat-window {
-      display: none; pointer-events: auto;
+      display: none;
+      pointer-events: auto;
       flex-direction: column;
-      background: #f7f7f7; border-radius: 15px;
+      background: #f7f7f7;
+      border-radius: 15px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      height: 450px; overflow: hidden;
-      margin-bottom: 10px; animation: slideUp 0.3s;
+      height: 450px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      animation: slideUp 0.3s;
     }
+
+
     @keyframes slideUp {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
+
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
     }
+
+
     #chat-messages {
-      flex: 1; padding: 15px; overflow-y: auto;
-      display: flex; flex-direction: column; gap: 10px;
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
-    .message { display: flex; align-items: flex-start; gap: 10px; }
-    .message.user { justify-content: flex-end; }
+
+
+    .message {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+
     .message .avatar {
-      width: 32px; height: 32px; border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       background-size: cover;
     }
+
+
     .message .text {
-      max-width: 70%; padding: 10px 12px;
-      border-radius: 12px; font-size: 14px; line-height: 1.4;
+      max-width: 70%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.4;
     }
+
+
     .message.user .text {
-      background-color: #007bff; color: white;
+      background-color: #007bff;
+      color: white;
       border-bottom-right-radius: 0;
     }
+
+
     .message.bot .text {
-      background-color: #e0e0e0; color: #333;
+      background-color: #e0e0e0;
+      color: #333;
       border-bottom-left-radius: 0;
     }
+
+
     #chat-input-container {
-      display: flex; border-top: 1px solid #ccc;
-      padding: 10px; background: #fff;
+      display: flex;
+      border-top: 1px solid #ccc;
+      padding: 10px;
+      background: #fff;
     }
+
+
     #chat-input {
-      flex: 1; border: 1px solid #ccc;
-      border-radius: 20px; padding: 8px 15px;
-      font-size: 14px; outline: none; transition: all 0.2s;
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 8px 15px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
     }
+
+
     #chat-input:focus {
       border-color: #007bff;
       box-shadow: 0 0 5px rgba(0,123,255,0.5);
     }
+
+
     #chat-send {
-      background-color: #007bff; color: white;
-      border: none; border-radius: 50%;
-      width: 40px; height: 40px;
-      margin-left: 10px; cursor: pointer; font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-left: 10px;
+      cursor: pointer;
+      font-size: 16px;
       transition: transform 0.2s;
     }
-    #chat-send:hover { transform: scale(1.1); }
+
+
+    #chat-send:hover {
+      transform: scale(1.1);
+    }
+
   </style>
 
+
   <div id="chat-container">
+
     <div id="chat-window">
+
       <div id="chat-messages"></div>
+
       <div id="chat-input-container">
-        <input type="text" id="chat-input" placeholder="Type your message...">
+
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Type your message..."
+        >
+
         <button id="chat-send">➤</button>
+
       </div>
+
     </div>
+
     <button id="chat-button">💬</button>
+
   </div>
 
+
   <script>
-    const chatButton = document.getElementById('chat-button');
-    const chatWindow = document.getElementById('chat-window');
-    const chatSend = document.getElementById('chat-send');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
+
+    const chatButton =
+      document.getElementById('chat-button');
+
+    const chatWindow =
+      document.getElementById('chat-window');
+
+    const chatSend =
+      document.getElementById('chat-send');
+
+    const chatInput =
+      document.getElementById('chat-input');
+
+    const chatMessages =
+      document.getElementById('chat-messages');
+
 
     let selectedLang = null;
 
+
     const chatData = {
+
       en: {
-        intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
-        fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
+
+        intro:
+          "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
+
+        fallback: [
+          "Sorry, I didn't understand that.",
+          "I'm not sure about that.",
+          "Try asking something else!"
+        ],
+
         intents: {
-          greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
-          name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
-          skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
-          projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
-          contact: ["You can reach Mikel via <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> or <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+
+          greeting: [
+            "Hello! How can I help you today?",
+            "Hi there! What would you like to know?"
+          ],
+
+          name: [
+            "I'm Mikel Baliño Zuazo's virtual assistant.",
+            "You can call me Mikel's assistant."
+          ],
+
+          skills: [
+            "Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."
+          ],
+
+          projects: [
+            "Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."
+          ],
+
+          contact: [
+            "You can reach Mikel via <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> or <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."
+          ]
+
         }
+
       },
+
+
       es: {
-        intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame lo que quieras sobre su trabajo, habilidades o proyectos.",
-        fallback: ["Lo siento, no entendí eso.", "No estoy seguro de eso.", "¡Intenta con otra pregunta!"],
+
+        intro:
+          "¡Hola! Soy el asistente virtual de Mikel. Pregúntame lo que quieras sobre su trabajo, habilidades o proyectos.",
+
+        fallback: [
+          "Lo siento, no entendí eso.",
+          "No estoy seguro de eso.",
+          "¡Intenta con otra pregunta!"
+        ],
+
         intents: {
-          greeting: ["¡Hola! ¿En qué puedo ayudarte hoy?", "¡Buenas! ¿Qué te gustaría saber?"],
-          name: ["Soy el asistente virtual de Mikel Baliño Zuazo.", "Puedes llamarme el asistente de Mikel."],
-          skills: ["Mikel trabaja sobre todo con Rhino, Grasshopper, AutoCAD y herramientas BIM."],
-          projects: ["Explora los proyectos de Mikel en las secciones de CAD, 3D, Renders y Animaciones."],
-          contact: ["Puedes contactar con Mikel en <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> o en su <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+
+          greeting: [
+            "¡Hola! ¿En qué puedo ayudarte hoy?",
+            "¡Buenas! ¿Qué te gustaría saber?"
+          ],
+
+          name: [
+            "Soy el asistente virtual de Mikel Baliño Zuazo.",
+            "Puedes llamarme el asistente de Mikel."
+          ],
+
+          skills: [
+            "Mikel trabaja sobre todo con Rhino, Grasshopper, AutoCAD y herramientas BIM."
+          ],
+
+          projects: [
+            "Explora los proyectos de Mikel en las secciones de CAD, 3D, Renders y Animaciones."
+          ],
+
+          contact: [
+            "Puedes contactar con Mikel en <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> o en su <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."
+          ]
+
         }
+
       },
+
+
       eu: {
-        intro: "Kaixo! Mikel-en laguntzailea naiz. Galdetu bere lanari, trebetasunei edo proiektuei buruz.",
-        fallback: ["Barkatu, ez dut ulertu.", "Ez nago ziur horretaz.", "Saiatu beste zerbait galdetzen!"],
+
+        intro:
+          "Kaixo! Mikel-en laguntzailea naiz. Galdetu bere lanari, trebetasunei edo proiektuei buruz.",
+
+        fallback: [
+          "Barkatu, ez dut ulertu.",
+          "Ez nago ziur horretaz.",
+          "Saiatu beste zerbait galdetzen!"
+        ],
+
         intents: {
-          greeting: ["Kaixo! Nola lagun diezazuket gaur?", "Epa! Zer jakin nahi duzu?"],
-          name: ["Mikel Baliño Zuazo-ren laguntzailea naiz.", "Mikel-en laguntzaile birtuala deitu nazakezu."],
-          skills: ["Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnekin egiten du lan."],
-          projects: ["Mikelen proiektuak CAD, 3D, Render eta Animazioen atalean ikus ditzakezu."],
-          contact: ["Mikelen emaila da <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> eta <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>-en aurkituko duzu."]
+
+          greeting: [
+            "Kaixo! Nola lagun diezazuket gaur?",
+            "Epa! Zer jakin nahi duzu?"
+          ],
+
+          name: [
+            "Mikel Baliño Zuazo-ren laguntzailea naiz.",
+            "Mikel-en laguntzaile birtuala deitu nazakezu."
+          ],
+
+          skills: [
+            "Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnekin egiten du lan."
+          ],
+
+          projects: [
+            "Mikelen proiektuak CAD, 3D, Render eta Animazioen atalean ikus ditzakezu."
+          ],
+
+          contact: [
+            "Mikelen emaila da <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> eta <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>-en aurkituko duzu."
+          ]
+
         }
+
       }
+
     };
 
+
     function detectIntent(message) {
+
       if (!selectedLang) return null;
+
       message = message.toLowerCase();
 
+
       if (selectedLang === "en") {
-        if (/(hello|hi|hey)/i.test(message)) return 'greeting';
-        if (/(your name|who are you|name)/i.test(message)) return 'name';
-        if (/(skills|tools|software|programs)/i.test(message)) return 'skills';
-        if (/(projects|work|portfolio)/i.test(message)) return 'projects';
-        if (/(contact|email|linkedin)/i.test(message)) return 'contact';
+
+        if (/(hello|hi|hey)/i.test(message))
+          return 'greeting';
+
+        if (/(your name|who are you|name)/i.test(message))
+          return 'name';
+
+        if (/(skills|tools|software|programs)/i.test(message))
+          return 'skills';
+
+        if (/(projects|work|portfolio)/i.test(message))
+          return 'projects';
+
+        if (/(contact|email|linkedin)/i.test(message))
+          return 'contact';
+
       }
+
 
       if (selectedLang === "es") {
-        if (/(hola|buenas)/i.test(message)) return 'greeting';
-        if (/(tu nombre|cómo te llamas|quién eres)/i.test(message)) return 'name';
-        if (/(habilidades|herramientas|programas|software)/i.test(message)) return 'skills';
-        if (/(proyectos|trabajo|portfolio)/i.test(message)) return 'projects';
-        if (/(contacto|email|correo|linkedin)/i.test(message)) return 'contact';
+
+        if (/(hola|buenas)/i.test(message))
+          return 'greeting';
+
+        if (/(tu nombre|cómo te llamas|quién eres)/i.test(message))
+          return 'name';
+
+        if (/(habilidades|herramientas|programas|software)/i.test(message))
+          return 'skills';
+
+        if (/(proyectos|trabajo|portfolio)/i.test(message))
+          return 'projects';
+
+        if (/(contacto|email|correo|linkedin)/i.test(message))
+          return 'contact';
+
       }
+
 
       if (selectedLang === "eu") {
-        if (/(kaixo|epa|hola)/i.test(message)) return 'greeting';
-        if (/(zure izena|nor zara)/i.test(message)) return 'name';
-        if (/(trebetasun|tresnak|software)/i.test(message)) return 'skills';
-        if (/(proiektuak|lana|portfolio)/i.test(message)) return 'projects';
-        if (/(kontaktua|email|posta|linkedin)/i.test(message)) return 'contact';
+
+        if (/(kaixo|epa|hola)/i.test(message))
+          return 'greeting';
+
+        if (/(zure izena|nor zara)/i.test(message))
+          return 'name';
+
+        if (/(trebetasun|tresnak|software)/i.test(message))
+          return 'skills';
+
+        if (/(proiektuak|lana|portfolio)/i.test(message))
+          return 'projects';
+
+        if (/(kontaktua|email|posta|linkedin)/i.test(message))
+          return 'contact';
+
       }
+
 
       return null;
+
     }
+
 
     function getResponse(message) {
-      if (!selectedLang) return "Please select a language first.";
+
+      if (!selectedLang)
+        return "Please select a language first.";
+
       const intent = detectIntent(message);
+
       const data = chatData[selectedLang];
+
+
       if (intent) {
-        return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
+
+        return data.intents[intent][
+          Math.floor(
+            Math.random() *
+            data.intents[intent].length
+          )
+        ];
+
       }
-      return data.fallback[Math.floor(Math.random() * data.fallback.length)];
+
+
+      return data.fallback[
+        Math.floor(
+          Math.random() *
+          data.fallback.length
+        )
+      ];
+
     }
 
-    function addMessage(text, sender, allowHTML = false) {
-      const msg = document.createElement('div');
-      msg.classList.add('message', sender);
-      const avatar = document.createElement('div');
+
+    function addMessage(
+      text,
+      sender,
+      allowHTML = false
+    ) {
+
+      const msg =
+        document.createElement('div');
+
+      msg.classList.add(
+        'message',
+        sender
+      );
+
+
+      const avatar =
+        document.createElement('div');
+
       avatar.classList.add('avatar');
+
+
       avatar.style.backgroundImage =
         sender === 'user'
           ? "url('https://i.imgur.com/8Km9tLL.png')"
           : "url('https://i.imgur.com/7k12EPD.png')";
-      const messageText = document.createElement('div');
+
+
+      const messageText =
+        document.createElement('div');
+
       messageText.classList.add('text');
+
+
       if (allowHTML) {
+
         messageText.innerHTML = text;
+
       } else {
+
         messageText.textContent = text;
+
       }
+
+
       msg.appendChild(avatar);
+
       msg.appendChild(messageText);
+
       chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      chatMessages.scrollTop =
+        chatMessages.scrollHeight;
+
     }
+
 
     function sendMessage() {
-      const msg = chatInput.value.trim();
+
+      const msg =
+        chatInput.value.trim();
+
       if (!msg) return;
-      addMessage(msg, 'user');
-      const botReply = getResponse(msg);
-      setTimeout(() => addMessage(botReply, 'bot', true), 400);
+
+
+      addMessage(
+        msg,
+        'user'
+      );
+
+
+      const botReply =
+        getResponse(msg);
+
+
+      setTimeout(
+        () =>
+          addMessage(
+            botReply,
+            'bot',
+            true
+          ),
+        400
+      );
+
+
       chatInput.value = '';
+
     }
 
-    chatButton.addEventListener('click', () => {
-      chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
-    });
-    chatSend.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') sendMessage();
-    });
+
+    chatButton.addEventListener(
+      'click',
+      () => {
+
+        chatWindow.style.display =
+          chatWindow.style.display === 'flex'
+            ? 'none'
+            : 'flex';
+
+      }
+    );
+
+
+    chatSend.addEventListener(
+      'click',
+      sendMessage
+    );
+
+
+    chatInput.addEventListener(
+      'keypress',
+      e => {
+
+        if (e.key === 'Enter')
+          sendMessage();
+
+      }
+    );
+
 
     // Primer mensaje: elegir idioma
-    window.addEventListener('DOMContentLoaded', () => {
-      addMessage("Choose a language / Elige un idioma / Hautatu hizkuntza:<br><button onclick=\"selectLang('en')\">English</button> <button onclick=\"selectLang('es')\">Español</button> <button onclick=\"selectLang('eu')\">Euskara</button>", 'bot', true);
-    });
+
+    window.addEventListener(
+      'DOMContentLoaded',
+      () => {
+
+        addMessage(
+          "Choose a language / Elige un idioma / Hautatu hizkuntza:<br><button onclick=\"selectLang('en')\">English</button> <button onclick=\"selectLang('es')\">Español</button> <button onclick=\"selectLang('eu')\">Euskara</button>",
+          'bot',
+          true
+        );
+
+      }
+    );
+
 
     function selectLang(lang) {
+
       selectedLang = lang;
-      addMessage(chatData[lang].intro, 'bot');
+
+      addMessage(
+        chatData[lang].intro,
+        'bot'
+      );
+
     }
+
   </script>
+
 </body>
 </html>
+```
+
