@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +91,18 @@
   <section id="renders">
     <h2 data-i18n="renders_title">Renders</h2>
     <p data-i18n="renders_text"></p>
+
     <img src="Render.jpg" alt="Example Render" class="animation-gif" />
+
+    <!-- Nueva imagen: armado de pilar -->
+    <figure>
+      <img src="ARMADO_PILAR.jpg"
+           alt="Detalle de armado de pilar"
+           class="animation-gif" />
+      <figcaption data-i18n="pillar_reinforcement_caption">
+        Detalle de armado de pilar
+      </figcaption>
+    </figure>
   </section>
 
   <section id="animations">
@@ -130,6 +142,7 @@
         models_text: "Interactive 3D model. You can rotate, zoom, and explore the model below.",
         renders_title: "Renders",
         renders_text: "Photorealistic renderings that showcase lighting, materials, and composition. This render is used to illustrate one of the construction phases of an industrial building and its relationship with the surrounding environment.",
+        pillar_reinforcement_caption: "Column reinforcement detail.",
         animations_title: "Animations",
         animations_text: "Animated representations of real scenarios using collected data.",
         example_animation: "Example Animation",
@@ -139,6 +152,7 @@
         gh_title: "Parametric Models with Grasshopper",
         gh_text: "Using Grasshopper we can create parametric models that allow us to control the variables of our design, giving us the option to generate different versions in a matter of seconds, saving many hours of work."
       },
+
       es: {
         subtitle: "Delineante · Diseñador 3D · Especialista BIM",
         about_title: "Sobre mí",
@@ -156,6 +170,7 @@
         models_text: "Modelo 3D interactivo. Puedes rotar, hacer zoom y explorar el modelo.",
         renders_title: "Renderizados",
         renders_text: "Renderizados fotorrealistas que muestran iluminación, materiales y composición. Este render es utilizado para mostrar una de las fases constructivas de un edificio industrial y la relacion que tiene dicho edificio con el entorno que le rodea.",
+        pillar_reinforcement_caption: "Detalle de armado de pilar",
         animations_title: "Animaciones",
         animations_text: "Representaciones animadas de escenarios reales utilizando datos recogidos.",
         example_animation: "Ejemplo de animación",
@@ -165,6 +180,7 @@
         gh_title: "Modelos paramétricos con Grasshopper",
         gh_text: "Utilizando Grasshopper podemos realizar modelos paramétricos con los que controlar las variables de nuestro modelo, dándonos la opción de generar versiones diferentes en cuestión de segundos, ahorrando de esta manera muchas horas de trabajo."
       },
+
       eu: {
         subtitle: "Marrazkilari · 3D Diseinatzailea · BIM Espezialista",
         about_title: "Niri buruz",
@@ -182,6 +198,7 @@
         models_text: "3D eredua interaktiboa. Biratu, zoom egin eta esploratu dezakezu behean.",
         renders_title: "Renderizazioak",
         renders_text: "Argiak, materialak eta konposizioa erakusten dituzten errendaketa fotorealista. Errendaketa hau eraikin industrial baten eraikuntza-faseetako bat eta ingurunearekiko duen harremana erakusteko erabiltzen da.",
+        pillar_reinforcement_caption: "Zutoinaren armaduraren xehetasuna.",
         animations_title: "Animazioak",
         animations_text: "Datu errealekin egindako eszenatokien animazioak.",
         example_animation: "Animazioaren adibidea",
@@ -202,362 +219,340 @@
         }
       });
     }
+
     window.addEventListener('DOMContentLoaded', changeLanguage);
 
     /* ---------- Babylon setup (safe + auto-frame) ---------- */
-(function initBabylon() {
-  const canvas = document.getElementById("renderCanvas");
-  if (!canvas) {
-    console.warn('No renderCanvas found.');
-    return; // nothing to do if canvas missing
-  }
+    (function initBabylon() {
+      const canvas = document.getElementById("renderCanvas");
+      if (!canvas) {
+        console.warn('No renderCanvas found.');
+        return;
+      }
 
-  const engine = new BABYLON.Engine(canvas, true);
-  const scene = new BABYLON.Scene(engine);
-  scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9); // black
-  
+      const engine = new BABYLON.Engine(canvas, true);
+      const scene = new BABYLON.Scene(engine);
+      scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9);
 
-  // Camera (start at a reasonable position, will be re-framed after load)
-  const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
-  camera.wheelPrecision = 1;
-  camera.attachControl(canvas, true);
+      const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), scene);
+      camera.wheelPrecision = 1;
+      camera.attachControl(canvas, true);
 
-  // Lights
-  const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
-  hemi.intensity = 0.9;
-  const dir = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-0.5, -1, 0.5), scene);
-  dir.position = new BABYLON.Vector3(20, 40, 20);
-  dir.intensity = 0.6;
+      const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+      hemi.intensity = 0.9;
+      const dir = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-0.5, -1, 0.5), scene);
+      dir.position = new BABYLON.Vector3(20, 40, 20);
+      dir.intensity = 0.6;
 
-  // Stored "initial" framing values (we will set them after model loads)
-  let initialAlpha = camera.alpha;
-  let initialBeta = camera.beta;
-  let initialRadius = camera.radius;
-  let initialTarget = camera.target.clone();
+      let initialAlpha = camera.alpha;
+      let initialBeta = camera.beta;
+      let initialRadius = camera.radius;
+      let initialTarget = camera.target.clone();
 
-  // Expose resetCamera that restores to the framed view (updated on load)
-  window.resetCamera = function() {
-    try {
-      camera.setTarget(initialTarget);
-      camera.alpha = initialAlpha;
-      camera.beta = initialBeta;
-      camera.radius = initialRadius;
-    } catch (e) { console.warn('resetCamera failed', e); }
-  };
-
-  // prevent page scroll only when wheel over canvas
-  canvas.addEventListener("wheel", function (event) {
-    event.preventDefault();
-  }, { passive: false });
-
-  // Helper: frame the scene meshes and set camera appropriately
-  function frameSceneAndStoreValues(sceneRef) {
-    // collect visible geometry meshes (exclude lights/cameras/helpers)
-    const meshes = sceneRef.meshes.filter(m => m.isVisible && m.getTotalVertices && m.getTotalVertices() > 0);
-    if (!meshes || meshes.length === 0) {
-      console.warn('No geometry meshes found to frame.');
-      return;
-    }
-
-    // Compute global bounding box
-    let min = new BABYLON.Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-    let max = new BABYLON.Vector3(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-    meshes.forEach(mesh => {
-      const bb = mesh.getBoundingInfo().boundingBox;
-      min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
-      max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
-    });
-
-    const center = min.add(max).scale(0.5);
-    const sizeVec = max.subtract(min);
-    const maxDimension = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
-    const diag = sizeVec.length();
-    // Choose radius so object fits well in view
-    const radius = Math.max(diag * 0.8, maxDimension * 1.2, 1);
-
-    // Update camera target and radius smoothly
-    camera.setTarget(center);
-    camera.radius = radius * 1.6;
-    // reasonable limits
-    camera.lowerRadiusLimit = Math.max(radius * 0.2, 0.1);
-    camera.upperRadiusLimit = radius * 20;
-
-    // store framed initial values for resetCamera
-    initialAlpha = camera.alpha;
-    initialBeta = camera.beta;
-    initialRadius = camera.radius;
-    initialTarget = center.clone();
-
-    console.log('Framed scene: center=', center, 'radius=', radius, 'meshes=', meshes.length);
-  }
-
- // Load model (do NOT call createDefaultCameraOrLight)
-BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
-  // 1) set a background color you like (adjust values 0..1)
-  scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9); // suave azul claro — cámbialo si quieres
-
-  // 2) Ensure rendering runs during load too
-  engine.runRenderLoop(() => scene.render());
-
-  // small timeout to let glTF world matrices update, then frame + recolor materials
-  setTimeout(() => {
-    try {
-      // Apply a plain white StandardMaterial to each visible mesh
-      sceneResult.meshes.forEach(mesh => {
-        // skip lights/cameras by checking getTotalVertices (non-geometry can return 0)
+      window.resetCamera = function() {
         try {
-          if (!mesh.getTotalVertices || mesh.getTotalVertices() === 0) return;
-        } catch(e) { /* ignore */ }
-
-        // create white material (unique per mesh to avoid shared state issues)
-        const whiteMat = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, scene);
-        whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
-        // reduce specular to avoid too-shiny look
-        whiteMat.specularColor = new BABYLON.Color3(0.15, 0.15, 0.15);
-        // assign
-        try {
-          mesh.material = whiteMat;
+          camera.setTarget(initialTarget);
+          camera.alpha = initialAlpha;
+          camera.beta = initialBeta;
+          camera.radius = initialRadius;
         } catch (e) {
-          console.warn('Could not assign material to mesh', mesh.id, e);
+          console.warn('resetCamera failed', e);
         }
+      };
+
+      canvas.addEventListener("wheel", function (event) {
+        event.preventDefault();
+      }, { passive: false });
+
+      function frameSceneAndStoreValues(sceneRef) {
+        const meshes = sceneRef.meshes.filter(m => m.isVisible && m.getTotalVertices && m.getTotalVertices() > 0);
+        if (!meshes || meshes.length === 0) {
+          console.warn('No geometry meshes found to frame.');
+          return;
+        }
+
+        let min = new BABYLON.Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+        let max = new BABYLON.Vector3(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+
+        meshes.forEach(mesh => {
+          const bb = mesh.getBoundingInfo().boundingBox;
+          min = BABYLON.Vector3.Minimize(min, bb.minimumWorld);
+          max = BABYLON.Vector3.Maximize(max, bb.maximumWorld);
+        });
+
+        const center = min.add(max).scale(0.5);
+        const sizeVec = max.subtract(min);
+        const maxDimension = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
+        const diag = sizeVec.length();
+        const radius = Math.max(diag * 0.8, maxDimension * 1.2, 1);
+
+        camera.setTarget(center);
+        camera.radius = radius * 1.6;
+        camera.lowerRadiusLimit = Math.max(radius * 0.2, 0.1);
+        camera.upperRadiusLimit = radius * 20;
+
+        initialAlpha = camera.alpha;
+        initialBeta = camera.beta;
+        initialRadius = camera.radius;
+        initialTarget = center.clone();
+
+        console.log('Framed scene: center=', center, 'radius=', radius, 'meshes=', meshes.length);
+      }
+
+      BABYLON.SceneLoader.Append("./", "modelo.glb", scene, function (sceneResult) {
+        scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9);
+        engine.runRenderLoop(() => scene.render());
+
+        setTimeout(() => {
+          try {
+            sceneResult.meshes.forEach(mesh => {
+              try {
+                if (!mesh.getTotalVertices || mesh.getTotalVertices() === 0) return;
+              } catch(e) {}
+
+              const whiteMat = new BABYLON.StandardMaterial("whiteMat_" + mesh.id, scene);
+              whiteMat.diffuseColor = new BABYLON.Color3(1, 1, 1);
+              whiteMat.specularColor = new BABYLON.Color3(0.15, 0.15, 0.15);
+
+              try {
+                mesh.material = whiteMat;
+              } catch (e) {
+                console.warn('Could not assign material to mesh', mesh.id, e);
+              }
+            });
+
+            frameSceneAndStoreValues(sceneResult);
+          } catch (e) {
+            console.warn('Error framing / recoloring model:', e);
+          }
+        }, 60);
+      }, null, function (sceneRef, message, exception) {
+        console.warn('Model load warning/error:', message, exception);
       });
-
-      // Now frame the scene (centra el modelo y ajusta radius)
-      frameSceneAndStoreValues(sceneResult);
-    } catch (e) {
-      console.warn('Error framing / recoloring model:', e);
-    }
-  }, 60);
-}, null, function (sceneRef, message, exception) {
-  console.warn('Model load warning/error:', message, exception);
-});
-
-})();  /* <-- aquí cerramos correctamente el IIFE y el <script> continúa hasta su cierre abajo */
-
+    })();
   </script>
 
-<!-- Chat flotante avanzado (multilenguaje) -->
-<style>
-  #chat-container {
-    position: fixed; bottom: 20px; right: 20px;
-    width: 320px; z-index: 1000;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    pointer-events: none;
-  }
-  #chat-button {
-    pointer-events: auto;
-    background-color: #007bff; color: white;
-    border: none; border-radius: 50%;
-    width: 60px; height: 60px;
-    cursor: pointer; font-size: 28px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-    transition: transform 0.2s;
-  }
-  #chat-button:hover { transform: scale(1.1); }
-  #chat-window {
-    display: none; pointer-events: auto;
-    flex-direction: column;
-    background: #f7f7f7; border-radius: 15px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    height: 450px; overflow: hidden;
-    margin-bottom: 10px; animation: slideUp 0.3s;
-  }
-  @keyframes slideUp {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
-  }
-  #chat-messages {
-    flex: 1; padding: 15px; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .message { display: flex; align-items: flex-start; gap: 10px; }
-  .message.user { justify-content: flex-end; }
-  .message .avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background-size: cover;
-  }
-  .message .text {
-    max-width: 70%; padding: 10px 12px;
-    border-radius: 12px; font-size: 14px; line-height: 1.4;
-  }
-  .message.user .text {
-    background-color: #007bff; color: white;
-    border-bottom-right-radius: 0;
-  }
-  .message.bot .text {
-    background-color: #e0e0e0; color: #333;
-    border-bottom-left-radius: 0;
-  }
-  #chat-input-container {
-    display: flex; border-top: 1px solid #ccc;
-    padding: 10px; background: #fff;
-  }
-  #chat-input {
-    flex: 1; border: 1px solid #ccc;
-    border-radius: 20px; padding: 8px 15px;
-    font-size: 14px; outline: none; transition: all 0.2s;
-  }
-  #chat-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0,123,255,0.5);
-  }
-  #chat-send {
-    background-color: #007bff; color: white;
-    border: none; border-radius: 50%;
-    width: 40px; height: 40px;
-    margin-left: 10px; cursor: pointer; font-size: 16px;
-    transition: transform 0.2s;
-  }
-  #chat-send:hover { transform: scale(1.1); }
-</style>
+  <!-- Chat flotante avanzado (multilenguaje) -->
+  <style>
+    #chat-container {
+      position: fixed; bottom: 20px; right: 20px;
+      width: 320px; z-index: 1000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      pointer-events: none;
+    }
+    #chat-button {
+      pointer-events: auto;
+      background-color: #007bff; color: white;
+      border: none; border-radius: 50%;
+      width: 60px; height: 60px;
+      cursor: pointer; font-size: 28px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    #chat-button:hover { transform: scale(1.1); }
+    #chat-window {
+      display: none; pointer-events: auto;
+      flex-direction: column;
+      background: #f7f7f7; border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      height: 450px; overflow: hidden;
+      margin-bottom: 10px; animation: slideUp 0.3s;
+    }
+    @keyframes slideUp {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    #chat-messages {
+      flex: 1; padding: 15px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .message { display: flex; align-items: flex-start; gap: 10px; }
+    .message.user { justify-content: flex-end; }
+    .message .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background-size: cover;
+    }
+    .message .text {
+      max-width: 70%; padding: 10px 12px;
+      border-radius: 12px; font-size: 14px; line-height: 1.4;
+    }
+    .message.user .text {
+      background-color: #007bff; color: white;
+      border-bottom-right-radius: 0;
+    }
+    .message.bot .text {
+      background-color: #e0e0e0; color: #333;
+      border-bottom-left-radius: 0;
+    }
+    #chat-input-container {
+      display: flex; border-top: 1px solid #ccc;
+      padding: 10px; background: #fff;
+    }
+    #chat-input {
+      flex: 1; border: 1px solid #ccc;
+      border-radius: 20px; padding: 8px 15px;
+      font-size: 14px; outline: none; transition: all 0.2s;
+    }
+    #chat-input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+    #chat-send {
+      background-color: #007bff; color: white;
+      border: none; border-radius: 50%;
+      width: 40px; height: 40px;
+      margin-left: 10px; cursor: pointer; font-size: 16px;
+      transition: transform 0.2s;
+    }
+    #chat-send:hover { transform: scale(1.1); }
+  </style>
 
-<div id="chat-container">
-  <div id="chat-window">
-    <div id="chat-messages"></div>
-    <div id="chat-input-container">
-      <input type="text" id="chat-input" placeholder="Type your message...">
-      <button id="chat-send">➤</button>
+  <div id="chat-container">
+    <div id="chat-window">
+      <div id="chat-messages"></div>
+      <div id="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Type your message...">
+        <button id="chat-send">➤</button>
+      </div>
     </div>
+    <button id="chat-button">💬</button>
   </div>
-  <button id="chat-button">💬</button>
-</div>
 
-<script>
-  const chatButton = document.getElementById('chat-button');
-  const chatWindow = document.getElementById('chat-window');
-  const chatSend = document.getElementById('chat-send');
-  const chatInput = document.getElementById('chat-input');
-  const chatMessages = document.getElementById('chat-messages');
+  <script>
+    const chatButton = document.getElementById('chat-button');
+    const chatWindow = document.getElementById('chat-window');
+    const chatSend = document.getElementById('chat-send');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
 
-  let selectedLang = null;
+    let selectedLang = null;
 
-  const chatData = {
-    en: {
-      intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
-      fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
-      intents: {
-        greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
-        name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
-        skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
-        projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
-        contact: ["You can reach Mikel via <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> or <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+    const chatData = {
+      en: {
+        intro: "Hi! I'm Mikel's virtual assistant. Ask me anything about his work, skills, or projects.",
+        fallback: ["Sorry, I didn't understand that.", "I'm not sure about that.", "Try asking something else!"],
+        intents: {
+          greeting: ["Hello! How can I help you today?", "Hi there! What would you like to know?"],
+          name: ["I'm Mikel Baliño Zuazo's virtual assistant.", "You can call me Mikel's assistant."],
+          skills: ["Mikel mainly uses Rhino, Grasshopper, AutoCAD, and BIM tools."],
+          projects: ["Explore Mikel's projects in CAD, 3D, Renders, and Animations sections."],
+          contact: ["You can reach Mikel via <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> or <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+        }
+      },
+      es: {
+        intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame lo que quieras sobre su trabajo, habilidades o proyectos.",
+        fallback: ["Lo siento, no entendí eso.", "No estoy seguro de eso.", "¡Intenta con otra pregunta!"],
+        intents: {
+          greeting: ["¡Hola! ¿En qué puedo ayudarte hoy?", "¡Buenas! ¿Qué te gustaría saber?"],
+          name: ["Soy el asistente virtual de Mikel Baliño Zuazo.", "Puedes llamarme el asistente de Mikel."],
+          skills: ["Mikel trabaja sobre todo con Rhino, Grasshopper, AutoCAD y herramientas BIM."],
+          projects: ["Explora los proyectos de Mikel en las secciones de CAD, 3D, Renders y Animaciones."],
+          contact: ["Puedes contactar con Mikel en <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> o en su <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+        }
+      },
+      eu: {
+        intro: "Kaixo! Mikel-en laguntzailea naiz. Galdetu bere lanari, trebetasunei edo proiektuei buruz.",
+        fallback: ["Barkatu, ez dut ulertu.", "Ez nago ziur horretaz.", "Saiatu beste zerbait galdetzen!"],
+        intents: {
+          greeting: ["Kaixo! Nola lagun diezazuket gaur?", "Epa! Zer jakin nahi duzu?"],
+          name: ["Mikel Baliño Zuazo-ren laguntzailea naiz.", "Mikel-en laguntzaile birtuala deitu nazakezu."],
+          skills: ["Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnekin egiten du lan."],
+          projects: ["Mikelen proiektuak CAD, 3D, Render eta Animazioen atalean ikus ditzakezu."],
+          contact: ["Mikelen emaila da <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> eta <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>-en aurkituko duzu."]
+        }
       }
-    },
-    es: {
-      intro: "¡Hola! Soy el asistente virtual de Mikel. Pregúntame lo que quieras sobre su trabajo, habilidades o proyectos.",
-      fallback: ["Lo siento, no entendí eso.", "No estoy seguro de eso.", "¡Intenta con otra pregunta!"],
-      intents: {
-        greeting: ["¡Hola! ¿En qué puedo ayudarte hoy?", "¡Buenas! ¿Qué te gustaría saber?"],
-        name: ["Soy el asistente virtual de Mikel Baliño Zuazo.", "Puedes llamarme el asistente de Mikel."],
-        skills: ["Mikel trabaja sobre todo con Rhino, Grasshopper, AutoCAD y herramientas BIM."],
-        projects: ["Explora los proyectos de Mikel en las secciones de CAD, 3D, Renders y Animaciones."],
-        contact: ["Puedes contactar con Mikel en <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> o en su <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>."]
+    };
+
+    function detectIntent(message) {
+      if (!selectedLang) return null;
+      message = message.toLowerCase();
+
+      if (selectedLang === "en") {
+        if (/(hello|hi|hey)/i.test(message)) return 'greeting';
+        if (/(your name|who are you|name)/i.test(message)) return 'name';
+        if (/(skills|tools|software|programs)/i.test(message)) return 'skills';
+        if (/(projects|work|portfolio)/i.test(message)) return 'projects';
+        if (/(contact|email|linkedin)/i.test(message)) return 'contact';
       }
-    },
-    eu: {
-      intro: "Kaixo! Mikel-en laguntzailea naiz. Galdetu bere lanari, trebetasunei edo proiektuei buruz.",
-      fallback: ["Barkatu, ez dut ulertu.", "Ez nago ziur horretaz.", "Saiatu beste zerbait galdetzen!"],
-      intents: {
-        greeting: ["Kaixo! Nola lagun diezazuket gaur?", "Epa! Zer jakin nahi duzu?"],
-        name: ["Mikel Baliño Zuazo-ren laguntzailea naiz.", "Mikel-en laguntzaile birtuala deitu nazakezu."],
-        skills: ["Mikel batez ere Rhino, Grasshopper, AutoCAD eta BIM tresnekin egiten du lan."],
-        projects: ["Mikelen proiektuak CAD, 3D, Render eta Animazioen atalean ikus ditzakezu."],
-        contact: ["Mikelen emaila da <a href='mailto:mikelbalzu@gmail.com'>mikelbalzu@gmail.com</a> eta <a href='https://www.linkedin.com/in/mikel-bali%C3%B1o-zuazo' target='_blank'>LinkedIn</a>-en aurkituko duzu."]
+
+      if (selectedLang === "es") {
+        if (/(hola|buenas)/i.test(message)) return 'greeting';
+        if (/(tu nombre|cómo te llamas|quién eres)/i.test(message)) return 'name';
+        if (/(habilidades|herramientas|programas|software)/i.test(message)) return 'skills';
+        if (/(proyectos|trabajo|portfolio)/i.test(message)) return 'projects';
+        if (/(contacto|email|correo|linkedin)/i.test(message)) return 'contact';
       }
-    }
-  };
 
-  function detectIntent(message) {
-    if (!selectedLang) return null;
-    message = message.toLowerCase();
+      if (selectedLang === "eu") {
+        if (/(kaixo|epa|hola)/i.test(message)) return 'greeting';
+        if (/(zure izena|nor zara)/i.test(message)) return 'name';
+        if (/(trebetasun|tresnak|software)/i.test(message)) return 'skills';
+        if (/(proiektuak|lana|portfolio)/i.test(message)) return 'projects';
+        if (/(kontaktua|email|posta|linkedin)/i.test(message)) return 'contact';
+      }
 
-    if (selectedLang === "en") {
-      if (/(hello|hi|hey)/i.test(message)) return 'greeting';
-      if (/(your name|who are you|name)/i.test(message)) return 'name';
-      if (/(skills|tools|software|programs)/i.test(message)) return 'skills';
-      if (/(projects|work|portfolio)/i.test(message)) return 'projects';
-      if (/(contact|email|linkedin)/i.test(message)) return 'contact';
+      return null;
     }
 
-    if (selectedLang === "es") {
-      if (/(hola|buenas)/i.test(message)) return 'greeting';
-      if (/(tu nombre|cómo te llamas|quién eres)/i.test(message)) return 'name';
-      if (/(habilidades|herramientas|programas|software)/i.test(message)) return 'skills';
-      if (/(proyectos|trabajo|portfolio)/i.test(message)) return 'projects';
-      if (/(contacto|email|correo|linkedin)/i.test(message)) return 'contact';
+    function getResponse(message) {
+      if (!selectedLang) return "Please select a language first.";
+      const intent = detectIntent(message);
+      const data = chatData[selectedLang];
+      if (intent) {
+        return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
+      }
+      return data.fallback[Math.floor(Math.random() * data.fallback.length)];
     }
 
-    if (selectedLang === "eu") {
-      if (/(kaixo|epa|hola)/i.test(message)) return 'greeting';
-      if (/(zure izena|nor zara)/i.test(message)) return 'name';
-      if (/(trebetasun|tresnak|software)/i.test(message)) return 'skills';
-      if (/(proiektuak|lana|portfolio)/i.test(message)) return 'projects';
-      if (/(kontaktua|email|posta|linkedin)/i.test(message)) return 'contact';
+    function addMessage(text, sender, allowHTML = false) {
+      const msg = document.createElement('div');
+      msg.classList.add('message', sender);
+      const avatar = document.createElement('div');
+      avatar.classList.add('avatar');
+      avatar.style.backgroundImage =
+        sender === 'user'
+          ? "url('https://i.imgur.com/8Km9tLL.png')"
+          : "url('https://i.imgur.com/7k12EPD.png')";
+      const messageText = document.createElement('div');
+      messageText.classList.add('text');
+      if (allowHTML) {
+        messageText.innerHTML = text;
+      } else {
+        messageText.textContent = text;
+      }
+      msg.appendChild(avatar);
+      msg.appendChild(messageText);
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    return null;
-  }
-
-  function getResponse(message) {
-    if (!selectedLang) return "Please select a language first.";
-    const intent = detectIntent(message);
-    const data = chatData[selectedLang];
-    if (intent) {
-      return data.intents[intent][Math.floor(Math.random() * data.intents[intent].length)];
+    function sendMessage() {
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      addMessage(msg, 'user');
+      const botReply = getResponse(msg);
+      setTimeout(() => addMessage(botReply, 'bot', true), 400);
+      chatInput.value = '';
     }
-    return data.fallback[Math.floor(Math.random() * data.fallback.length)];
-  }
 
-  function addMessage(text, sender, allowHTML = false) {
-    const msg = document.createElement('div');
-    msg.classList.add('message', sender);
-    const avatar = document.createElement('div');
-    avatar.classList.add('avatar');
-    avatar.style.backgroundImage =
-      sender === 'user'
-        ? "url('https://i.imgur.com/8Km9tLL.png')"
-        : "url('https://i.imgur.com/7k12EPD.png')";
-    const messageText = document.createElement('div');
-    messageText.classList.add('text');
-    if (allowHTML) {
-      messageText.innerHTML = text;
-    } else {
-      messageText.textContent = text;
+    chatButton.addEventListener('click', () => {
+      chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+    });
+    chatSend.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Primer mensaje: elegir idioma
+    window.addEventListener('DOMContentLoaded', () => {
+      addMessage("Choose a language / Elige un idioma / Hautatu hizkuntza:<br><button onclick=\"selectLang('en')\">English</button> <button onclick=\"selectLang('es')\">Español</button> <button onclick=\"selectLang('eu')\">Euskara</button>", 'bot', true);
+    });
+
+    function selectLang(lang) {
+      selectedLang = lang;
+      addMessage(chatData[lang].intro, 'bot');
     }
-    msg.appendChild(avatar);
-    msg.appendChild(messageText);
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function sendMessage() {
-    const msg = chatInput.value.trim();
-    if (!msg) return;
-    addMessage(msg, 'user');
-    const botReply = getResponse(msg);
-    setTimeout(() => addMessage(botReply, 'bot', true), 400);
-    chatInput.value = '';
-  }
-
-  chatButton.addEventListener('click', () => {
-    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
-  });
-  chatSend.addEventListener('click', sendMessage);
-  chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
-
-  // Primer mensaje: elegir idioma
-  window.addEventListener('DOMContentLoaded', () => {
-    addMessage("Choose a language / Elige un idioma / Hautatu hizkuntza:<br><button onclick=\"selectLang('en')\">English</button> <button onclick=\"selectLang('es')\">Español</button> <button onclick=\"selectLang('eu')\">Euskara</button>", 'bot', true);
-  });
-
-  function selectLang(lang) {
-    selectedLang = lang;
-    addMessage(chatData[lang].intro, 'bot');
-  }
-</script>
-
-
-
+  </script>
 </body>
 </html>
